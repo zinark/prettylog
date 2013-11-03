@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -9,15 +10,21 @@ namespace Web.Controllers
 {
     public class LogDao
     {
-        private static readonly MongoClient client = new MongoClient("mongodb://localhost");
+        private static string mongoconnection = ConfigurationManager.AppSettings.Get("mongoconnection");
+        private static string mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
+        private static string mongocollection = ConfigurationManager.AppSettings.Get("mongocollection");
 
-        private static readonly MongoCollection<BsonDocument> logs =
-            client.GetServer().GetDatabase("logdb").GetCollection<BsonDocument>("logs");
+        private static readonly MongoClient client = new MongoClient(mongoconnection);
+
+        private static readonly MongoCollection<BsonDocument> logs = client.GetServer().GetDatabase(mongodatabase).GetCollection<BsonDocument>(mongocollection);
 
         private static readonly TimeSpan _dateRange = TimeSpan.FromDays(365);
 
         public static IEnumerable<LogItemDto> Logs(string query)
         {
+            logs.EnsureIndex("TimeStamp", "Type", "Message");
+            logs.EnsureIndex("TimeStamp", "Message");
+            
             var result = new List<LogItemDto>();
 
             var queryMain = new QueryDocument(BsonDocument.Parse(query));
