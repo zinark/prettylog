@@ -27,7 +27,7 @@ namespace Web.Controllers
             var result = new List<LogItemDto>();
 
             var queryMain = new QueryDocument(BsonDocument.Parse(query));
-            var queryDateFilter = Query.GTE("TimeStamp", new BsonDateTime(DateTime.Now.Date.Subtract(dateRange)));
+            var queryDateFilter = Query.GT("TimeStamp", new BsonDateTime(DateTime.Now.Date.Subtract(dateRange)));
             IMongoQuery q = Query.And(queryMain, queryDateFilter);
             
             foreach (BsonDocument i in logs

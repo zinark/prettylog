@@ -55,7 +55,8 @@
         @foreach (var item in Model.Logs)
         {
             <script>
-                logTable.push(['@item.Type', '@item.Message', '@item.TimeStamp', '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random() * 1000])
+                var d = new Date(@item.TimeStamp.Year, @item.TimeStamp.Month, @item.TimeStamp.Day, @item.TimeStamp.Hour, @item.TimeStamp.Minute, @item.TimeStamp.Second);
+                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random() * 1000])
             </script>
         }
 
