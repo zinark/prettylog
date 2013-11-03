@@ -44,7 +44,8 @@ namespace Web.Controllers
                     Message = i["Message"].AsString,
                     Type = i["Type"].AsString,
                     TimeStamp = i["TimeStamp"].AsDateTime,
-                    Object = GetObject(i)
+                    Object = GetObject(i),
+                    ThreadId = int.Parse(i["ThreadId"].AsString)
                 });
             }
 

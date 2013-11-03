@@ -13,7 +13,7 @@
     <script type="text/javascript" src="~/Scripts/jsonTable.js"></script>
     <script type="text/javascript">
         google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
-        var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'val']];
+        var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'ThreadId']];
     </script>
 </head>
 
@@ -56,7 +56,7 @@
         {
             <script>
                 var d = new Date(@item.TimeStamp.Year, @item.TimeStamp.Month, @item.TimeStamp.Day, @item.TimeStamp.Hour, @item.TimeStamp.Minute, @item.TimeStamp.Second);
-                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random() * 1000])
+                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', @item.ThreadId])
             </script>
         }
 

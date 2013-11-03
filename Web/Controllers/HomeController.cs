@@ -13,7 +13,8 @@ namespace Web.Controllers
             var vm = new IndexViewModel()
             {
                 Logs = _dao.Logs("{}", TimeSpan.FromDays(7)),
-                SearchQuery = "{}"
+                SearchQuery = "{}",
+                DayCount = 7
             };
 
             return View(vm);
@@ -37,7 +38,8 @@ namespace Web.Controllers
             var vm = new IndexViewModel()
             {
                 Logs = _dao.Logs("{}", TimeSpan.FromDays(7)),
-                SearchQuery = "{}"
+                SearchQuery = "{}",
+                DayCount = 7
             };
 
             return View("Index", vm);

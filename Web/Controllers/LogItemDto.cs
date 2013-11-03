@@ -9,7 +9,7 @@ namespace Web.Controllers
         public string Type { get; set; }
         public DateTime TimeStamp { get; set; }
         public string Message { get; set; }
-        public string ThreadId { get; set; }
+        public int ThreadId { get; set; }
         public string Object { get; set; }
     }
 }
