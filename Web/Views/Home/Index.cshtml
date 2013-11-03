@@ -10,10 +10,33 @@
     <title>Pretty Log</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="~/Scripts/jsonTable.js"></script>
+    <script type="text/javascript" src="~/Scripts/json-to-table.js"></script>
     <script type="text/javascript">
         google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
-        var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'ThreadId']];
+        var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'ThreadId']];
+    </script>
+    <script type="text/javascript">
+        var GenerateJsonTable = function(json) {
+            var obj = JSON.parse(json);
+            console.log(json);
+            console.log(obj);
+            //var nestedTable = [{
+            //    key1: "val1",
+            //    key2: "val2",
+            //    key3: {
+            //        tableId: "tblIdNested1",
+            //        tableClassName: "clsNested",
+            //        linkText: "Download",
+            //        data: [{
+            //            subkey1: "subval1",
+            //            subkey2: "subval2",
+            //            subkey3: "subval3"
+            //        }]
+            //    }
+            //}];
+            return ConvertJsonToTable([obj], 'dataTable', null, 'Download');
+        };
+        
     </script>
 </head>
 
@@ -56,7 +79,7 @@
         {
             <script>
                 var d = new Date(@item.TimeStamp.Year, @item.TimeStamp.Month, @item.TimeStamp.Day, @item.TimeStamp.Hour, @item.TimeStamp.Minute, @item.TimeStamp.Second);
-                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)', '<a href="#">Detail</a>|<a href="#">New tab</a>', @item.ThreadId])
+                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)' + GenerateJsonTable('@Html.Raw(item.Object)') + '<p><a href="#">Show As Table</a>|<a href="#">Show as Json</a></p>', @item.ThreadId])
             </script>
         }
 
@@ -65,25 +88,6 @@
     <div id="chart1"></div>
     <div>
         <script type="text/javascript">
-            $(document).ready(function ()
-            {
-                var obj = [
-                    { "id": 1, "name": "iOS", "share": 57.56 },
-                    { "id": 2, "name": "Android", "share": 24.66 },
-                    { "id": 3, "name": "Java ME", "share": 10.72 },
-                    { "id": 4, "name": "Symbian", "share": 2.49 },
-                    { "id": 4, "name": "Blackberry", "share": 2.26 },
-                    { "id": 4, "name": "Windows Phone", "share": 1.33 }
-                ];
-
-                var options = {
-                    source: obj,
-                    rowClass: '',
-                    callback: function () { alert("Table updated."); }
-                };
-
-                $("#dataTable").jsonTableUpdate(options);
-            });
             function drawTables()
             {
 
@@ -98,7 +102,7 @@
                 });
 
                 var dataView = new google.visualization.DataView(dataTable);
-                dataView.setColumns([0, 5]);
+                dataView.setColumns([0, 4]);
 
                 var chart = new google.visualization.PieChart(document.getElementById('chart1'));
                 chart.draw(dataView, { width: 600, height: 200 });
