@@ -5,10 +5,9 @@ namespace Web.Controllers
 {
     public class HomeController : Controller
     {
-
         public ActionResult Index()
         {
-            // GenerateSample();
+            GenerateSample();
             var vm = new IndexViewModel()
             {
                 Logs = LogDao.Logs("{}"),

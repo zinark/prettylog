@@ -6,67 +6,91 @@
 <!DOCTYPE html>
 
 <html>
-<head>
-    <title>MUIWeb</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-        google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
-    </script>
-</head>
+    <head>
+        <title>Pretty Log</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="~/Scripts/jsonTable.js"></script>
+        <script type="text/javascript">
+            google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
+            var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'val']];
+        </script>
+    </head>
+
 <body style="background-color: white; color: gray">
+    <h1>
+        Pretty Log
+    </h1>
+    <div id="dashboard">
+        <div id="chart" style='width: 100%; height: 60px;'></div>
+        <div id="control" style='width: 100%; height: 60px;'></div>
+    </div>
+
     <div>
         <form id="formSearch" action="/Home/Search">
-            <p>Mongo Query :</p>
-            <textarea style="width: 85%; border: 1px blanchedalmond; background-color: whitesmoke; height: 120px" name="searchQuery">@Model.SearchQuery</textarea>
+            Mongo Query :
+            <p>
+                <textarea style="width: 100%; border: 1px blanchedalmond; background-color: whitesmoke; height: 120px" name="searchQuery">@Model.SearchQuery</textarea>
+            </p>
             <input type="submit" value="GO" />
         </form>
     </div>
 
     <div>
+        <table id="dataTable">
+            <thead></thead><tbody></tbody>
+        </table>
+
         @foreach (var item in Model.Logs)
         {
-            <li>
-                @item.Id
-                @item.Message
-                @item.TimeStamp
-                @item.Type
-                @item.Object
-                @item.ThreadId
-            </li>
+            <script>
+                logTable.push(['@item.Type', '@item.Message', '@item.TimeStamp', '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random()*1000])
+            </script>
         }
+
     </div>
     <div id="table1"></div>
     <div id="chart1"></div>
-    
-    <div id="dashboard">
-        <div id="chart" style='width: 915px; height: 300px;'></div>
-        <div id="control" style='width: 915px; height: 50px;'></div>
-    </div>
     <div>
         <script type="text/javascript">
-            function drawVisualization()
+            $(document).ready(function() {
+                var obj = [
+                    { "id": 1, "name": "iOS", "share": 57.56 },
+                    { "id": 2, "name": "Android", "share": 24.66 },
+                    { "id": 3, "name": "Java ME", "share": 10.72 },
+                    { "id": 4, "name": "Symbian", "share": 2.49 },
+                    { "id": 4, "name": "Blackberry", "share": 2.26 },
+                    { "id": 4, "name": "Windows Phone", "share": 1.33 }
+                ];
+
+                var options = {
+                    source: obj,
+                    rowClass: '',
+                    callback: function() { alert("Table updated."); }
+                };
+
+                $("#dataTable").jsonTableUpdate(options);
+            });
+            function drawTables()
             {
                 
-                var dataTable = google.visualization.arrayToDataTable([
-                  ['Name', 'Age', 'Instrument', 'Color'],
-                  ['John', 24, 'Guitar', 'Blue'],
-                  ['Paul', 52, 'Sitar', 'Red'],
-                  ['George', 16, 'Guitar', 'Green'],
-                  ['Ringo', 72, 'Drums', 'White']
-                ]);
+                var dataTable = google.visualization.arrayToDataTable(logTable);
 
                 var table = new google.visualization.Table(document.getElementById('table1'));
-                table.draw(dataTable, null);
+                table.draw(dataTable, {
+                    page: 'enable',
+                    pageSize : 25
+                });
 
                 var dataView = new google.visualization.DataView(dataTable);
-                dataView.setColumns([0, 1]);
+                dataView.setColumns([0, 5]);
 
-                var chart = new google.visualization.ColumnChart(document.getElementById('chart1'));
+                var chart = new google.visualization.PieChart(document.getElementById('chart1'));
                 chart.draw(dataView, { width: 600, height: 200 });
             }
 
-            function drawVisualization2() {
+            function drawTimeLine()
+            {
                 var dashboard = new google.visualization.Dashboard(
                     document.getElementById('dashboard'));
 
@@ -96,7 +120,7 @@
                 });
 
                 var chart = new google.visualization.ChartWrapper({
-                    'chartType': 'CandlestickChart',
+                    'chartType': 'ColumnChart',
                     'containerId': 'chart',
                     'options': {
                         // Use the same chart area width as the control for axis alignment.
@@ -109,7 +133,8 @@
                     'view': {
                         'columns': [
                             {
-                                'calc': function(dataTable, rowIndex) {
+                                'calc': function (dataTable, rowIndex)
+                                {
                                     return dataTable.getFormattedValue(rowIndex, 0);
                                 },
                                 'type': 'string'
@@ -127,7 +152,8 @@
                 // Create random stock values, just like it works in reality.
                 var open, close = 300;
                 var low, high;
-                for (var day = 1; day < 121; ++day) {
+                for (var day = 1; day < 121; ++day)
+                {
                     var change = (Math.sin(day / 2.5 + Math.PI) + Math.sin(day / 3) - Math.cos(day * 0.7)) * 150;
                     change = change >= 0 ? change + 10 : change - 10;
                     open = close;
@@ -142,11 +168,12 @@
                 dashboard.bind(control, chart);
                 dashboard.draw(data);
             }
-            
 
-            function draw() {
-                drawVisualization();
-                drawVisualization2();
+
+            function draw()
+            {
+                drawTables();
+                drawTimeLine();
             }
             google.setOnLoadCallback(draw);
         </script>

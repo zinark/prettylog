@@ -26,7 +26,7 @@ namespace Web.Controllers
             
             foreach (BsonDocument i in logs
                 .FindAs<BsonDocument>(q)
-                .SetLimit(10)
+                .SetLimit(1000)
                 .SetSortOrder(new SortByDocument(new
                 {
                     TimeStamp = -1
@@ -85,7 +85,7 @@ namespace Web.Controllers
                     Message = message,
                     Type = type,
                     ThreadId = r.Next(1, 1000).ToString(),
-                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(r.Next(1, 3600))),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
                     Object = obj
                 });
             });
