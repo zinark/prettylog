@@ -6,21 +6,20 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>Pretty Log</title>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-        <script type="text/javascript" src="~/Scripts/jsonTable.js"></script>
-        <script type="text/javascript">
-            google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
-            var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'val']];
-        </script>
-    </head>
+<head>
+    <title>Pretty Log</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="~/Scripts/jsonTable.js"></script>
+    <script type="text/javascript">
+        google.load('visualization', '1', { packages: ['table', 'corechart', 'controls'] });
+        var logTable = [['Type', 'Message', 'TimeStamp', 'Object', 'html', 'val']];
+    </script>
+</head>
 
 <body style="background-color: white; color: gray">
-    <h1>
-        Pretty Log
-    </h1>
+    <h2>Pretty Log
+    </h2>
     <div id="dashboard">
         <div id="chart" style='width: 100%; height: 60px;'></div>
         <div id="control" style='width: 100%; height: 60px;'></div>
@@ -28,23 +27,35 @@
 
     <div>
         <form id="formSearch" action="/Home/Search">
-            Mongo Query :
+            <p>Mongo Query :</p>
             <p>
                 <textarea style="width: 100%; border: 1px blanchedalmond; background-color: whitesmoke; height: 120px" name="searchQuery">@Model.SearchQuery</textarea>
             </p>
+            <p>
+                <select name="dayCount">
+                    <option value="0" selected='@Model.DayCount.Equals(0)'>Today</option>
+                    <option value="1" selected="@Model.DayCount.Equals(1)">Last Day</option>
+                    <option value="7" selected="@Model.DayCount.Equals(7)">Last Week</option>
+                    <option value="14" selected="@Model.DayCount.Equals(14)">Last Quarter</option>
+                    <option value="30" selected="@Model.DayCount.Equals(30)">Last Month</option>
+                    <option value="360" selected="@Model.DayCount.Equals(360)">Last Year</option>
+                </select>
+            </p>
             <input type="submit" value="GO" />
+           
         </form>
     </div>
 
     <div>
         <table id="dataTable">
-            <thead></thead><tbody></tbody>
+            <thead></thead>
+            <tbody></tbody>
         </table>
 
         @foreach (var item in Model.Logs)
         {
             <script>
-                logTable.push(['@item.Type', '@item.Message', '@item.TimeStamp', '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random()*1000])
+                logTable.push(['@item.Type', '@item.Message', '@item.TimeStamp', '@Html.Raw(item.Object)', '<h1 id="h">hello</h1>', Math.random() * 1000])
             </script>
         }
 
@@ -53,7 +64,8 @@
     <div id="chart1"></div>
     <div>
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(document).ready(function ()
+            {
                 var obj = [
                     { "id": 1, "name": "iOS", "share": 57.56 },
                     { "id": 2, "name": "Android", "share": 24.66 },
@@ -66,20 +78,20 @@
                 var options = {
                     source: obj,
                     rowClass: '',
-                    callback: function() { alert("Table updated."); }
+                    callback: function () { alert("Table updated."); }
                 };
 
                 $("#dataTable").jsonTableUpdate(options);
             });
             function drawTables()
             {
-                
+
                 var dataTable = google.visualization.arrayToDataTable(logTable);
 
                 var table = new google.visualization.Table(document.getElementById('table1'));
                 table.draw(dataTable, {
                     page: 'enable',
-                    pageSize : 25
+                    pageSize: 25
                 });
 
                 var dataView = new google.visualization.DataView(dataTable);

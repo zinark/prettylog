@@ -8,32 +8,31 @@ using MongoDB.Driver.Builders;
 
 namespace Web.Controllers
 {
-    public class LogDao
+    public class LogDao : ILogDao
     {
-        private static string mongoconnection = ConfigurationManager.AppSettings.Get("mongoconnection");
-        private static string mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
-        private static string mongocollection = ConfigurationManager.AppSettings.Get("mongocollection");
+        private static readonly string Mongoconnection = ConfigurationManager.AppSettings.Get("mongoconnection");
+        private static readonly string Mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
+        private static readonly string Mongocollection = ConfigurationManager.AppSettings.Get("mongocollection");
 
-        private static readonly MongoClient client = new MongoClient(mongoconnection);
+        private static readonly MongoClient client = new MongoClient(Mongoconnection);
 
-        private static readonly MongoCollection<BsonDocument> logs = client.GetServer().GetDatabase(mongodatabase).GetCollection<BsonDocument>(mongocollection);
+        private static readonly MongoCollection<BsonDocument> logs = client.GetServer().GetDatabase(Mongodatabase).GetCollection<BsonDocument>(Mongocollection);
 
-        private static readonly TimeSpan _dateRange = TimeSpan.FromDays(365);
-
-        public static IEnumerable<LogItemDto> Logs(string query)
+        public IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange)
         {
             logs.EnsureIndex("TimeStamp", "Type", "Message");
             logs.EnsureIndex("TimeStamp", "Message");
+            logs.EnsureIndex("TimeStamp", "Object");
             
             var result = new List<LogItemDto>();
 
             var queryMain = new QueryDocument(BsonDocument.Parse(query));
-            var queryDateFilter = Query.GTE("TimeStamp", new BsonDateTime(DateTime.Now.Subtract(_dateRange)));
+            var queryDateFilter = Query.GTE("TimeStamp", new BsonDateTime(DateTime.Now.Date.Subtract(dateRange)));
             IMongoQuery q = Query.And(queryMain, queryDateFilter);
             
             foreach (BsonDocument i in logs
                 .FindAs<BsonDocument>(q)
-                .SetLimit(1000)
+                .SetLimit(250)
                 .SetSortOrder(new SortByDocument(new
                 {
                     TimeStamp = -1
@@ -58,7 +57,7 @@ namespace Web.Controllers
             return i["Object"].ToJson();
         }
 
-        public static void GenerateData()
+        public void GenerateData()
         {
             var types = new[]
             {
@@ -97,5 +96,11 @@ namespace Web.Controllers
                 });
             });
         }
+    }
+
+    public interface ILogDao
+    {
+        IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange);
+        void GenerateData();
     }
 }
