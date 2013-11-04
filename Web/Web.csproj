@@ -70,10 +70,11 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Controllers\LogDao.cs" />
-    <Compile Include="Controllers\LogItem.cs" />
+    <Compile Include="Core\Interfaces\ILogDao.cs" />
+    <Compile Include="Core\Implementations\LogDao.cs" />
+    <Compile Include="Core\Dtos\LogItem.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\LogItemDto.cs" />
+    <Compile Include="Core\Dtos\LogItemDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
