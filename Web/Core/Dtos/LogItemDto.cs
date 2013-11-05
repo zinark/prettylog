@@ -1,7 +1,7 @@
 ﻿using System;
 using MongoDB.Bson;
 
-namespace Web.Controllers
+namespace Web.Core.Dtos
 {
     public class LogItemDto
     {

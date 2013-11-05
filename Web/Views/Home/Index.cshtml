@@ -78,8 +78,8 @@
         @foreach (var item in Model.Logs)
         {
             <script>
-                var d = new Date(@item.TimeStamp.Year, @item.TimeStamp.Month, @item.TimeStamp.Day, @item.TimeStamp.Hour, @item.TimeStamp.Minute, @item.TimeStamp.Second);
-                logTable.push(['@item.Type', '@item.Message', d.toISOString(), '@Html.Raw(item.Object)' + GenerateJsonTable('@Html.Raw(item.Object)') + '<p><a href="#">Show As Table</a>|<a href="#">Show as Json</a></p>', @item.ThreadId])
+                var date = new Date(@item.TimeStamp.Year, @item.TimeStamp.Month, @item.TimeStamp.Day, @item.TimeStamp.Hour, @item.TimeStamp.Minute, @item.TimeStamp.Second);
+                logTable.push(['@item.Type', '@item.Message', date.toISOString(), '@Html.Raw(item.Object)' + GenerateJsonTable('@Html.Raw(item.Object)') + '<p><a href="#">Show As Table</a>|<a href="#">Show as Json</a></p>', @item.ThreadId])
             </script>
         }
 

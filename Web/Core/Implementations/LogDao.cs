@@ -5,8 +5,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using Web.Core.Dtos;
+using Web.Core.Interfaces;
 
-namespace Web.Controllers
+namespace Web.Core.Implementations
 {
     public class LogDao : ILogDao
     {
@@ -97,11 +99,5 @@ namespace Web.Controllers
                 });
             });
         }
-    }
-
-    public interface ILogDao
-    {
-        IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange);
-        void GenerateData();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Web.Controllers;
+using Web.Core.Dtos;
 
 namespace Web.Models
 {
