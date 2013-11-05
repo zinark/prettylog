@@ -11,5 +11,6 @@ namespace Web.Controllers
         public string Message { get; set; }
         public string ThreadId { get; set; }
         public object Object { get; set; }
+        public string Source { get; set; }
     }
 }
