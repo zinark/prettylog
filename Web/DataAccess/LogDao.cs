@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace Web.Controllers
+namespace Web.DataAccess
 {
     public class LogDao : ILogDao
     {
@@ -14,9 +14,10 @@ namespace Web.Controllers
         private static readonly string Mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
         private static readonly string Mongocollection = ConfigurationManager.AppSettings.Get("mongocollection");
 
-        private static readonly MongoClient client = new MongoClient(Mongoconnection);
-
-        private static readonly MongoCollection<BsonDocument> logs = client.GetServer().GetDatabase(Mongodatabase).GetCollection<BsonDocument>(Mongocollection);
+        static readonly MongoCollection<BsonDocument> logs = new MongoClient(Mongoconnection)
+            .GetServer()
+            .GetDatabase(Mongodatabase)
+            .GetCollection<BsonDocument>(Mongocollection);
 
         public IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange)
         {
@@ -97,11 +98,5 @@ namespace Web.Controllers
                 });
             });
         }
-    }
-
-    public interface ILogDao
-    {
-        IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange);
-        void GenerateData();
     }
 }

@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using MongoDB.Bson;
 
-namespace Web.Controllers
+namespace Web.DataAccess
 {
     public class LogItem
     {
