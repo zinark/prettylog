@@ -9,40 +9,54 @@ function drawChart()
     var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
     var chart = new google.visualization.ChartWrapper({
-        'chartType': 'AreaChart',
+        'chartType': 'ScatterChart',
         'containerId': 'divChart',
         'options': {
-            // 'width': 300,
-            // 'height': 300,
-            // 'pieSliceText': 'value',
             'legend': 'right'
         }
     });
 
-    dashboard.bind(new google.visualization.ControlWrapper({
-        'controlType': 'NumberRangeFilter',
+    var control1 = new google.visualization.ControlWrapper({
+        'controlType': 'CategoryFilter',
         'containerId': 'divControlType',
         'options': {
-            'filterColumnLabel': 'Kobi'
+            'filterColumnIndex': 1,
+            // 'filterColumnLabel': 'Kobi'
+        },
+        'ui': {
+            'chartType': 'ColumnChart'
         }
-    }), chart);
+    });
 
-    dashboard.bind(new google.visualization.ControlWrapper({
+    var control2 = new google.visualization.ControlWrapper({
         'controlType': 'ChartRangeFilter',
         'containerId': 'divControlTimestamp',
         'options': {
             'filterColumnLabel': 'Timestamp'
-        }
-    }), chart);
-    
+        },
+        ui: {
+            chartType: 'ScatterChart'
+        },
+        'state': { 'range': { 'start': new Date(2012, 1, 1), 'end': new Date(2015, 1, 1) } }
+    });
+
+    $("#btnRanges").click(function ()
+    {
+        var r = control2.getState().range;
+        var h = r.start + " - " + r.end;
+
+        $("#divRanges").html(h);
+    });
+
+    dashboard.bind(control1, chart);
+    dashboard.bind(control2, chart);
     dashboard.draw(data.columnJson);
-    
-    google.visualization.events.addListener(dashboard, 'select', function () { console.log('select!') });
 
     drawBasics();
 }
 
-function drawBasics() {
+function drawBasics()
+{
     dataColumn = new google.visualization.DataTable(data.columnJson);
     dataPie = new google.visualization.DataTable(data.pieJson);
 
@@ -54,7 +68,7 @@ function drawBasics() {
         'height': 300
     });
 
-    columnchart = new google.visualization.ColumnChart(document.getElementById('divChartColumn'));
+    columnchart = new google.visualization.BarChart(document.getElementById('divChartColumn'));
     // google.visualization.events.addListener(columnchart, 'select', selectHandler);
     columnchart.draw(dataColumn, {
         title: 'Distrubution Of Logs By Type',
@@ -67,7 +81,11 @@ function drawBasics() {
 
     tableColumn = new google.visualization.Table(document.getElementById('divTableColumn'));
     google.visualization.events.addListener(tableColumn, 'select', tableselectHandler);
-    tableColumn.draw(dataColumn, {});
+    tableColumn.draw(dataColumn, {
+        page: 'enable', pageSize: 25,
+        allowHtml: true,
+        showRowNumber: true
+    });
 }
 
 function selectHandler()
@@ -105,20 +123,33 @@ var data =
             { id: 'Pro', label: 'Pro', type: 'number' },
             { id: 'Plus', label: 'Plus', type: 'number' }
         ],
-        rows: [
-            { c: [{ v: new Date(2008, 1, 28, 0, 31, 26), f: '2/28/08 12:31 AM' }, { v: 100 }, { v: 90 }, { v: 50 }] },
-            { c: [{ v: new Date(2008, 1, 29, 0, 31, 26), f: '2/29/08 12:31 AM' }, { v: 120 }, { v: 70 }, { v: 20 }] },
-            { c: [{ v: new Date(2008, 1, 30, 0, 31, 26), f: '2/30/08 12:31 AM' }, { v: 110 }, { v: 10 }, { v: 30 }] }
-        ],
+        rows: generateColumnData(),
         p: { foo: 'hello', bar: 'world!' }
     }
 };
 
-function generateColumnData() {
+function generateColumnData()
+{
     var result = [];
-    for (var i = 0; i < 1000; i++) {
+    for (var i = 0; i < 50; i++)
+    {
         result.push(
-            { c: [{ v: new Date(2013 - i, 1, 28, 0, 31, 26) }, { v: 100 - i * 0.01 }, { v: 90 + i * 0.01 }, { v: 50 - i * 0.05 }] });
+            {
+                c: [
+                    {
+                        v: new Date(
+                            Math.floor((Math.random() * 14) + 2000),
+                            Math.floor((Math.random() * 11) + 1),
+                            Math.floor((Math.random() * 29) + 1),
+                            Math.floor((Math.random() * 23)),
+                            Math.floor((Math.random() * 58) + 1),
+                            Math.floor((Math.random() * 58) + 1))
+                    },
+                    { v: Math.floor((Math.random() * 2000) + 1000) },
+                    { v: Math.floor((Math.random() * 1000) + 500) },
+                    { v: Math.floor((Math.random() * 1200) + 20) }
+                ]
+            });
     }
 
     return result;
