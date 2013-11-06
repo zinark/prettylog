@@ -1,6 +1,10 @@
 ﻿var dataPie, dataColumn;
 var piechart, columnchart;
 
+//var dateFormatter = new google.visualization.DateFormat({ pattern: 'MM/dd' });
+//dateFormatter.format(dataTable, dateColumnIndex);
+
+
 google.load('visualization', '1', { 'packages': ['corechart', 'table', 'controls'] });
 google.setOnLoadCallback(drawChart);
 
@@ -9,47 +13,45 @@ function drawChart()
     var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
     var chart = new google.visualization.ChartWrapper({
-        'chartType': 'ScatterChart',
+        'chartType': 'ColumnChart',
         'containerId': 'divChart',
         'options': {
-            'legend': 'right'
+            'legend': 'none'
         }
     });
 
-    var control1 = new google.visualization.ControlWrapper({
-        'controlType': 'CategoryFilter',
-        'containerId': 'divControlType',
-        'options': {
-            'filterColumnIndex': 1,
-            // 'filterColumnLabel': 'Kobi'
-        },
-        'ui': {
-            'chartType': 'ColumnChart'
-        }
-    });
-
-    var control2 = new google.visualization.ControlWrapper({
+    var controlTimestamp = new google.visualization.ControlWrapper({
         'controlType': 'ChartRangeFilter',
         'containerId': 'divControlTimestamp',
         'options': {
             'filterColumnLabel': 'Timestamp'
         },
-        ui: {
-            chartType: 'ScatterChart'
+        'ui': {
+            'chartType': 'ComboChart',
+            'chartOptions': {
+                'chartArea': { 'width': '90%' },
+                'hAxis': { 'baselineColor': 'none' },
+                'seriesType': 'bars',
+                'isStacked': true
+            },
+            // Display a single series that shows the closing value of the sales.
+            // Thus, this view has two columns: the date (axis) and the stock value (line series).
+            'chartView': {
+                'columns': [1],
+            }
         },
-        'state': { 'range': { 'start': new Date(2012, 1, 1), 'end': new Date(2015, 1, 1) } }
+        'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } }
     });
 
     $("#btnRanges").click(function ()
     {
-        var r = control2.getState().range;
+        var r = controlTimestamp.getState().range;
         var h = r.start + " - " + r.end;
 
         $("#divRanges").html(h);
     });
 
-    dashboard.bind(control1, chart);
-    dashboard.bind(control2, chart);
+    dashboard.bind(controlTimestamp, chart);
     dashboard.draw(data.columnJson);
 
     drawBasics();
@@ -68,7 +70,7 @@ function drawBasics()
         'height': 300
     });
 
-    columnchart = new google.visualization.BarChart(document.getElementById('divChartColumn'));
+    columnchart = new google.visualization.ScatterChart(document.getElementById('divChartColumn'));
     // google.visualization.events.addListener(columnchart, 'select', selectHandler);
     columnchart.draw(dataColumn, {
         title: 'Distrubution Of Logs By Type',
@@ -131,19 +133,16 @@ var data =
 function generateColumnData()
 {
     var result = [];
-    for (var i = 0; i < 50; i++)
-    {
+    for (var i = 0; i < 50; i++) {
+
+        var d = moment().subtract('days', Math.floor((Math.random() * 30) + 1)).toDate();
+
         result.push(
             {
                 c: [
                     {
-                        v: new Date(
-                            Math.floor((Math.random() * 14) + 2000),
-                            Math.floor((Math.random() * 11) + 1),
-                            Math.floor((Math.random() * 29) + 1),
-                            Math.floor((Math.random() * 23)),
-                            Math.floor((Math.random() * 58) + 1),
-                            Math.floor((Math.random() * 58) + 1))
+                        v: d,
+                        f : moment(d).format('DD/MM/YYYY, hh:mm:ss')
                     },
                     { v: Math.floor((Math.random() * 2000) + 1000) },
                     { v: Math.floor((Math.random() * 1000) + 500) },

@@ -1,13 +1,16 @@
 ﻿<html>
 <head>
+    <script src="http://momentjs.com/downloads/moment.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script src="../../Scripts/jquery-1.8.2.min.js"></script>
     <script src="main.js"></script>
 </head>
 <body>
+    <div id="barHead">
+        <select><option>This Month</option></select>
+        <input type="text" value="{}" style="width:600px"/>
+    </div>
     <div id="divDash">
-        <div id="divControlType" style="width: 50px;"></div>
-        <p></p>
         <div id="divChart" style="width: 100%; height: 120;"></div>
         <div id="divControlTimestamp" style="width: 100%; height: 60px;"></div>
     </div>
@@ -16,8 +19,8 @@
     <table>
         <tr>
             <td style="width: 20%"></td>
-            <td style="width: 10%"></td>
-            <td style="width: 70%"></td>
+            <td style="width: 20%"></td>
+            <td style="width: 60%"></td>
         </tr>
         <tr>
             <td>
