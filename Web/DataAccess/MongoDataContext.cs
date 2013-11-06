@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Web.DataAccess
@@ -15,6 +16,16 @@ namespace Web.DataAccess
         public IQueryable<T> Query<T>(string collectionName)
         {
             return _db.GetCollection<T>(collectionName).FindAll().AsQueryable();
+        }
+
+        public IQueryable<T> Query<T>(string collectionName, object queryObject)
+        {
+            return _db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(queryObject.ToBsonDocument())).AsQueryable();
+        }
+
+        public IQueryable<T> Query<T>(string collectionName, string queryJson)
+        {
+            return _db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(BsonDocument.Parse(queryJson))).AsQueryable();
         }
 
         public void Save<T>(string collectionName, T document)
