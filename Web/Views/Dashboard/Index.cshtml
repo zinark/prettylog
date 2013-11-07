@@ -1,0 +1,41 @@
+﻿@{ Layout = "~/Views/Shared/_Layout.cshtml"; }
+<script src="~/Scripts/Dashboard/Index.js"></script>
+
+<div id="barHead">
+    <select>
+        <option>This Month</option>
+    </select>
+    <input type="text" value="{}" style="width: 600px" />
+</div>
+<div id="divDash">
+    <div id="divChart" style="width: 100%; height: 120;"></div>
+    <div id="divControlTimestamp" style="width: 100%; height: 60px;"></div>
+</div>
+<button id="btnRanges">Get Ranges</button>
+<div id="divRanges"></div>
+<table>
+    <tr>
+        <td style="width: 20%"></td>
+        <td style="width: 20%"></td>
+        <td style="width: 60%"></td>
+    </tr>
+    <tr>
+        <td>
+            <div id="divChartPie"></div>
+        </td>
+        <td>
+            <div id="divTablePie"></div>
+        </td>
+        <td rowspan="2">
+            <div id="divLogs"></div>
+            <div id="divTypes"></div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div id="divChartColumn"></div>
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>

@@ -17,7 +17,7 @@ namespace PrettyLog.Tests
         [Test]
         public void saving_querying_test()
         {
-            using (IDataContextFactory contextFactory = new MongoDataContextFactoryFactory(client, "testDb"))
+            using (IDataContextFactory contextFactory = new MongoDataContextFactory(client, "testDb"))
             {
                 var ctx = contextFactory.Create();
                 ctx.Drop("testCollection");
@@ -30,21 +30,28 @@ namespace PrettyLog.Tests
         [Test]
         public void logFinder_find_test()
         {
-            using (IDataContextFactory contextFactory = new MongoDataContextFactoryFactory(client, "testDb"))
+            using (IDataContextFactory contextFactory = new MongoDataContextFactory(client, "testDb"))
             {
                 IDataContext ctx = contextFactory.Create();
 
                 GenerateLogs(ctx);
                 var logFinder = new LogFinder(ctx);
-                
-                var query = "{}";
+
+                const string query = "{}";
                 DateTime start = DateTime.MinValue;
                 DateTime end = DateTime.MaxValue;
-                string[] types = new[] {"job.a", "job.b", "job.c"};
-                int limit = 250;
+                var types = new[] {"job.a", "job.b", "job.c"};
+                const int limit = 250;
 
                 IQueryable<LogItemDto> result = logFinder.Find(query, start, end, types, limit);
+                result.Count().ShouldBeGreaterThan(0);
             }
+        }
+
+        [Test]
+        public void logFinder_types()
+        {
+            
         }
 
         public void GenerateLogs(IDataContext ctx)

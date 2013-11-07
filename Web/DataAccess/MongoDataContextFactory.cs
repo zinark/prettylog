@@ -2,12 +2,12 @@
 
 namespace Web.DataAccess
 {
-    public class MongoDataContextFactoryFactory : IDataContextFactory
+    public class MongoDataContextFactory : IDataContextFactory
     {
         private readonly string _databaseName;
         readonly MongoServer _server;
 
-        public MongoDataContextFactoryFactory(MongoClient client, string databaseName)
+        public MongoDataContextFactory(MongoClient client, string databaseName)
         {
             _databaseName = databaseName;
             _server = client.GetServer();
