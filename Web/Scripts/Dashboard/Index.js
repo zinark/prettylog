@@ -59,10 +59,12 @@ var events = {
         console.log(data);
     },
     logDensityParsedSuccessfuly : function(json) {
-
+        console.log(json);
+        console.log($.parseJSON(json));
+        
         data = new google.visualization.DataTable(json);
         table = new google.visualization.Table(document.getElementById('divDashTable'));
-        table.draw(data, { page: 'enable', pageSize: 25 });
+        table.draw(data, { page: 'enable', pageSize: 5 });
 
         var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
@@ -74,11 +76,11 @@ var events = {
             }
         });
 
-        var controlTimestamp = new google.visualization.ControlWrapper({
+        var control = new google.visualization.ControlWrapper({
             'controlType': 'ChartRangeFilter',
             'containerId': 'divTimelineControl',
             'options': {
-                'filterColumnLabel': 'Timestamp'
+                'filterColumnLabel': 'Total'
             },
             'ui': {
                 'chartType': 'ComboChart',
@@ -92,8 +94,11 @@ var events = {
                     'columns': [1],
                 }
             },
-            'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } }
+            // 'state': { 'range': { 'start': moment().subtract('days', 1).toDate(), 'end': moment().toDate() } }
         });
+        
+        dashboard.bind(control, chart);
+        dashboard.draw(data);
     }
 };
 
@@ -171,7 +176,6 @@ function packagesLoaded()
         success: events.logDensityParsedSuccessfuly,
         error: events.messagesError
     });
-
     
     $.ajax({
         type: 'post',

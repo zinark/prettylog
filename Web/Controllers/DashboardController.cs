@@ -87,7 +87,7 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                    new {v = x.Day},
+                    new {v = x.Day.ToUniversalTime().DayOfYear, f = x.Day.ToString("dd/MM/yyyy hh:mm:ss")},
                     new {v = x.Total},
                 }
             });

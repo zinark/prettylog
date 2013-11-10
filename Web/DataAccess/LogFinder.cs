@@ -106,7 +106,7 @@ namespace Web.DataAccess
                 .Where(x => x["TimeStamp"] >= start)
                 .Where(x => x["TimeStamp"] <= end);
 
-            foreach (var group in q.GroupBy(x => x["TimeStamp"].ToUniversalTime().DayOfYear))
+            foreach (var group in q.GroupBy(x => x["TimeStamp"].ToUniversalTime().Date))
             {
                 var day = group.Key;
                 var total = group.Count();
