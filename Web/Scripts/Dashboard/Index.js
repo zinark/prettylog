@@ -6,7 +6,7 @@ var events = {
     {
         data = new google.visualization.DataTable(json);
         table = new google.visualization.Table(document.getElementById('divLogs'));
-        table.draw(data, { page: 'enable', pageSize: 25 });
+        table.draw(data, { page: 'enable', pageSize: 15 });
     },
     logsError: function (data)
     {
@@ -26,10 +26,10 @@ var events = {
         piechart.draw(data,
             {
                 'title': 'Type Density',
-                'height': 120
+                'height': 200
             });
 
-        table.draw(data, { page: 'enable', pageSize: 5 });
+        // table.draw(data, { page: 'enable', pageSize: 5 });
     },
     typesError: function (data)
     {
@@ -49,10 +49,10 @@ var events = {
         piechart.draw(data,
             {
                 'title': 'Message Density',
-                'height': 120
+                'height': 200
             });
 
-        table.draw(data, { page: 'enable', pageSize: 5 });
+        // table.draw(data, { page: 'enable', pageSize: 5 });
     },
     messagesError: function (data)
     {
@@ -68,7 +68,7 @@ var events = {
         });
 
         table = new google.visualization.Table(document.getElementById('divDashTable'));
-        table.draw(data, { page: 'enable', pageSize: 5 });
+        // table.draw(data, { page: 'enable', pageSize: 5 });
 
         var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
@@ -83,20 +83,20 @@ var events = {
             'containerId': 'divTimelineControl',
             'options': {
                 'filterColumnIndex': 0,
-                // 'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } },
+                'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } },
                 ui: {
-                    'labelStacking': 'vertical',
+                    'labelStacking': 'horizontal',
                     'chartType': 'ScatterChart',
                     'chartView': { 'columns': [0,1] },
                     'chartOptions': {
                         // 'chartArea': { left: 5, top: 0, width: "95%", height: "98%" },
                         // 'width': '100%',
                         'backgroundColor': 'transparent',
-                        'height': 50,
+                        // 'height': 50,
                         'colors': ['#DDDDDD', '#EEEEEE'],
                         'hAxis': {
                             'baselineColor': 'white',
-                            'format': 'dd/MM/yyyy',
+                            'format': 'dd/MM/yy',
                         }
                     },
                     'minRangeSize': 86400000
