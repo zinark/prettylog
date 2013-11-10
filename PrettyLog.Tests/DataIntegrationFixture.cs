@@ -43,9 +43,10 @@ namespace PrettyLog.Tests
                 DateTime start = DateTime.MinValue;
                 DateTime end = DateTime.MaxValue;
                 var types = new[] { "job.a", "job.b", "job.c" };
+                string[] messages = null;
                 const int limit = 250;
 
-                IQueryable<LogItemDto> result = logFinder.Logs(query, start, end, types, limit);
+                IQueryable<LogItemDto> result = logFinder.Logs(query, start, end, types, messages, limit);
                 result.Count().ShouldBeGreaterThan(0);
             }
         }

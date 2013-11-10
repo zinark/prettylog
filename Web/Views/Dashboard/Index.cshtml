@@ -1,5 +1,17 @@
 ﻿@{ Layout = "~/Views/Shared/_Layout.cshtml"; }
 <script src="~/Scripts/Dashboard/Index.js"></script>
+<style type="text/css" media="screen">
+    #editor {
+        width: *;
+        height: 150px;
+        /*margin: 0;
+        position:fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;*/
+    }
+  </style>
 <table style="width: 100%">
     <tr>
         <td style="width: 100%"></td>
@@ -43,16 +55,32 @@
 
 <table style="width: 100%">
     <tr>
-        <select>
-            <option>This Week</option>
-            <option>This Month</option>
-            <option>This Year</option>
-        </select>
+        <td style="width: 80%"></td>
+        <td style="width: 20%"></td>
     </tr>
     <tr>
-        <textarea id="" style="width: 100%; height: 20px">{ }</textarea>
-    </tr>
-    <tr>
-        <a href="#" id="btnRanges">Filter Ranges</a>
+        <td>
+ <pre id="editor">
+{$and : 
+[
+    { TimeStamp : {$gte : new Date (1999, 1,1, 0, 0, 0) } },
+    { TimeStamp : {$lte : new Date (2999, 1, 1, 0, 0, 0) } },
+    { 'Object.y' : 5}, 
+    { Message : /.*exception.*/},
+    { Type : /job/ }
+]
+}</pre>
+        </td>
+        <td>
+            <p>
+            <select id="range">
+                <option>This Week</option>
+                <option>This Month</option>
+                <option>This Year</option>
+            </select>
+            </p>
+
+            <a href="javascript:;" id="btnQuery">Query</a>
+        </td>
     </tr>
 </table>

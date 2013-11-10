@@ -1,4 +1,15 @@
-﻿google.load('visualization', '1', { 'packages': ['corechart', 'table', 'controls'] });
+﻿var editor = null;
+
+var query = {
+    query : '{}',
+    start: new Date(1999, 1, 1),
+    end: new Date(),
+    limit: 1000,
+    types: [],
+    messages: []
+};
+
+google.load('visualization', '1', { 'packages': ['corechart', 'table', 'controls'] });
 google.setOnLoadCallback(packagesLoaded);
 
 var events = {
@@ -131,80 +142,91 @@ var queryFilters = {
     },
     dateFilterSelected : function(start, end) {
         console.log('date filter selected ', start,end);
+    },
+    queryRequested : function() {
+        query.query = editor.getSession().getValue();
+        ui.refreshViews();
     }
 };
 
-function packagesLoaded()
-{
-    var logsQuery = {
-        query: '{}',
-        types: [],
-        start: new Date(1999, 0, 0, 0, 0, 0),
-        end: new Date(),
-        limit: 1000
-    };
+var ui = {
+    refreshViews: function() {
+        var typesQuery = {
+            query: query.query,
+            start: query.start,
+            end: query.end
+        };
 
-    var typesQuery = {
-        query: '{}',
-        start: new Date(1999, 0, 0, 0, 0, 0),
-        end: new Date()
-    };
+        var messagesQuery = {
+            query: query.query,
+            start: query.start,
+            end: query.end
+        };
 
-    var messagesQuery = {
-        query: '{}',
-        start: new Date(1999, 0, 0, 0, 0, 0),
-        end: new Date()
-    };
+        var logDensityQuery = {
+            query: query.query,
+            start: query.start,
+            end: query.end
+        };
 
-    var logDensityQuery = {
-        query: '{}',
-        start: new Date(1999, 0, 0, 0, 0, 0),
-        end: new Date()
-    };
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/Types',
+            data: JSON.stringify(typesQuery),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: events.typesParsedSuccessfully,
+            error: events.typesError
+        });
 
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: '/Dashboard/Types',
-        data: JSON.stringify(typesQuery),
-        contentType: 'application/json; charset=utf-8',
-        async: true,
-        success: events.typesParsedSuccessfully,
-        error: events.typesError
-    });
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/Messages',
+            data: JSON.stringify(messagesQuery),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: events.messagesParsedSuccessfully,
+            error: events.messagesError
+        });
 
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: '/Dashboard/Messages',
-        data: JSON.stringify(messagesQuery),
-        contentType: 'application/json; charset=utf-8',
-        async: true,
-        success: events.messagesParsedSuccessfully,
-        error: events.messagesError
-    });
-        
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: '/Dashboard/LogDensities',
-        data: JSON.stringify(logDensityQuery),
-        contentType: 'application/json; charset=utf-8',
-        async: true,
-        success: events.logDensityParsedSuccessfuly,
-        error: events.logDensityError
-    });
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/LogDensities',
+            data: JSON.stringify(logDensityQuery),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: events.logDensityParsedSuccessfuly,
+            error: events.logDensityError
+        });
 
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: '/Dashboard/Logs',
-        data: JSON.stringify(logsQuery),
-        contentType: 'application/json; charset=utf-8',
-        async: true,
-        success: events.logsParsedSuccessfully,
-        error: events.logsError
-    });
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/Logs',
+            data: JSON.stringify(query),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: events.logsParsedSuccessfully,
+            error: events.logsError
+        });
+    }
+};
+
+function packagesLoaded() {
+    ui.refreshViews();
 }
 
-;
+$(document).ready(function ()
+{
+    $('#btnQuery').click(queryFilters.queryRequested);
+
+    editor = ace.edit("editor");
+    editor.setTheme("ace/theme/textmate");
+    editor.getSession().setMode("ace/mode/javascript");
+    editor.setFontSize(14);
+
+
+});

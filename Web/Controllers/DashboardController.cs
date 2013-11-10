@@ -114,10 +114,10 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult Logs(string query, DateTime start, DateTime end, int limit, string[] types)
+        public JsonResult Logs(string query, DateTime start, DateTime end, int limit, string[] types, string[] messages)
         {
             var finder = new LogFinder(ContextFactory.Create());
-            var result = finder.Logs(query, start, end, types, limit);
+            var result = finder.Logs(query, start, end, types, messages, limit);
 
             var rows = result.Select(x => new
             {

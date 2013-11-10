@@ -14,14 +14,14 @@ namespace Web.DataAccess
             _context = context;
         }
 
-        public IQueryable<LogItemDto> Logs(string query, DateTime start, DateTime end, string[] types, int limit)
+        public IQueryable<LogItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
         {
             var q = _context.Query<BsonDocument>("logs", query)
                             .Where(x => x["TimeStamp"] >= start)
                             .Where(x => x["TimeStamp"] <= end);
 
             if (types != null) q = q.Where(x => types.Contains(x["Type"].AsString));
-
+            if (messages != null) q = q.Where(x => messages.Contains(x["Message"].AsString));
 
             q = q.OrderByDescending(x => x["TimeStamp"]);
             q = q.Take(limit);
