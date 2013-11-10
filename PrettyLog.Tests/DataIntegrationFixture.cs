@@ -4,6 +4,8 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Shouldly;
 using Web.DataAccess;
 
@@ -40,7 +42,7 @@ namespace PrettyLog.Tests
                 const string query = "{}";
                 DateTime start = DateTime.MinValue;
                 DateTime end = DateTime.MaxValue;
-                var types = new[] {"job.a", "job.b", "job.c"};
+                var types = new[] { "job.a", "job.b", "job.c" };
                 const int limit = 250;
 
                 IQueryable<LogItemDto> result = logFinder.Logs(query, start, end, types, limit);
@@ -49,9 +51,10 @@ namespace PrettyLog.Tests
         }
 
         [Test]
-        public void logFinder_types()
+        public void json_date_prob()
         {
-            
+            var obj = new {day = DateTime.Now};
+            Console.WriteLine(JsonConvert.SerializeObject(obj, new JavaScriptDateTimeConverter()));
         }
 
         public void GenerateLogs(IDataContext ctx)

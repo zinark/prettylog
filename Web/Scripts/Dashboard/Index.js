@@ -59,10 +59,14 @@ var events = {
         console.log(data);
     },
     logDensityParsedSuccessfuly : function(json) {
-        console.log(json);
-        console.log($.parseJSON(json));
-        
         data = new google.visualization.DataTable(json);
+        // fix dates
+        json.rows.forEach(function(row) {
+            var val = row.c[0].v;
+            var d = moment(val).toDate();
+            row.c[0].v = d;
+        });
+
         table = new google.visualization.Table(document.getElementById('divDashTable'));
         table.draw(data, { page: 'enable', pageSize: 5 });
 
@@ -94,12 +98,16 @@ var events = {
                     'columns': [1],
                 }
             },
-            // 'state': { 'range': { 'start': moment().subtract('days', 1).toDate(), 'end': moment().toDate() } }
+            'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } }
         });
         
         dashboard.bind(control, chart);
         dashboard.draw(data);
-    }
+    },
+    logDensityError: function (data)
+    {
+        console.log(data);
+    },
 };
 
 var queryFilters = {
@@ -165,7 +173,7 @@ function packagesLoaded()
         success: events.messagesParsedSuccessfully,
         error: events.messagesError
     });
-    
+        
     $.ajax({
         type: 'post',
         dataType: 'json',
@@ -174,9 +182,9 @@ function packagesLoaded()
         contentType: 'application/json; charset=utf-8',
         async: true,
         success: events.logDensityParsedSuccessfuly,
-        error: events.messagesError
+        error: events.logDensityError
     });
-    
+
     $.ajax({
         type: 'post',
         dataType: 'json',

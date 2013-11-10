@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Text;
 using System.Web.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Web.DataAccess;
 
 namespace Web.Controllers
@@ -78,7 +81,7 @@ namespace Web.Controllers
         }
         
         [HttpPost]
-        public JsonResult LogDensities(string query, DateTime start, DateTime end)
+        public ActionResult LogDensities(string query, DateTime start, DateTime end)
         {
             var finder = new LogFinder(ContextFactory.Create());
             var types = finder.GetLogDensity(query, start, end);
@@ -87,19 +90,27 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                    new {v = x.Day.ToUniversalTime().DayOfYear, f = x.Day.ToString("dd/MM/yyyy hh:mm:ss")},
+                    new {v = x.Day, f = x.Day.ToString("dd/MM/yyyy hh:mm:ss")},
                     new {v = x.Total},
                 }
             });
-            return Json(new
+            var obj= new
             {
                 cols = new[]
                 {
-                    new {id = "Day", label = "Day", type = "number"},
+                    new {id = "Day", label = "Day", type = "date"},
                     new {id = "Total", label = "Total", type = "number"},
                 },
                 rows = rows
-            });
+            };
+
+            var json = JsonConvert.SerializeObject(obj, new IsoDateTimeConverter()); //new JavaScriptDateTimeConverter()
+            return new ContentResult()
+            {
+                Content = json,
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json"
+            };
         }
 
         [HttpPost]
