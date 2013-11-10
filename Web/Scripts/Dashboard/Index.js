@@ -57,6 +57,43 @@ var events = {
     messagesError: function (data)
     {
         console.log(data);
+    },
+    logDensityParsedSuccessfuly : function(json) {
+
+        data = new google.visualization.DataTable(json);
+        table = new google.visualization.Table(document.getElementById('divDashTable'));
+        table.draw(data, { page: 'enable', pageSize: 25 });
+
+        var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
+
+        var chart = new google.visualization.ChartWrapper({
+            'chartType': 'ColumnChart',
+            'containerId': 'divTimelineChart',
+            'options': {
+                'legend': 'none'
+            }
+        });
+
+        var controlTimestamp = new google.visualization.ControlWrapper({
+            'controlType': 'ChartRangeFilter',
+            'containerId': 'divTimelineControl',
+            'options': {
+                'filterColumnLabel': 'Timestamp'
+            },
+            'ui': {
+                'chartType': 'ComboChart',
+                'chartOptions': {
+                    'chartArea': { 'width': '90%' },
+                    'hAxis': { 'baselineColor': 'none' },
+                    'seriesType': 'bars',
+                    'isStacked': true
+                },
+                'chartView': {
+                    'columns': [1],
+                }
+            },
+            'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } }
+        });
     }
 };
 
@@ -96,16 +133,11 @@ function packagesLoaded()
         end: new Date()
     };
 
-    $.ajax({
-        type: 'post',
-        dataType: 'json',
-        url: '/Dashboard/Logs',
-        data: JSON.stringify(logsQuery),
-        contentType: 'application/json; charset=utf-8',
-        async: true,
-        success: events.logsParsedSuccessfully,
-        error: events.logsError
-    });
+    var logDensityQuery = {
+        query: '{}',
+        start: new Date(1999, 0, 0, 0, 0, 0),
+        end: new Date()
+    };
 
     $.ajax({
         type: 'post',
@@ -127,6 +159,29 @@ function packagesLoaded()
         async: true,
         success: events.messagesParsedSuccessfully,
         error: events.messagesError
+    });
+    
+    $.ajax({
+        type: 'post',
+        dataType: 'json',
+        url: '/Dashboard/LogDensities',
+        data: JSON.stringify(logDensityQuery),
+        contentType: 'application/json; charset=utf-8',
+        async: true,
+        success: events.logDensityParsedSuccessfuly,
+        error: events.messagesError
+    });
+
+    
+    $.ajax({
+        type: 'post',
+        dataType: 'json',
+        url: '/Dashboard/Logs',
+        data: JSON.stringify(logsQuery),
+        contentType: 'application/json; charset=utf-8',
+        async: true,
+        success: events.logsParsedSuccessfully,
+        error: events.logsError
     });
 }
 

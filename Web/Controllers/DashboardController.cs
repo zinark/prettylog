@@ -76,6 +76,31 @@ namespace Web.Controllers
                 rows = rows
             });
         }
+        
+        [HttpPost]
+        public JsonResult LogDensities(string query, DateTime start, DateTime end)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            var types = finder.GetLogDensity(query, start, end);
+
+            var rows = types.Select(x => new
+            {
+                c = new object[]
+                {
+                    new {v = x.Day},
+                    new {v = x.Total},
+                }
+            });
+            return Json(new
+            {
+                cols = new[]
+                {
+                    new {id = "DayOfYear", label = "DayOfYear", type = "number"},
+                    new {id = "Total", label = "Total", type = "number"},
+                },
+                rows = rows
+            });
+        }
 
         [HttpPost]
         public JsonResult Logs(string query, DateTime start, DateTime end, int limit, string[] types)

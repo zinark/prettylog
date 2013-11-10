@@ -49,7 +49,7 @@ namespace Web.DataAccess
         public IEnumerable<TypeDensityDto> GetTypes(string query, DateTime start, DateTime end)
         {
             var result = new List<TypeDensityDto>();
-            
+
             var q = _context.Query<BsonDocument>("logs", query)
                 .Where(x => x["TimeStamp"] >= start)
                 .Where(x => x["TimeStamp"] <= end);
@@ -60,7 +60,7 @@ namespace Web.DataAccess
                 var total = group.Count();
                 var lastHit = group.Max(x => x["TimeStamp"]).ToUniversalTime();
                 var firstHit = group.Min(x => x["TimeStamp"]).ToUniversalTime();
-                
+
                 result.Add(new TypeDensityDto()
                 {
                     Type = name,
@@ -95,6 +95,29 @@ namespace Web.DataAccess
                     FirstHit = firstHit
                 });
             }
+            return result;
+        }
+
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end)
+        {
+            var result = new List<LogDensityDto>();
+
+            var q = _context.Query<BsonDocument>("logs", query)
+                .Where(x => x["TimeStamp"] >= start)
+                .Where(x => x["TimeStamp"] <= end);
+
+            foreach (var group in q.GroupBy(x => x["TimeStamp"].ToUniversalTime().DayOfYear))
+            {
+                var day = group.Key;
+                var total = group.Count();
+
+                result.Add(new LogDensityDto()
+                {
+                    Day = day,
+                    Total = total
+                });
+            }
+
             return result;
         }
     }

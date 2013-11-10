@@ -92,6 +92,7 @@
     <Compile Include="DataAccess\IDataContextFactory.cs" />
     <Compile Include="DataAccess\ILogDao.cs" />
     <Compile Include="DataAccess\LogDao.cs" />
+    <Compile Include="DataAccess\LogDensityDto.cs" />
     <Compile Include="DataAccess\LogFinder.cs" />
     <Compile Include="DataAccess\LogItem.cs" />
     <Compile Include="DataAccess\LogItemDto.cs" />
