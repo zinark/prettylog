@@ -95,9 +95,10 @@
     <Compile Include="DataAccess\LogFinder.cs" />
     <Compile Include="DataAccess\LogItem.cs" />
     <Compile Include="DataAccess\LogItemDto.cs" />
+    <Compile Include="DataAccess\MessageDensityDto.cs" />
     <Compile Include="DataAccess\MongoDataContext.cs" />
     <Compile Include="DataAccess\MongoDataContextFactory.cs" />
-    <Compile Include="DataAccess\TypeDto.cs" />
+    <Compile Include="DataAccess\TypeDensityDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

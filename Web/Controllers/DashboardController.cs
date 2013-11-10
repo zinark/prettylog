@@ -9,10 +9,10 @@ namespace Web.Controllers
 {
     public class DashboardController : Controller
     {
-        private static readonly string Mongoconnection = ConfigurationManager.AppSettings.Get("mongoconnection");
-        private static readonly string Mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
+        static readonly string Mongoconnection = ConfigurationManager.AppSettings.Get("mongoconnection");
+        static readonly string Mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
 
-        private static readonly IDataContextFactory contextFactory = new MongoDataContextFactory(new MongoClient(Mongoconnection), Mongodatabase);
+        static readonly IDataContextFactory ContextFactory = new MongoDataContextFactory(new MongoClient(Mongoconnection), Mongodatabase);
 
         public ActionResult Index()
         {
@@ -22,7 +22,7 @@ namespace Web.Controllers
         [HttpPost]
         public JsonResult Types(string query, DateTime start, DateTime end)
         {
-            var finder = new LogFinder(contextFactory.Create());
+            var finder = new LogFinder(ContextFactory.Create());
             var types = finder.GetTypes(query, start, end);
 
             var rows = types.Select(x => new
@@ -31,8 +31,8 @@ namespace Web.Controllers
                 {
                     new {v = x.Type},
                     new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString()},
-                    new {v = x.LastHit, f = x.LastHit.ToString()}
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy hh:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy hh:mm:ss")}
                 }
             });
             return Json(new
@@ -47,18 +47,47 @@ namespace Web.Controllers
                 rows = rows
             });
         }
+        
+        [HttpPost]
+        public JsonResult Messages(string query, DateTime start, DateTime end)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            var types = finder.GetMessages(query, start, end);
+
+            var rows = types.Select(x => new
+            {
+                c = new object[]
+                {
+                    new {v = x.Message},
+                    new {v = x.Total},
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy hh:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy hh:mm:ss")}
+                }
+            });
+            return Json(new
+            {
+                cols = new[]
+                {
+                    new {id = "Message", label = "Message", type = "string"},
+                    new {id = "Total", label = "Total", type = "number"},
+                    new {id = "FirstHit", label = "FirstHit", type = "date"},
+                    new {id = "LastHit", label = "LastHit", type = "date"}
+                },
+                rows = rows
+            });
+        }
 
         [HttpPost]
         public JsonResult Logs(string query, DateTime start, DateTime end, int limit, string[] types)
         {
-            var finder = new LogFinder(contextFactory.Create());
-            var result = finder.Find(query, start, end, types, limit);
+            var finder = new LogFinder(ContextFactory.Create());
+            var result = finder.Logs(query, start, end, types, limit);
 
             var rows = result.Select(x => new
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = x.TimeStamp.ToString()},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
                             new {v = x.Object},

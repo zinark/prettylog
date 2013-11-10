@@ -43,7 +43,7 @@ namespace PrettyLog.Tests
                 var types = new[] {"job.a", "job.b", "job.c"};
                 const int limit = 250;
 
-                IQueryable<LogItemDto> result = logFinder.Find(query, start, end, types, limit);
+                IQueryable<LogItemDto> result = logFinder.Logs(query, start, end, types, limit);
                 result.Count().ShouldBeGreaterThan(0);
             }
         }
