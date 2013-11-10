@@ -95,7 +95,7 @@ namespace Web.Controllers
             {
                 cols = new[]
                 {
-                    new {id = "DayOfYear", label = "DayOfYear", type = "number"},
+                    new {id = "Day", label = "Day", type = "number"},
                     new {id = "Total", label = "Total", type = "number"},
                 },
                 rows = rows

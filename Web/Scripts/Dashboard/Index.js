@@ -80,7 +80,7 @@ var events = {
             'controlType': 'ChartRangeFilter',
             'containerId': 'divTimelineControl',
             'options': {
-                'filterColumnLabel': 'Total'
+                'filterColumnLabel': 'Day'
             },
             'ui': {
                 'chartType': 'ComboChart',
