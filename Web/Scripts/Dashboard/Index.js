@@ -75,31 +75,41 @@ var events = {
         var chart = new google.visualization.ChartWrapper({
             'chartType': 'ColumnChart',
             'containerId': 'divTimelineChart',
-            'options': {
-                'legend': 'none'
-            }
+            'options': { 'legend': 'none' }
         });
 
         var control = new google.visualization.ControlWrapper({
             'controlType': 'ChartRangeFilter',
             'containerId': 'divTimelineControl',
             'options': {
-                'filterColumnLabel': 'Day'
-            },
-            'ui': {
-                'chartType': 'ComboChart',
-                'chartOptions': {
-                    'chartArea': { 'width': '90%' },
-                    'hAxis': { 'baselineColor': 'none' },
-                    'seriesType': 'bars',
-                    'isStacked': true
-                },
-                'chartView': {
-                    'columns': [1],
+                'filterColumnIndex': 0,
+                // 'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } },
+                ui: {
+                    'labelStacking': 'vertical',
+                    'chartType': 'ScatterChart',
+                    'chartView': { 'columns': [0,1] },
+                    'chartOptions': {
+                        // 'chartArea': { left: 5, top: 0, width: "95%", height: "98%" },
+                        // 'width': '100%',
+                        'backgroundColor': 'transparent',
+                        'height': 50,
+                        'colors': ['#DDDDDD', '#EEEEEE'],
+                        'hAxis': {
+                            'baselineColor': 'white',
+                            'format': 'dd/MM/yyyy',
+                        }
+                    },
+                    'minRangeSize': 86400000
                 }
-            },
-            'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } }
+            }
         });
+        
+        $("#btnRanges").click(function ()
+        {
+            var r = control.getState().range;
+            queryFilters.dateFilterSelected(r.start, r.end);
+        });
+
         
         dashboard.bind(control, chart);
         dashboard.draw(data);
