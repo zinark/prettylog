@@ -59,8 +59,10 @@ var events = {
 
         google.visualization.events.addListener(variables.typesChart, 'select', function () {
             var selectedItem = variables.typesChart.getSelection()[0];
-            var value = variables.typesData.getValue(selectedItem.row, 0);
-            queryFilters.typeFilterSelected(value);
+            if (selectedItem != null) {
+                var value = variables.typesData.getValue(selectedItem.row, 0);
+                queryFilters.typeFilterSelected(value);
+            }
         });
 
         variables.typesChart.draw(variables.typesData,
@@ -81,8 +83,10 @@ var events = {
 
         google.visualization.events.addListener(variables.messagesChart, 'select', function () {
             var selectedItem = variables.messagesChart.getSelection()[0];
-            var value = variables.messagesData.getValue(selectedItem.row, 0);
-            queryFilters.messageFilterSelected(value);
+            if (selectedItem != null) {
+                var value = variables.messagesData.getValue(selectedItem.row, 0);
+                queryFilters.messageFilterSelected(value);
+            }
         });
 
         variables.messagesChart.draw(variables.messagesData,
@@ -151,7 +155,7 @@ var events = {
         google.visualization.events.addListener(variables.logDensityChart, 'select', function () {
             var selectedItem = variables.logDensityChart.getChart().getSelection()[0];
             var value = variables.logDensityData.getValue(selectedItem.row, 0);
-            queryFilters.dayFilterSelected(value);
+            queryFilters.daySelected(value);
         });
         
 
@@ -164,24 +168,25 @@ var events = {
 };
 
 var queryFilters = {
-    typeFilterSelected: function (selected) {
-        console.log('type filter selected ', selected);
+    typeFilterSelected: function (type) {
+        query.types = [type];
     },
-    messageFilterSelected: function (selected) {
-        console.log('message filter selected ', selected);
+    messageFilterSelected: function (message) {
+        query.messages = [message];
     },
-    dateFilterSelected: function (start, end) {
-        console.log('date filter selected ', start, end);
+    dateFilterSelected: function (startDate, endDate) {
+        query.start = startDate;
+        query.end = endDate;
     },
-    dayFilterSelected: function (selected) {
-        console.log('day filter selected ', selected);
+    daySelected: function (date) {
+        query.start = date;
+        query.end = moment(date).add('days', 1);
     },
     queryRequested: function () {
         query.query = editor.getSession().getValue();
         ui.refreshViews();
     },
     logSelected: function(log) {
-        // open a popup
         $('#txtTimeStamp').text(moment (log.TimeStamp).format ('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
