@@ -22,7 +22,7 @@ var variables = {
     logDensityData: null,
     logDensityTable: null,
     logDensityChart: null,
-    logDensityControl : null,
+    logDensityControl: null,
 
     logsData: null,
     logsTable: null
@@ -53,17 +53,17 @@ var events = {
         console.log(data);
     },
     typesParsedSuccessfully: function (json) {
-        typesData = new google.visualization.DataTable(json);
-        typesTable = new google.visualization.Table(document.getElementById('divTypeDensity'));
-        typesChart = new google.visualization.PieChart(document.getElementById('divTypeDensityChart'));
+        variables.typesData = new google.visualization.DataTable(json);
+        variables.typesTable = new google.visualization.Table(document.getElementById('divTypeDensity'));
+        variables.typesChart = new google.visualization.PieChart(document.getElementById('divTypeDensityChart'));
 
-        google.visualization.events.addListener(typesChart, 'select', function () {
-            var selectedItem = typesChart.getSelection()[0];
-            var value = typesData.getValue(selectedItem.row, 0);
+        google.visualization.events.addListener(variables.typesChart, 'select', function () {
+            var selectedItem = variables.typesChart.getSelection()[0];
+            var value = variables.typesData.getValue(selectedItem.row, 0);
             queryFilters.typeFilterSelected(value);
         });
 
-        typesChart.draw(typesData,
+        variables.typesChart.draw(variables.typesData,
             {
                 'title': 'Type Density',
                 'height': 200
@@ -75,17 +75,17 @@ var events = {
         console.log(data);
     },
     messagesParsedSuccessfully: function (json) {
-        messagesData = new google.visualization.DataTable(json);
-        messagesTable = new google.visualization.Table(document.getElementById('divMessageDensity'));
-        messagesChart = new google.visualization.PieChart(document.getElementById('divMessageDensityChart'));
+        variables.messagesData = new google.visualization.DataTable(json);
+        variables.messagesTable = new google.visualization.Table(document.getElementById('divMessageDensity'));
+        variables.messagesChart = new google.visualization.PieChart(document.getElementById('divMessageDensityChart'));
 
-        google.visualization.events.addListener(messagesChart, 'select', function () {
-            var selectedItem = messagesChart.getSelection()[0];
-            var value = messagesData.getValue(selectedItem.row, 0);
+        google.visualization.events.addListener(variables.messagesChart, 'select', function () {
+            var selectedItem = variables.messagesChart.getSelection()[0];
+            var value = variables.messagesData.getValue(selectedItem.row, 0);
             queryFilters.messageFilterSelected(value);
         });
 
-        messagesChart.draw(messagesData,
+        variables.messagesChart.draw(variables.messagesData,
             {
                 'title': 'Message Density',
                 'height': 200
@@ -97,7 +97,7 @@ var events = {
         console.log(data);
     },
     logDensityParsedSuccessfuly: function (json) {
-        logDensityData = new google.visualization.DataTable(json);
+        variables.logDensityData = new google.visualization.DataTable(json);
 
         // fix dates
         json.rows.forEach(function (row) {
@@ -106,18 +106,18 @@ var events = {
             row.c[0].v = d;
         });
 
-        logDensityTable = new google.visualization.Table(document.getElementById('divDashTable'));
+        variables.logDensityTable = new google.visualization.Table(document.getElementById('divDashTable'));
         // logDensityTable.draw(logDensityData, { page: 'enable', pageSize: 5 });
 
         var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
-        logDensityChart = new google.visualization.ChartWrapper({
+        variables.logDensityChart = new google.visualization.ChartWrapper({
             'chartType': 'ColumnChart',
             'containerId': 'divTimelineChart',
             'options': { 'legend': 'none' }
         });
 
-        logDensityControl = new google.visualization.ControlWrapper({
+        variables.logDensityControl = new google.visualization.ControlWrapper({
             'controlType': 'ChartRangeFilter',
             'containerId': 'divTimelineControl',
             'options': {
@@ -143,13 +143,20 @@ var events = {
             }
         });
 
-        $("#btnRanges").click(function () {
-            var r = logDensityControl.getState().range;
-            queryFilters.dateFilterSelected(r.start, r.end);
+        google.visualization.events.addListener(variables.logDensityControl, 'statechange', function () {
+            var state = variables.logDensityControl.getState().range;
+            queryFilters.dateFilterSelected(state.start, state.end);
         });
+        
+        google.visualization.events.addListener(variables.logDensityChart, 'select', function () {
+            var selectedItem = variables.logDensityChart.getChart().getSelection()[0];
+            var value = variables.logDensityData.getValue(selectedItem.row, 0);
+            queryFilters.dayFilterSelected(value);
+        });
+        
 
-        dashboard.bind(logDensityControl, logDensityChart);
-        dashboard.draw(logDensityData);
+        dashboard.bind(variables.logDensityControl, variables.logDensityChart);
+        dashboard.draw(variables.logDensityData);
     },
     logDensityError: function (data) {
         console.log(data);
@@ -165,6 +172,9 @@ var queryFilters = {
     },
     dateFilterSelected: function (start, end) {
         console.log('date filter selected ', start, end);
+    },
+    dayFilterSelected: function (selected) {
+        console.log('day filter selected ', selected);
     },
     queryRequested: function () {
         query.query = editor.getSession().getValue();
