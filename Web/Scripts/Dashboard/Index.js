@@ -2,8 +2,8 @@
 
 var query = {
     query: '{}',
-    start: new Date(1999, 1, 1),
-    end: new Date(),
+    start: moment ().subtract ('days', 7),
+    end: moment (),
     limit: 1000,
     types: [],
     messages: []
@@ -142,7 +142,7 @@ var dataLoadEvents = {
                             'format': 'dd/MM/yy',
                         }
                     },
-                    'minRangeSize': 86400000
+                    'minRangeSize': 1000 * 60 * 60 // 86400000
                 }
             }
         });
@@ -193,8 +193,8 @@ var queryFilters = {
     newQueryPressed: function () {
         query = {
             query: '{}',
-            start: new Date(1999, 1, 1),
-            end: new Date(),
+            start: moment().subtract('days', 7),
+            end: moment(),
             limit: 1000,
             types: [],
             messages: []
@@ -206,7 +206,7 @@ var queryFilters = {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
-        $('#txtObject').text(log.Object);
+        $('#txtObject').text($('#txtObject').html(log.Object).html ());
     }
 };
 
