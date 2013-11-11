@@ -1,5 +1,8 @@
 ﻿@{ Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<script type="text/javascript" src="~/Scripts/json-to-table.js"></script>
 <script src="~/Scripts/Dashboard/Index.js"></script>
+
 <style type="text/css" media="screen">
     #editor {
         width: *;
@@ -11,7 +14,7 @@
         left: 0;
         right: 0;*/
     }
-  </style>
+</style>
 <table style="width: 100%">
     <tr>
         <td style="width: 100%"></td>
@@ -32,9 +35,9 @@
 
 <table style="width: 100%">
     <tr>
-        <td style="width: 20%; vertical-align:top"></td>
-        <td style="width: 60%; vertical-align:top"></td>
-        <td style="width: 20%; vertical-align:top"></td>
+        <td style="width: 20%; vertical-align: top"></td>
+        <td style="width: 60%; vertical-align: top"></td>
+        <td style="width: 20%; vertical-align: top"></td>
     </tr>
 
     <tr>
@@ -61,6 +64,14 @@
                 <p id="txtMessage">---</p>
                 <b>Object</b>
                 <p id="txtObject">---</p>
+                
+                <p id="links">-</p>
+                <p id="inlineObject" style="display: none;">x</p>
+                
+                <table id="dataTable" style="border:solid 1px #999;">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </td>
     </tr>
@@ -79,11 +90,11 @@
         </td>
         <td>
             <p>
-            <select id="range">
-                <option>This Week</option>
-                <option>This Month</option>
-                <option>This Year</option>
-            </select>
+                <select id="range">
+                    <option>This Week</option>
+                    <option>This Month</option>
+                    <option>This Year</option>
+                </select>
             </p>
 
             <a href="javascript:;" id="btnNewQuery">New Query</a>
