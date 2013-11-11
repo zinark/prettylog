@@ -36,6 +36,18 @@ var events = {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
         logsTable.draw(logsData, { page: 'enable', pageSize: 15 });
+        
+        google.visualization.events.addListener(logsTable, 'select', function () {
+            var selectedRow = logsTable.getSelection()[0].row;
+            var selectedLine = {
+                TimeStamp: logsData.getValue(selectedRow, 0),
+                Type: logsData.getValue(selectedRow, 1),
+                Message: logsData.getValue(selectedRow, 2),
+                Object: logsData.getValue(selectedRow, 3),
+            };
+            queryFilters.logSelected(selectedLine);
+        });
+        
     },
     logsError: function (data) {
         console.log(data);
@@ -157,6 +169,13 @@ var queryFilters = {
     queryRequested: function () {
         query.query = editor.getSession().getValue();
         ui.refreshViews();
+    },
+    logSelected: function(log) {
+        // open a popup
+        $('#txtTimeStamp').text(moment (log.TimeStamp).format ('DD/MM/YYYY hh:mm:ss'));
+        $('#txtType').text(log.Type);
+        $('#txtMessage').text(log.Message);
+        $('#txtObject').text(log.Object);
     }
 };
 
@@ -237,6 +256,4 @@ $(document).ready(function () {
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/javascript");
     editor.setFontSize(14);
-
-
 });
