@@ -206,7 +206,7 @@ var queryFilters = {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
-        $('#txtObject').text($('#txtObject').html(log.Object).html ());
+        $('#txtObject').text(log.Object);
     }
 };
 
