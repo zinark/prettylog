@@ -73,16 +73,9 @@
     </tr>
     <tr>
         <td>
- <pre id="editor">
-{$and : 
-[
-    { TimeStamp : {$gte : new Date (1999, 1,1, 0, 0, 0) } },
-    { TimeStamp : {$lte : new Date (2999, 1, 1, 0, 0, 0) } },
-    { 'Object.y' : 5}, 
-    { Message : /.*exception.*/},
-    { Type : /job/ }
-]
-}</pre>
+            <div id="queryFilters"></div>
+            <pre id="editor">
+{}</pre>
         </td>
         <td>
             <p>

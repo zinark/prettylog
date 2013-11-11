@@ -81,12 +81,12 @@ namespace Web.Controllers
         }
         
         [HttpPost]
-        public ActionResult LogDensities(string query, DateTime start, DateTime end)
+        public ActionResult LogDensities(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
             var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetLogDensity(query, start, end);
+            var densities = finder.GetLogDensity(query, start, end, types, messages);
 
-            var rows = types.Select(x => new
+            var rows = densities.Select(x => new
             {
                 c = new object[]
                 {

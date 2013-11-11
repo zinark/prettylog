@@ -31,7 +31,7 @@ var variables = {
 google.load('visualization', '1', { 'packages': ['corechart', 'table', 'controls'] });
 google.setOnLoadCallback(packagesLoaded);
 
-var events = {
+var dataLoadEvents = {
     logsParsedSuccessfully: function (json) {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
@@ -170,17 +170,21 @@ var events = {
 var queryFilters = {
     typeFilterSelected: function (type) {
         query.types = [type];
+        ui.drawFilters();
     },
     messageFilterSelected: function (message) {
         query.messages = [message];
+        ui.drawFilters();
     },
     dateFilterSelected: function (startDate, endDate) {
         query.start = startDate;
         query.end = endDate;
+        ui.drawFilters();
     },
     daySelected: function (date) {
         query.start = date;
         query.end = moment(date).add('days', 1);
+        ui.drawFilters();
     },
     queryRequested: function () {
         query.query = editor.getSession().getValue();
@@ -195,6 +199,9 @@ var queryFilters = {
 };
 
 var ui = {
+    drawFilters : function() {
+        $('#queryFilters').html(JSON.stringify(query));
+    },
     refreshViews: function () {
         var typesQuery = {
             query: query.query,
@@ -211,7 +218,9 @@ var ui = {
         var logDensityQuery = {
             query: query.query,
             start: query.start,
-            end: query.end
+            end: query.end,
+            types : query.types,
+            messages : query.messages
         };
 
         $.ajax({
@@ -221,8 +230,8 @@ var ui = {
             data: JSON.stringify(typesQuery),
             contentType: 'application/json; charset=utf-8',
             async: true,
-            success: events.typesParsedSuccessfully,
-            error: events.typesError
+            success: dataLoadEvents.typesParsedSuccessfully,
+            error: dataLoadEvents.typesError
         });
 
         $.ajax({
@@ -232,8 +241,8 @@ var ui = {
             data: JSON.stringify(messagesQuery),
             contentType: 'application/json; charset=utf-8',
             async: true,
-            success: events.messagesParsedSuccessfully,
-            error: events.messagesError
+            success: dataLoadEvents.messagesParsedSuccessfully,
+            error: dataLoadEvents.messagesError
         });
 
         $.ajax({
@@ -243,8 +252,8 @@ var ui = {
             data: JSON.stringify(logDensityQuery),
             contentType: 'application/json; charset=utf-8',
             async: true,
-            success: events.logDensityParsedSuccessfuly,
-            error: events.logDensityError
+            success: dataLoadEvents.logDensityParsedSuccessfuly,
+            error: dataLoadEvents.logDensityError
         });
 
         $.ajax({
@@ -254,14 +263,15 @@ var ui = {
             data: JSON.stringify(query),
             contentType: 'application/json; charset=utf-8',
             async: true,
-            success: events.logsParsedSuccessfully,
-            error: events.logsError
+            success: dataLoadEvents.logsParsedSuccessfully,
+            error: dataLoadEvents.logsError
         });
     }
 };
 
 function packagesLoaded() {
     ui.refreshViews();
+    ui.drawFilters();
 }
 
 $(document).ready(function () {

@@ -98,13 +98,16 @@ namespace PrettyLog.Core.DataAccess
             return result;
         }
 
-        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end)
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
             var result = new List<LogDensityDto>();
 
             var q = _context.Query<BsonDocument>("logs", query)
                 .Where(x => x["TimeStamp"] >= start)
                 .Where(x => x["TimeStamp"] <= end);
+
+            if (types != null) q = q.Where(x => types.Contains(x["Type"].AsString));
+            if (messages != null) q = q.Where(x => messages.Contains(x["Message"].AsString));
 
             foreach (var group in q.GroupBy(x => x["TimeStamp"].ToUniversalTime().Date))
             {
