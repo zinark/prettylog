@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
-using Web.DataAccess;
+using PrettyLog.Core.DataAccess;
 using Web.Models;
 
 namespace Web.Controllers

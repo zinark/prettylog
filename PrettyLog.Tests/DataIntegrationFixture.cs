@@ -7,7 +7,6 @@ using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Shouldly;
-using Web.DataAccess;
 
 namespace PrettyLog.Tests
 {

@@ -1,6 +1,6 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class MongoDataContextFactory : IDataContextFactory
     {

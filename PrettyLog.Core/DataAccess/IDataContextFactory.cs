@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public interface IDataContextFactory : IDisposable
     {

@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Web.DataAccess;
+using PrettyLog.Core.DataAccess;
 
 namespace Web.Controllers
 {

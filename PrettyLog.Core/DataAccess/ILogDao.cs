@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public interface ILogDao
     {

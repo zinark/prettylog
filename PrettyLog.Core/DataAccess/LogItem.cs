@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class LogItem
     {

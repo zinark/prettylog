@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class LogFinder
     {
