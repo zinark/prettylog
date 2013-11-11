@@ -187,7 +187,7 @@ var queryFilters = {
         ui.refreshViews();
     },
     logSelected: function(log) {
-        $('#txtTimeStamp').text(moment (log.TimeStamp).format ('DD/MM/YYYY hh:mm:ss'));
+        $('#txtTimeStamp').text(moment (log.TimeStamp).utc().format ('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
         $('#txtObject').text(log.Object);
