@@ -88,18 +88,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="DataAccess\IDataContext.cs" />
-    <Compile Include="DataAccess\IDataContextFactory.cs" />
-    <Compile Include="DataAccess\ILogDao.cs" />
-    <Compile Include="DataAccess\LogDao.cs" />
-    <Compile Include="DataAccess\LogDensityDto.cs" />
-    <Compile Include="DataAccess\LogFinder.cs" />
-    <Compile Include="DataAccess\LogItem.cs" />
-    <Compile Include="DataAccess\LogItemDto.cs" />
-    <Compile Include="DataAccess\MessageDensityDto.cs" />
-    <Compile Include="DataAccess\MongoDataContext.cs" />
-    <Compile Include="DataAccess\MongoDataContextFactory.cs" />
-    <Compile Include="DataAccess\TypeDensityDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -204,6 +192,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PrettyLog.Core\PrettyLog.Core.csproj">
+      <Project>{DD6E0E3B-7E47-4605-AD25-A55ABF2D02A9}</Project>
+      <Name>PrettyLog.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{42E08B46-88B1-49BB-BDA5-86319E99EC62}</ProjectGuid>
+    <ProjectGuid>{DD6E0E3B-7E47-4605-AD25-A55ABF2D02A9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PrettyLog.Tests</RootNamespace>
-    <AssemblyName>PrettyLog.Tests</AssemblyName>
+    <RootNamespace>PrettyLog.Core</RootNamespace>
+    <AssemblyName>PrettyLog.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,25 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Bson, Version=1.8.3.9, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Bson.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Driver, Version=1.8.3.9, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MongoDB.Driver">
       <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Driver.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Web\bin\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Shouldly">
-      <HintPath>..\packages\Shouldly.1.1.1.1\lib\35\Shouldly.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -57,21 +46,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataIntegrationFixture.cs" />
+    <Compile Include="DataAccess\IDataContext.cs" />
+    <Compile Include="DataAccess\IDataContextFactory.cs" />
+    <Compile Include="DataAccess\ILogDao.cs" />
+    <Compile Include="DataAccess\LogDao.cs" />
+    <Compile Include="DataAccess\LogDensityDto.cs" />
+    <Compile Include="DataAccess\LogFinder.cs" />
+    <Compile Include="DataAccess\LogItem.cs" />
+    <Compile Include="DataAccess\LogItemDto.cs" />
+    <Compile Include="DataAccess\MessageDensityDto.cs" />
+    <Compile Include="DataAccess\MongoDataContext.cs" />
+    <Compile Include="DataAccess\MongoDataContextFactory.cs" />
+    <Compile Include="DataAccess\TypeDensityDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PrettyLog.Core\PrettyLog.Core.csproj">
-      <Project>{DD6E0E3B-7E47-4605-AD25-A55ABF2D02A9}</Project>
-      <Name>PrettyLog.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Web\Web.csproj">
-      <Project>{38fbb1c0-4832-4813-9fa1-b1fddf80d8aa}</Project>
-      <Name>Web</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

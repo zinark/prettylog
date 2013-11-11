@@ -1,6 +1,6 @@
 using System;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class LogDensityDto
     {

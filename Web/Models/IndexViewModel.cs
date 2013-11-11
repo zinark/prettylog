@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using PrettyLog.Core.DataAccess;
 using Web.Controllers;
-using Web.DataAccess;
 
 namespace Web.Models
 {

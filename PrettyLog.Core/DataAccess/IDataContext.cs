@@ -1,6 +1,6 @@
-﻿using System.Linq;
+using System.Linq;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public interface IDataContext
     {

@@ -1,8 +1,8 @@
-﻿using System.Linq;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class MongoDataContext : IDataContext
     {
@@ -15,17 +15,17 @@ namespace Web.DataAccess
 
         public IQueryable<T> Query<T>(string collectionName)
         {
-            return _db.GetCollection<T>(collectionName).FindAll().AsQueryable();
+            return Queryable.AsQueryable<T>(_db.GetCollection<T>(collectionName).FindAll());
         }
 
         public IQueryable<T> Query<T>(string collectionName, object queryObject)
         {
-            return _db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(queryObject.ToBsonDocument())).AsQueryable();
+            return Queryable.AsQueryable<T>(_db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(queryObject.ToBsonDocument())));
         }
 
         public IQueryable<T> Query<T>(string collectionName, string queryJson)
         {
-            return _db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(BsonDocument.Parse(queryJson))).AsQueryable();
+            return Queryable.AsQueryable<T>(_db.GetCollection<T>(collectionName).FindAs<T>(new QueryDocument(BsonDocument.Parse(queryJson))));
         }
 
         public void Save<T>(string collectionName, T document)

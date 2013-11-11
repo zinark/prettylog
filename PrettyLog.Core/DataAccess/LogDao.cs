@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace Web.DataAccess
+namespace PrettyLog.Core.DataAccess
 {
     public class LogDao : ILogDao
     {

@@ -6,8 +6,8 @@ using MongoDB.Driver;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using PrettyLog.Core.DataAccess;
 using Shouldly;
-using Web.DataAccess;
 
 namespace PrettyLog.Tests
 {
