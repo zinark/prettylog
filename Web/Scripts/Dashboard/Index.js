@@ -206,7 +206,38 @@ var queryFilters = {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
+
+        var links = "";
+        var jsonObject = JSON.parse(log.Object);
+        for (var object in jsonObject) {
+            var value = jsonObject[object];
+            if (value instanceof Array) {
+                links += "| <a href='#inlineObject' class='objLink' rel='" + value + "'>" + object + "</a> |";
+            }
+        }
+
+        var table = ConvertJsonToTable([jsonObject], 'dataTable', null, 'links');
+
         $('#txtObject').text(log.Object);
+        $('#links').html(links);
+        $('#dataTable').html(table);
+
+        $(".objLink").fancybox({
+            maxWidth: 800,
+            maxHeight: 600,
+            beforeShow: function () {
+                var value = this.element[0].rel.split(',');
+                var dizin = []; var i = 0;
+                value.forEach(function (val) {
+                    dizin[i] = val;
+                    i++;
+                });
+
+                var table = ConvertJsonToTable([dizin], 'dataTable', null, 'links');
+                $("#inlineObject").html(table);
+            }
+        });
+
     }
 };
 
@@ -287,6 +318,10 @@ function packagesLoaded() {
 }
 
 $(document).ready(function () {
+
+
+
+
     $('#btnQuery').click(queryFilters.queryRequested);
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
