@@ -36,7 +36,7 @@ var dataLoadEvents = {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
         logsTable.draw(logsData, { page: 'enable', pageSize: 15 });
-        
+
         google.visualization.events.addListener(logsTable, 'select', function () {
             var selectedRow = logsTable.getSelection()[0].row;
             var selectedLine = {
@@ -47,7 +47,7 @@ var dataLoadEvents = {
             };
             queryFilters.logSelected(selectedLine);
         });
-        
+
     },
     logsError: function (data) {
         console.log(data);
@@ -151,13 +151,13 @@ var dataLoadEvents = {
             var state = variables.logDensityControl.getState().range;
             queryFilters.dateFilterSelected(state.start, state.end);
         });
-        
+
         google.visualization.events.addListener(variables.logDensityChart, 'select', function () {
             var selectedItem = variables.logDensityChart.getChart().getSelection()[0];
             var value = variables.logDensityData.getValue(selectedItem.row, 0);
             queryFilters.daySelected(value);
         });
-        
+
 
         dashboard.bind(variables.logDensityControl, variables.logDensityChart);
         dashboard.draw(variables.logDensityData);
@@ -190,8 +190,20 @@ var queryFilters = {
         query.query = editor.getSession().getValue();
         ui.refreshViews();
     },
-    logSelected: function(log) {
-        $('#txtTimeStamp').text(moment (log.TimeStamp).utc().format ('DD/MM/YYYY hh:mm:ss'));
+    newQueryPressed: function () {
+        query = {
+            query: '{}',
+            start: new Date(1999, 1, 1),
+            end: new Date(),
+            limit: 1000,
+            types: [],
+            messages: []
+        };
+        ui.drawFilters();
+        ui.refreshViews();
+    },
+    logSelected: function (log) {
+        $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
         $('#txtObject').text(log.Object);
@@ -199,7 +211,7 @@ var queryFilters = {
 };
 
 var ui = {
-    drawFilters : function() {
+    drawFilters: function () {
         $('#queryFilters').html(JSON.stringify(query));
     },
     refreshViews: function () {
@@ -219,8 +231,8 @@ var ui = {
             query: query.query,
             start: query.start,
             end: query.end,
-            types : query.types,
-            messages : query.messages
+            types: query.types,
+            messages: query.messages
         };
 
         $.ajax({
@@ -276,7 +288,7 @@ function packagesLoaded() {
 
 $(document).ready(function () {
     $('#btnQuery').click(queryFilters.queryRequested);
-
+    $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/javascript");
