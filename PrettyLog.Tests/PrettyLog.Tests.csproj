@@ -64,6 +64,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PrettyLog.Core\PrettyLog.Core.csproj">
+      <Project>{DD6E0E3B-7E47-4605-AD25-A55ABF2D02A9}</Project>
+      <Name>PrettyLog.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Web\Web.csproj">
       <Project>{38fbb1c0-4832-4813-9fa1-b1fddf80d8aa}</Project>
       <Name>Web</Name>
