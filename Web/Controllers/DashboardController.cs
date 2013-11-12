@@ -129,9 +129,9 @@ namespace Web.Controllers
                             new {v = x.Object},
                             new {v = x.ThreadId},
                 }
-            });
+            }).ToList();
 
-            return Json(new
+            var json = Json(new
             {
                 cols = new[]
                 {
@@ -143,6 +143,8 @@ namespace Web.Controllers
                 },
                 rows = rows
             });
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
     }
 }
