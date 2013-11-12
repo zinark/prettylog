@@ -71,7 +71,7 @@ var dataLoadEvents = {
                 'height': 200
             });
 
-        // typesTable.draw(typesData, { page: 'enable', pageSize: 5 });
+        variables.typesTable.draw(variables.typesData, { page: 'enable', pageSize: 5 });
     },
     typesError: function (data) {
         console.log(data);
@@ -95,7 +95,7 @@ var dataLoadEvents = {
                 'height': 200
             });
 
-        // messagesTable.draw(messagesData, { page: 'enable', pageSize: 5 });
+        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 5 });
     },
     messagesError: function (data) {
         console.log(data);
