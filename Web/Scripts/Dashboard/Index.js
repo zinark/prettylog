@@ -2,8 +2,8 @@
 
 var query = {
     query: '{}',
-    start: moment ().subtract ('days', 7),
-    end: moment (),
+    start: moment().subtract('days', 7),
+    end: moment(),
     limit: 1000,
     types: [],
     messages: []
@@ -216,6 +216,8 @@ var queryFilters = {
             }
         }
 
+        recursiveJsonObject(jsonObject);
+
         var table = ConvertJsonToTable([jsonObject], 'dataTable', null, 'links');
 
         $('#txtObject').text(log.Object);
@@ -227,13 +229,8 @@ var queryFilters = {
             maxHeight: 600,
             beforeShow: function () {
                 var value = this.element[0].rel.split(',');
-                var dizin = []; var i = 0;
-                value.forEach(function (val) {
-                    dizin[i] = val;
-                    i++;
-                });
-
-                var table = ConvertJsonToTable([dizin], 'dataTable', null, 'links');
+                var dict = convertListToDict(value);
+                var table = ConvertJsonToTable([dict], 'dataTable', null, 'links');
                 $("#inlineObject").html(table);
             }
         });
@@ -315,6 +312,31 @@ var ui = {
 function packagesLoaded() {
     ui.refreshViews();
     ui.drawFilters();
+}
+
+function convertListToDict(list) {
+
+    var dict = [];
+    var i = 0;
+    list.forEach(function (val) {
+        dict[i] = val;
+        i++;
+    });
+
+    return dict;
+}
+
+
+function recursiveJsonObject(jsonObject) {
+
+    for (var key in jsonObject) {
+        var val = jsonObject[key];
+        if (val instanceof Array) {
+            jsonObject[key] = convertListToDict(val);
+        }
+    }
+
+    return jsonObject;
 }
 
 $(document).ready(function () {
