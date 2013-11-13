@@ -1,18 +1,28 @@
-﻿@model dynamic
-
-@{
-    Layout = null;
-}
+﻿@model PrettyLog.Core.DataAccess.LogDto
 
 <!DOCTYPE html>
-
 <html>
     <head>
         <title>title</title>
     </head>
     <body>
         <div>
-            He he!  
+            @Model.Id
+        </div>
+        <div>
+            @Model.Message
+        </div>
+        <div>
+            @Model.ObjectJson
+        </div>
+        <div>
+            @Model.ThreadId
+        </div>
+        <div>
+            @Model.TimeStamp
+        </div>
+        <div>
+            @Model.Type
         </div>
     </body>
 </html>

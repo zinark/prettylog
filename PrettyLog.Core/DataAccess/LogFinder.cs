@@ -16,7 +16,7 @@ namespace PrettyLog.Core.DataAccess
             _context = context;
         }
 
-        public IEnumerable<LogItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        public IEnumerable<LogListItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
         {
             var db = (_context as MongoDataContext).GetDb();
 
@@ -51,11 +51,11 @@ namespace PrettyLog.Core.DataAccess
                       .SetLimit(limit);
 
 
-            var result = new List<LogItemDto>();
+            var result = new List<LogListItemDto>();
             
             foreach (var i in q)
             {
-                var dto = new LogItemDto
+                var dto = new LogListItemDto
                 {
                     Id = i["_id"].AsObjectId,
                     Message = i["Message"].AsString,
@@ -177,6 +177,22 @@ namespace PrettyLog.Core.DataAccess
             }
 
             return result;
+        }
+
+        public LogDto GetLogDetail(string id)
+        {
+            var db = (_context as MongoDataContext).GetDb();
+            var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
+            // var found = _context.Query<BsonDocument>("logs").FirstOrDefault(x => x["_id"] == new ObjectId(id));
+            return new LogDto()
+            {
+                Id = found["_id"].AsObjectId,
+                Message = found["Message"].AsString,
+                Type = found["Type"].AsString,
+                TimeStamp = found["TimeStamp"].ToUniversalTime(),
+                ThreadId = found["ThreadId"].AsInt32,
+                ObjectJson = GetObject(found),
+            };
         }
     }
 }
