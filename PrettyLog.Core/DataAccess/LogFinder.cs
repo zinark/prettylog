@@ -24,8 +24,8 @@ namespace PrettyLog.Core.DataAccess
 
             var qDateRange = new QueryBuilder<BsonDocument>().And
                 (
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()))),
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", end.ToUniversalTime())))
+                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
                 );
 
             generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
@@ -60,7 +60,7 @@ namespace PrettyLog.Core.DataAccess
                     Id = i["_id"].AsObjectId,
                     Message = i["Message"].AsString,
                     Type = i["Type"].AsString,
-                    TimeStamp = i["TimeStamp"].ToUniversalTime(),
+                    TimeStamp = TimeZoneInfo.ConvertTimeToUtc(i["TimeStamp"].ToUniversalTime()),
                     ThreadId = i["ThreadId"].AsInt32,
                 };
                 result.Add(dto);

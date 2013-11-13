@@ -76,9 +76,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            var NumberLong = function (o) {
-                return o;
-            };
+            var NumberLong = function (x) { return x; };
+            var CSUUID = function (x) { return x; }
+            
             var json = JSON.stringify(@Html.Raw(Model.ObjectJson));
 
             var o;
