@@ -16,9 +16,13 @@
     <script src="/Scripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="~/Scripts/jquery.fancybox.js"></script>
 
+    <script src="~/Scripts/prettyJson/underscore-min.js"></script>
+    <script src="~/Scripts/prettyJson/backbone-min.js"></script>
+    <script src="~/Scripts/prettyJson/pretty-json-min.js"></script>
+
+    @RenderSection("scripts", required: false)
 </head>
 <body>
     @RenderBody()
-    @RenderSection("scripts", required: false)
 </body>
 </html>

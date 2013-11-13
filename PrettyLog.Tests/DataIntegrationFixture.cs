@@ -78,7 +78,16 @@ namespace PrettyLog.Tests
                 new { y = 5},
                 new { name = "jack", surname = "london" },
                 new { color = "black" },
-                new { size = "large", list = new [] { 1,2,3,4}}
+                new { size = "large", list = new [] { 1,2,3,4}},
+                new
+                    {
+                        products = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}, new {code = "5012", id = 1237}},
+                        filteredWithPrices = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}},
+                        filteredWithSite = new []{ new {code = "5001", id = 1234}},
+                        errorsCount = 1,
+                        Csv = "a;b;c;d;e\r\n1;2;3;4;5;6",
+                        activeProducts = new [] {"5001", "5002", "5003", "5006"}
+                    }
             };
 
             Random r = new Random(Environment.TickCount);

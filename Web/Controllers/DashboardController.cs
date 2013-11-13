@@ -117,6 +117,7 @@ namespace Web.Controllers
         {
             var finder = new LogFinder(ContextFactory.Create());
             LogDto dto = finder.GetLogDetail(id);
+
             return View(dto);
         }
 
