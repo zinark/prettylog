@@ -16,50 +16,58 @@ namespace PrettyLog.Core.DataAccess
             _context = context;
         }
 
-        public IQueryable<LogItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        public IEnumerable<LogItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
         {
-            //var db = (_context as MongoDataContext).GetDb();
+            var db = (_context as MongoDataContext).GetDb();
 
+            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
 
-            //var qDateRange = new QueryBuilder<BsonDocument>().And
-            //    (
-            //        new QueryDocument(new BsonDocument().Add("TimeStamp",new BsonDocument().Add("$gte", start.ToUniversalTime()))),
-            //        new QueryDocument(new BsonDocument().Add("TimeStamp",new BsonDocument().Add("$lte", end.ToUniversalTime())))
-            //    );
-
-            //var qTypes = new QueryDocument(new BsonDocument().Add("Type", ""));
-
-            //db.GetCollection("logs").Find(qDateRange).;
-
-            IQueryable<BsonDocument> q = _context.Query<BsonDocument>("logs", query);
-
-            if (types != null) q = q.Where(x => types.Contains(x["Type"].AsString));
-            if (messages != null) q = q.Where(x => messages.Contains(x["Message"].AsString));
-
-            q = q
-                .Where(x => x["TimeStamp"] >= start)
-                .Where(x => x["TimeStamp"] <= end);
-
-
-            q = q.OrderByDescending(x => x["TimeStamp"]);
-            q = q.Take(limit);
-            q = q.Select(x => new BsonDocument()
-                .Add("_id", x["_id"])
-                .Add("Message", x["Message"])
-                .Add("Type", x["Type"])
+            var qDateRange = new QueryBuilder<BsonDocument>().And
+                (
+                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", end.ToUniversalTime())))
                 );
 
-            IQueryable<LogItemDto> projection = q.Select(i =>
-                                                         new LogItemDto
-                                                         {
-                                                             Id = i["_id"].AsObjectId,
-                                                             Message = i["Message"].AsString,
-                                                             Type = i["Type"].AsString,
-                                                             // TimeStamp = i["TimeStamp"].AsDateTime,
-                                                             // ThreadId = i["ThreadId"].AsInt32
-                                                         });
+            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
 
-            return projection;
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
+                }
+            
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
+                }
+
+            var q = db.GetCollection("logs")
+                      .Find(generatedQuery)
+                      .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
+                      .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId")
+                      .SetLimit(limit);
+
+
+            var result = new List<LogItemDto>();
+            
+            foreach (var i in q)
+            {
+                var dto = new LogItemDto
+                {
+                    Id = i["_id"].AsObjectId,
+                    Message = i["Message"].AsString,
+                    Type = i["Type"].AsString,
+                    TimeStamp = i["TimeStamp"].ToUniversalTime(),
+                    ThreadId = i["ThreadId"].AsInt32,
+                    Object = ""
+                };
+                result.Add(dto);
+            }
+
+            return result;
         }
 
         private static string GetObject(BsonDocument i)

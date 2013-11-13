@@ -46,7 +46,7 @@ namespace PrettyLog.Tests
                 string[] messages = null;
                 const int limit = 250;
 
-                IQueryable<LogItemDto> result = logFinder.Logs(query, start, end, types, messages, limit);
+                var result = logFinder.Logs(query, start, end, types, messages, limit);
                 result.Count().ShouldBeGreaterThan(0);
             }
         }
@@ -92,7 +92,7 @@ namespace PrettyLog.Tests
                 {
                     Message = message,
                     Type = type,
-                    ThreadId = r.Next(1, 1000).ToString(),
+                    ThreadId = r.Next(1, 1000),
                     TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
                     Object = obj
                 });

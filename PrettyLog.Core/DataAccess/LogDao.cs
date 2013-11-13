@@ -92,7 +92,7 @@ namespace PrettyLog.Core.DataAccess
                 {
                     Message = message,
                     Type = type,
-                    ThreadId = r.Next(1, 1000).ToString(),
+                    ThreadId = r.Next(1, 1000),
                     TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
                     Object = obj
                 });
