@@ -62,7 +62,6 @@ namespace PrettyLog.Core.DataAccess
                     Type = i["Type"].AsString,
                     TimeStamp = i["TimeStamp"].ToUniversalTime(),
                     ThreadId = i["ThreadId"].AsInt32,
-                    Object = ""
                 };
                 result.Add(dto);
             }

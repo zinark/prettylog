@@ -7,41 +7,46 @@
     #editor {
         width: *;
         height: 150px;
-        /*margin: 0;
-        position:fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;*/
     }
 </style>
+
 <table style="width: 100%">
     <tr>
         <td style="width: 100%"></td>
     </tr>
     <tr>
         <td>
-            <div id="divDash">
-                <div id="divTimelineChart" style="height: 190px;"></div>
-                <div id="divTimelineControl" style="height: 60px;"></div>
-            </div>
+            <select id="range">
+                <option>This Week</option>
+                <option>This Month</option>
+                <option>This Year</option>
+            </select>
+            <a href="javascript:;" id="btnNewQuery">New Query</a>
+            <a href="javascript:;" id="btnQuery">Query</a>
         </td>
     </tr>
     <tr>
-        <div id="divDashTable"></div>
-
+        <td>
+            <div id="queryFilters"></div>
+            <pre id="editor">
+{}</pre>
+        </td>
     </tr>
 </table>
 
 <table style="width: 100%">
     <tr>
-        <td style="width: 20%; vertical-align: top"></td>
+        <td style="width: 40%; vertical-align: top"></td>
         <td style="width: 60%; vertical-align: top"></td>
-        <td style="width: 20%; vertical-align: top"></td>
     </tr>
 
     <tr>
         <td valign="top">
+            <div id="divDash">
+                <div id="divTimelineChart" style="height: 190px;"></div>
+                <div id="divTimelineControl" style="height: 60px;"></div>
+                <div id="divDashTable"></div>
+            </div>
             <div style="padding: 10px">
                 <div id="divTypeDensityChart"></div>
                 <div id="divTypeDensity"></div>
@@ -53,52 +58,6 @@
         </td>
         <td valign="top">
             <div id="divLogs"></div>
-        </td>
-        <td valign="top">
-            <div style="padding: 15px">
-                <b>TimeStamp</b>
-                <p id="txtTimeStamp">---</p>
-                <b>Type</b>
-                <p id="txtType">---</p>
-                <b>Message</b>
-                <p id="txtMessage">---</p>
-                <b>Object</b>
-                <p id="txtObject">---</p>
-                
-                <p id="links">-</p>
-                <p id="inlineObject" style="display: none;">x</p>
-                
-                <table id="dataTable" style="border:solid 1px #999;">
-                    <thead></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </td>
-    </tr>
-</table>
-
-<table style="width: 100%">
-    <tr>
-        <td style="width: 80%"></td>
-        <td style="width: 20%"></td>
-    </tr>
-    <tr>
-        <td>
-            <div id="queryFilters"></div>
-            <pre id="editor">
-{}</pre>
-        </td>
-        <td>
-            <p>
-                <select id="range">
-                    <option>This Week</option>
-                    <option>This Month</option>
-                    <option>This Year</option>
-                </select>
-            </p>
-
-            <a href="javascript:;" id="btnNewQuery">New Query</a>
-            <a href="javascript:;" id="btnQuery">Query</a>
         </td>
     </tr>
 </table>
