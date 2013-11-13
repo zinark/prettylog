@@ -72,17 +72,20 @@
         /* eof leaf */
     </style>
     
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
 
     <script type="text/javascript">
         $(document).ready(function () {
-          
+
+            var NumberLong = function (o) {
+                return o;
+            };
             var json = JSON.stringify(@Html.Raw(Model.ObjectJson));
 
             var o;
             try { o = JSON.parse(json); }
             catch (e) {
                 alert('not valid JSON');
+                console.log(e);
                 return;
             }
 
