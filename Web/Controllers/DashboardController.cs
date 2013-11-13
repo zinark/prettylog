@@ -115,8 +115,9 @@ namespace Web.Controllers
 
         public ActionResult Detail(string id)
         {
-
-            return View();
+            var finder = new LogFinder(ContextFactory.Create());
+            LogDto dto = finder.GetLogDetail(id);
+            return View(dto);
         }
 
         [HttpPost]
@@ -129,10 +130,10 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToUniversalTime().ToString("dd/MM/yyyy hh:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
-                            new {v = "<a href='/Dashboard/Detail?id="+x.Id+"'> Open </a>"},
+                            new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
                             new {v = x.ThreadId},
                 }
             }).ToList();

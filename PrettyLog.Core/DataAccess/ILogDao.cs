@@ -5,7 +5,7 @@ namespace PrettyLog.Core.DataAccess
 {
     public interface ILogDao
     {
-        IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange);
+        IEnumerable<LogListItemDto> Logs(string query, TimeSpan dateRange);
         void GenerateData();
     }
 }

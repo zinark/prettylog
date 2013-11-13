@@ -19,13 +19,13 @@ namespace PrettyLog.Core.DataAccess
             .GetDatabase(Mongodatabase)
             .GetCollection<BsonDocument>(Mongocollection);
 
-        public IEnumerable<LogItemDto> Logs(string query, TimeSpan dateRange)
+        public IEnumerable<LogListItemDto> Logs(string query, TimeSpan dateRange)
         {
             logs.EnsureIndex("TimeStamp", "Type", "Message");
             logs.EnsureIndex("TimeStamp", "Message");
             logs.EnsureIndex("TimeStamp", "Object");
             
-            var result = new List<LogItemDto>();
+            var result = new List<LogListItemDto>();
 
             var queryMain = new QueryDocument(BsonDocument.Parse(query));
             var queryDateFilter = Query.GT("TimeStamp", new BsonDateTime(DateTime.Now.Date.Subtract(dateRange)));
@@ -39,7 +39,7 @@ namespace PrettyLog.Core.DataAccess
                     TimeStamp = -1
                 }.ToBsonDocument())))
             {
-                result.Add(new LogItemDto
+                result.Add(new LogListItemDto
                 {
                     Id = i["_id"].AsObjectId,
                     Message = i["Message"].AsString,
