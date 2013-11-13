@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -36,6 +37,16 @@ namespace PrettyLog.Core.DataAccess
         public void Drop(string collectionName)
         {
             _db.DropCollection(collectionName);
+        }
+
+        public MongoDatabase GetDb ()
+        {
+            return _db;
+        }
+
+        public IEnumerable<BsonDocument> Aggregate(string collectionName, params BsonDocument[] docs)
+        {
+            return _db.GetCollection(collectionName).Aggregate(docs).ResultDocuments;
         }
     }
 }

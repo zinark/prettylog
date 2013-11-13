@@ -54,7 +54,7 @@ namespace PrettyLog.Tests
         [Test]
         public void json_date_prob()
         {
-            var obj = new {day = DateTime.Now};
+            var obj = new { day = DateTime.Now };
             Console.WriteLine(JsonConvert.SerializeObject(obj, new JavaScriptDateTimeConverter()));
         }
 
@@ -97,6 +97,21 @@ namespace PrettyLog.Tests
                     Object = obj
                 });
             });
+        }
+
+        [Test]
+        public void bson_parse_test()
+        {
+            var q = @"{
+ id: 1,
+ name: 'J-E-L-L-O',
+ store:[{id: 1,
+    name: 'Store X'},
+    {id: 2,
+    name: 'Store Y'}]
+}";
+            var b = BsonDocument.Parse(q);
+            b.ShouldNotBe(null);
         }
     }
 }
