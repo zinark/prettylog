@@ -115,6 +115,7 @@ namespace Web.Controllers
 
         public ActionResult Detail(string id)
         {
+
             return View();
         }
 
@@ -131,7 +132,7 @@ namespace Web.Controllers
                             new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
-                            new {v = "<a href='/Dashboard/Detail?id"+x.Id+"'> Open </a>"},
+                            new {v = "<a href='/Dashboard/Detail?id="+x.Id+"'> Open </a>"},
                             new {v = x.ThreadId},
                 }
             }).ToList();

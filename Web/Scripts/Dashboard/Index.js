@@ -341,9 +341,18 @@ function recursiveJsonObject(jsonObject) {
 
 $(document).ready(function () {
     $('#btnQuery').click(queryFilters.queryRequested);
+    
+    $('#editor').keydown(function (e) {
+        if (e.ctrlKey && e.keyCode == 13) {
+            queryFilters.queryRequested();
+        }
+    });
+    
+    
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/twilight");
     editor.getSession().setMode("ace/mode/javascript");
-    editor.setFontSize(10);
+    editor.setFontSize(14);
+    
 });
