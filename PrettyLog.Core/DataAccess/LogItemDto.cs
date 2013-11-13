@@ -10,6 +10,5 @@ namespace PrettyLog.Core.DataAccess
         public DateTime TimeStamp { get; set; }
         public string Message { get; set; }
         public int ThreadId { get; set; }
-        public string Object { get; set; }
     }
 }

@@ -35,7 +35,7 @@ var dataLoadEvents = {
     logsParsedSuccessfully: function (json) {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { page: 'enable', pageSize: 15 });
+        logsTable.draw(logsData, { page: 'enable', pageSize: 30, allowHtml : true });
 
         google.visualization.events.addListener(logsTable, 'select', function () {
             var selectedRow = logsTable.getSelection()[0].row;
@@ -126,7 +126,7 @@ var dataLoadEvents = {
             'containerId': 'divTimelineControl',
             'options': {
                 'filterColumnIndex': 0,
-                'state': { 'range': { 'start': moment().subtract('days', 7).toDate(), 'end': moment().toDate() } },
+                'state': { 'range': { 'start': moment().subtract('days', 3).toDate(), 'end': moment().toDate() } },
                 ui: {
                     'labelStacking': 'horizontal',
                     'chartType': 'ScatterChart',
@@ -142,7 +142,7 @@ var dataLoadEvents = {
                             'format': 'dd/MM/yy',
                         }
                     },
-                    'minRangeSize': 1000 * 60 * 60 // 86400000
+                    'minRangeSize': 86400000
                 }
             }
         });
@@ -340,14 +340,10 @@ function recursiveJsonObject(jsonObject) {
 }
 
 $(document).ready(function () {
-
-
-
-
     $('#btnQuery').click(queryFilters.queryRequested);
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
-    editor.setTheme("ace/theme/textmate");
+    editor.setTheme("ace/theme/twilight");
     editor.getSession().setMode("ace/mode/javascript");
-    editor.setFontSize(14);
+    editor.setFontSize(10);
 });
