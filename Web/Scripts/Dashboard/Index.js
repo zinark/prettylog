@@ -206,35 +206,6 @@ var queryFilters = {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
-
-        var links = "";
-        var jsonObject = JSON.parse(log.Object);
-        for (var object in jsonObject) {
-            var value = jsonObject[object];
-            if (value instanceof Array) {
-                links += "| <a href='#inlineObject' class='objLink' rel='" + value + "'>" + object + "</a> |";
-            }
-        }
-
-        recursiveJsonObject(jsonObject);
-
-        var table = ConvertJsonToTable([jsonObject], 'dataTable', null, 'links');
-
-        $('#txtObject').text(log.Object);
-        $('#links').html(links);
-        $('#dataTable').html(table);
-
-        $(".objLink").fancybox({
-            maxWidth: 800,
-            maxHeight: 600,
-            beforeShow: function () {
-                var value = this.element[0].rel.split(',');
-                var dict = convertListToDict(value);
-                var table = ConvertJsonToTable([dict], 'dataTable', null, 'links');
-                $("#inlineObject").html(table);
-            }
-        });
-
     }
 };
 
@@ -324,19 +295,6 @@ function convertListToDict(list) {
     });
 
     return dict;
-}
-
-
-function recursiveJsonObject(jsonObject) {
-
-    for (var key in jsonObject) {
-        var val = jsonObject[key];
-        if (val instanceof Array) {
-            jsonObject[key] = convertListToDict(val);
-        }
-    }
-
-    return jsonObject;
 }
 
 $(document).ready(function () {
