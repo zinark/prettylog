@@ -340,6 +340,7 @@ function recursiveJsonObject(jsonObject) {
 }
 
 $(document).ready(function () {
+
     $('#btnQuery').click(queryFilters.queryRequested);
     
     $('#editor').keydown(function (e) {
@@ -348,11 +349,13 @@ $(document).ready(function () {
         }
     });
     
-    
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/twilight");
     editor.getSession().setMode("ace/mode/javascript");
     editor.setFontSize(14);
+    editor.setOptions({
+        maxLines: Infinity,
+    });
     
 });
