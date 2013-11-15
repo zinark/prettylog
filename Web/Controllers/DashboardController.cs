@@ -136,6 +136,8 @@ namespace Web.Controllers
                             new {v = x.Message},
                             new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
                             new {v = x.ThreadId},
+                            new {v = x.Ip},
+                            new {v = x.Host},
                 }
             }).ToList();
 
@@ -148,6 +150,8 @@ namespace Web.Controllers
                     new {id = "Message", label = "Message", type = "string"},
                     new {id = "Object", label = "Object", type = "string"},
                     new {id = "ThreadId", label = "ThreadId", type = "number"},
+                    new {id = "Ip", label = "Ip", type = "string"},
+                    new {id = "Host", label = "Host", type = "string"},
                 },
                 rows = rows
             });

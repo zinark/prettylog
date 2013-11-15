@@ -62,11 +62,21 @@ namespace PrettyLog.Core.DataAccess
                     Type = i["Type"].AsString,
                     TimeStamp = ToLocal(i["TimeStamp"].ToUniversalTime()),
                     ThreadId = i["ThreadId"].AsInt32,
+                    ApplicationName = GetStringValue(i, "ApplicationName"),
+                    Ip = GetStringValue(i, "Ip"),
+                    Host = GetStringValue(i, "Host"),
+                    Url = GetStringValue(i, "Url")
                 };
                 result.Add(dto);
             }
 
             return result;
+        }
+
+        static string GetStringValue(BsonDocument i, string key)
+        {
+            if (!i.Contains(key)) return "null";
+            return i[key].AsString;
         }
 
         static DateTime ToLocal(DateTime date)
@@ -197,6 +207,10 @@ namespace PrettyLog.Core.DataAccess
                 TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
                 ThreadId = found["ThreadId"].AsInt32,
                 ObjectJson = GetObject(found),
+                ApplicationName = GetStringValue(found, "ApplicationName"),
+                Ip = GetStringValue(found, "Ip"),
+                Host = GetStringValue(found, "Host"),
+                Url = GetStringValue(found, "Url")
             };
         }
     }
