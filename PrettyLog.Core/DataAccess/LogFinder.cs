@@ -100,8 +100,8 @@ namespace PrettyLog.Core.DataAccess
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
                      new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
+                                            new BsonDocument().Add("$gte", start)
+                                                              .Add("$lte", end)));
 
             BsonDocument group1 = new BsonDocument()
                 .Add("$group",
@@ -134,8 +134,8 @@ namespace PrettyLog.Core.DataAccess
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
                      new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
+                                            new BsonDocument().Add("$gte", start)
+                                                              .Add("$lte", end)));
 
             BsonDocument group1 = new BsonDocument()
                 .Add("$group",
@@ -163,28 +163,45 @@ namespace PrettyLog.Core.DataAccess
 
         public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
-            // {$group : { _id : { year : { $year : '$TimeStamp' }, month : { $month : '$TimeStamp' }, day : {$dayOfMonth : '$TimeStamp'} }, count : { $sum : 1 }       }},
-
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-            
             // BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
-            
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
 
-            BsonDocument group1 = new BsonDocument()
+            var operators = new List<BsonDocument>();
+
+            operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
+            
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
+                    operators.Add(matchQueryType);
+                }
+            
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
+                    operators.Add(matchQueryMessage);
+                }
+
+            operators.Add(
+                new BsonDocument()
+                    .Add("$match",
+                         new BsonDocument().Add("TimeStamp",
+                                                new BsonDocument().Add("$gte", start)
+                                                                  .Add("$lte", end)))
+                );
+
+            operators.Add(new BsonDocument()
                 .Add("$group",
                      new BsonDocument().Add("_id", new BsonDocument()
                                                        .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
                                                        .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
                                                        .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
                          )
-                .Add("count", new BsonDocument().Add("$sum", 1)));
+                .Add("count", new BsonDocument().Add("$sum", 1)))
+                );
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchQuery, matchDate, group1);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
 
             var result = new List<LogDensityDto>();
             foreach (BsonDocument group in groups)
@@ -203,7 +220,6 @@ namespace PrettyLog.Core.DataAccess
         {
             var db = (_context as MongoDataContext).GetDb();
             var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
-            // var found = _context.Query<BsonDocument>("logs").FirstOrDefault(x => x["_id"] == new ObjectId(id));
             return new LogDto()
             {
                 Id = found["_id"].AsObjectId,
@@ -284,7 +300,7 @@ namespace PrettyLog.Core.DataAccess
             };
 
             Random r = new Random(Environment.TickCount);
-            Enumerable.Range(1, 2000).ToList().ForEach(i =>
+            Enumerable.Range(1, 100000).ToList().ForEach(i =>
             {
                 var type = types[r.Next(types.Length)];
                 var message = messages[r.Next(messages.Length)];

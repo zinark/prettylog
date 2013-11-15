@@ -1,13 +1,17 @@
 ﻿var editor = null;
+var query = DefaultQuery();
 
-var query = {
-    query: '{}',
-    start: moment().subtract('days', 7),
-    end: moment(),
-    limit: 1000,
-    types: [],
-    messages: []
-};
+function DefaultQuery()
+{
+    return {
+        query: '{}',
+        start: moment().subtract('days', 7),
+        end: moment(),
+        limit: 1000,
+        types: [],
+        messages: []
+    };
+}
 
 var variables = {
 
@@ -32,12 +36,14 @@ google.load('visualization', '1', { 'packages': ['corechart', 'table', 'controls
 google.setOnLoadCallback(packagesLoaded);
 
 var dataLoadEvents = {
-    logsParsedSuccessfully: function (json) {
+    logsParsedSuccessfully: function (json)
+    {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { page: 'enable', pageSize: 30, allowHtml: true });
+        logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true });
 
-        google.visualization.events.addListener(logsTable, 'select', function () {
+        google.visualization.events.addListener(logsTable, 'select', function ()
+        {
             var selectedRow = logsTable.getSelection()[0].row;
             var selectedLine = {
                 TimeStamp: logsData.getValue(selectedRow, 0),
@@ -49,17 +55,21 @@ var dataLoadEvents = {
         });
 
     },
-    logsError: function (data) {
+    logsError: function (data)
+    {
         console.log(data);
     },
-    typesParsedSuccessfully: function (json) {
+    typesParsedSuccessfully: function (json)
+    {
         variables.typesData = new google.visualization.DataTable(json);
         variables.typesTable = new google.visualization.Table(document.getElementById('divTypeDensity'));
         variables.typesChart = new google.visualization.PieChart(document.getElementById('divTypeDensityChart'));
 
-        google.visualization.events.addListener(variables.typesChart, 'select', function () {
+        google.visualization.events.addListener(variables.typesChart, 'select', function ()
+        {
             var selectedItem = variables.typesChart.getSelection()[0];
-            if (selectedItem != null) {
+            if (selectedItem != null)
+            {
                 var value = variables.typesData.getValue(selectedItem.row, 0);
                 queryFilters.typeFilterSelected(value);
             }
@@ -73,17 +83,21 @@ var dataLoadEvents = {
 
         variables.typesTable.draw(variables.typesData, { page: 'enable', pageSize: 5 });
     },
-    typesError: function (data) {
+    typesError: function (data)
+    {
         console.log(data);
     },
-    messagesParsedSuccessfully: function (json) {
+    messagesParsedSuccessfully: function (json)
+    {
         variables.messagesData = new google.visualization.DataTable(json);
         variables.messagesTable = new google.visualization.Table(document.getElementById('divMessageDensity'));
         variables.messagesChart = new google.visualization.PieChart(document.getElementById('divMessageDensityChart'));
 
-        google.visualization.events.addListener(variables.messagesChart, 'select', function () {
+        google.visualization.events.addListener(variables.messagesChart, 'select', function ()
+        {
             var selectedItem = variables.messagesChart.getSelection()[0];
-            if (selectedItem != null) {
+            if (selectedItem != null)
+            {
                 var value = variables.messagesData.getValue(selectedItem.row, 0);
                 queryFilters.messageFilterSelected(value);
             }
@@ -97,14 +111,17 @@ var dataLoadEvents = {
 
         variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 5 });
     },
-    messagesError: function (data) {
+    messagesError: function (data)
+    {
         console.log(data);
     },
-    logDensityParsedSuccessfuly: function (json) {
+    logDensityParsedSuccessfuly: function (json)
+    {
         variables.logDensityData = new google.visualization.DataTable(json);
 
         // fix dates
-        json.rows.forEach(function (row) {
+        json.rows.forEach(function (row)
+        {
             var val = row.c[0].v;
             var d = moment(val).toDate();
             row.c[0].v = d;
@@ -147,12 +164,14 @@ var dataLoadEvents = {
             }
         });
 
-        google.visualization.events.addListener(variables.logDensityControl, 'statechange', function () {
+        google.visualization.events.addListener(variables.logDensityControl, 'statechange', function ()
+        {
             var state = variables.logDensityControl.getState().range;
             queryFilters.dateFilterSelected(state.start, state.end);
         });
 
-        google.visualization.events.addListener(variables.logDensityChart, 'select', function () {
+        google.visualization.events.addListener(variables.logDensityChart, 'select', function ()
+        {
             var selectedItem = variables.logDensityChart.getChart().getSelection()[0];
             var value = variables.logDensityData.getValue(selectedItem.row, 0);
             queryFilters.daySelected(value);
@@ -162,47 +181,49 @@ var dataLoadEvents = {
         dashboard.bind(variables.logDensityControl, variables.logDensityChart);
         dashboard.draw(variables.logDensityData);
     },
-    logDensityError: function (data) {
+    logDensityError: function (data)
+    {
         console.log(data);
     },
 };
 
 var queryFilters = {
-    typeFilterSelected: function (type) {
+    typeFilterSelected: function (type)
+    {
         query.types = [type];
         ui.drawFilters();
     },
-    messageFilterSelected: function (message) {
+    messageFilterSelected: function (message)
+    {
         query.messages = [message];
         ui.drawFilters();
     },
-    dateFilterSelected: function (startDate, endDate) {
+    dateFilterSelected: function (startDate, endDate)
+    {
         query.start = startDate;
         query.end = endDate;
         ui.drawFilters();
     },
-    daySelected: function (date) {
+    daySelected: function (date)
+    {
         query.start = date;
         query.end = moment(date).add('days', 1);
         ui.drawFilters();
     },
-    queryRequested: function () {
+    queryRequested: function ()
+    {
         query.query = editor.getSession().getValue();
-        ui.refreshViews();
-    },
-    newQueryPressed: function () {
-        query = {
-            query: '{}',
-            start: moment().subtract('days', 7),
-            end: moment(),
-            limit: 1000,
-            types: [],
-            messages: []
-        };
         ui.drawFilters();
         ui.refreshViews();
     },
-    logSelected: function (log) {
+    newQueryPressed: function ()
+    {
+        query = DefaultQuery();
+        ui.drawFilters();
+        ui.refreshViews();
+    },
+    logSelected: function (log)
+    {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
         $('#txtType').text(log.Type);
         $('#txtMessage').text(log.Message);
@@ -210,12 +231,14 @@ var queryFilters = {
 };
 
 var ui = {
-    drawFilters: function () {
+    drawFilters: function ()
+    {
         $('#queryFilters').html(JSON.stringify(query));
     },
-    refreshViews: function () {
+    refreshViews: function ()
+    {
         $('#loading').show();
-        
+
         var typesQuery = {
             query: query.query,
             start: query.start,
@@ -235,7 +258,7 @@ var ui = {
             types: query.types,
             messages: query.messages
         };
-        
+
 
         var a1 = $.ajax({
             type: 'post',
@@ -285,11 +308,13 @@ var ui = {
 
 
         $
-            .when(a1, a2, a3,a4)
+            .when(a1, a2, a3, a4)
 
-            .then(function () {
+            .then(function ()
+            {
                 $('#loading').hide();
-            }, function () {
+            }, function ()
+            {
                 $('#loading').hide();
             });
 
@@ -297,16 +322,19 @@ var ui = {
     }
 };
 
-function packagesLoaded() {
+function packagesLoaded()
+{
     ui.refreshViews();
     ui.drawFilters();
 }
 
-function convertListToDict(list) {
+function convertListToDict(list)
+{
 
     var dict = [];
     var i = 0;
-    list.forEach(function (val) {
+    list.forEach(function (val)
+    {
         dict[i] = val;
         i++;
     });
@@ -314,12 +342,15 @@ function convertListToDict(list) {
     return dict;
 }
 
-$(document).ready(function () {
+$(document).ready(function ()
+{
 
     $('#btnQuery').click(queryFilters.queryRequested);
 
-    $('#editor').keydown(function (e) {
-        if (e.ctrlKey && e.keyCode == 13) {
+    $('#editor').keydown(function (e)
+    {
+        if (e.ctrlKey && e.keyCode == 13)
+        {
             queryFilters.queryRequested();
         }
     });

@@ -83,7 +83,7 @@ namespace Web.Controllers
         public ActionResult TestData()
         {
             new LogFinder(ContextFactory.Create()).GenerateData();
-            return Index();
+            return View("Index");
         }
 
         [HttpPost]
