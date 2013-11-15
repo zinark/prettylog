@@ -16,26 +16,28 @@
     </tr>
     <tr>
         <td>
-            <select id="range">
-                <option>Last Day</option>
-                <option>This Week</option>
-                <option>This Month</option>
-                <option>This Year</option>
-            </select>
             <a href="javascript:;" id="btnNewQuery">New Query</a>
+
+            <select id="range">
+                <option value="1">This Day</option>
+                <option value="7">This Week</option>
+                <option value="14">This 2 Week</option>
+                <option value="30">This Month</option>
+            </select>
+            
             <a href="javascript:;" id="btnQuery">Query</a>
         </td>
     </tr>
     <tr>
         <td>
-            <div id="queryFilters"></div>
             <pre id="editor">
 {
-    Type : //
+    Type : /.*/
 }</pre>
         </td>
     </tr>
 </table>
+<div id="queryFilters"></div>
 <div id='hits'></div>
 <table style="width: 100%">
     <tr>

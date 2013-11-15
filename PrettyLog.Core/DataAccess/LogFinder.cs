@@ -174,7 +174,7 @@ namespace PrettyLog.Core.DataAccess
         {
             var operators = new List<BsonDocument>();
 
-            // operators.Add(new BsonDocument().Add("$limit", 5000));
+            operators.Add(new BsonDocument().Add("$limit", 21000));
             operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
             
             if (types != null)

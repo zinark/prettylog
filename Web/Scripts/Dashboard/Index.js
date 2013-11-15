@@ -81,7 +81,7 @@ var dataLoadEvents = {
                 'height': 200
             });
 
-        variables.typesTable.draw(variables.typesData, { page: 'enable', pageSize: 5 });
+        variables.typesTable.draw(variables.typesData, { page: 'enable', pageSize: 10 });
     },
     typesError: function (data)
     {
@@ -109,7 +109,7 @@ var dataLoadEvents = {
                 'height': 200
             });
 
-        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 5 });
+        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 10 });
     },
     messagesError: function (data)
     {
@@ -354,10 +354,15 @@ $(document).ready(function ()
             queryFilters.queryRequested();
         }
     });
-
+    $('#range').change(function() {
+        var r = $('#range').val();
+        query.start = moment().subtract('days',r);
+        ui.drawFilters();
+    });
+    
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
-    editor.setTheme("ace/theme/twilight");
+    editor.setTheme("ace/theme/solarized_light");
     editor.getSession().setMode("ace/mode/javascript");
     editor.setFontSize(14);
     editor.setOptions({
