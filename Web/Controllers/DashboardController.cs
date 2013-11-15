@@ -138,6 +138,7 @@ namespace Web.Controllers
                             new {v = x.ThreadId},
                             new {v = x.Ip},
                             new {v = x.Host},
+                            new {v = x.ApplicationName}
                 }
             }).ToList();
 
