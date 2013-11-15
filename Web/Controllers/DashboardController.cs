@@ -152,6 +152,7 @@ namespace Web.Controllers
                     new {id = "ThreadId", label = "ThreadId", type = "number"},
                     new {id = "Ip", label = "Ip", type = "string"},
                     new {id = "Host", label = "Host", type = "string"},
+                    new {id = "ApplicationName", label = "ApplicationName", type = "string"},
                 },
                 rows = rows
             });

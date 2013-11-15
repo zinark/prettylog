@@ -75,7 +75,8 @@ namespace PrettyLog.Core.DataAccess
 
         static string GetStringValue(BsonDocument i, string key)
         {
-            if (!i.Contains(key)) return "null";
+            if (!i.Contains(key)) return "";
+            if (i[key].IsBsonNull) return "";
             return i[key].AsString;
         }
 
