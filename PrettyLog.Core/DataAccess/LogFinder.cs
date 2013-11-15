@@ -167,7 +167,7 @@ namespace PrettyLog.Core.DataAccess
 
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
             
-            BsonDocument limitQuery = new BsonDocument(); //.Add("$limit", 5000);
+            // BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
             
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
@@ -184,7 +184,7 @@ namespace PrettyLog.Core.DataAccess
                          )
                 .Add("count", new BsonDocument().Add("$sum", 1)));
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchQuery, matchDate, group1);
 
             var result = new List<LogDensityDto>();
             foreach (BsonDocument group in groups)
