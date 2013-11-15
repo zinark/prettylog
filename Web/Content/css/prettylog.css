@@ -1,0 +1,40 @@
+.headerRow {
+    background-color:steelblue;
+    color: white;
+    padding: 5px;
+    margin: 5px;
+    font-family:serif;
+    font-size: 10pt;
+}
+
+.tableRow {
+    font-family: serif;
+    font-size: 7pt;
+    background-color: white;
+    color: black;
+}
+
+.oddTableRow {
+    font-family: serif;
+    font-size: 7pt;
+    background-color: #efefef;
+    color: black;
+}
+
+.selectedTableRow {
+    background-color:wheat;
+    color: black;
+}
+
+.hoverTableRow {
+    
+}
+
+.headerCell {
+}
+
+.tableCell {
+}
+
+.rowNumberCell {
+}

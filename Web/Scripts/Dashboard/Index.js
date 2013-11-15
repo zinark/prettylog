@@ -1,6 +1,18 @@
 ﻿var editor = null;
 var query = DefaultQuery();
 
+var prettyColors = ['#171717', '#242424', '#303030', '#3d3d3d', '#4a4a4a', '#575757'];
+var cssNames = {
+    headerRow: 'headerRow',
+    tableRow: 'tableRow',
+    oddTableRow: 'oddTableRow',
+    selectedTableRow: 'selectedTableRow',
+    hoverTableRow: 'hoverTableRow',
+    headerCell: 'headerCell',
+    tableCell: 'tableCell',
+    rowNumberCell: 'rowNumberCell',
+};
+
 function DefaultQuery()
 {
     return {
@@ -40,7 +52,7 @@ var dataLoadEvents = {
     {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true });
+        logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true, cssClassNames: cssNames });
         $('#hits').text('Hits : ' + json.hits);
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
@@ -78,10 +90,26 @@ var dataLoadEvents = {
         variables.typesChart.draw(variables.typesData,
             {
                 'title': 'Type Density',
-                'height': 200
+                'height': 300,
+                is3D: true,
+                fontSize: "8px",
+                fontName: "Arial",
+                colors: prettyColors,
+                legend: 'left',
+                //pieSliceText: 'label',
+                backgroundColor: '#f8f6e8',
+                pieSliceBorderColor: 'white',
+                pieSliceTextStyle: {
+                    color: 'white', fontName: 'Times', fontSize: '8px'
+                }
+
             });
 
-        variables.typesTable.draw(variables.typesData, { page: 'enable', pageSize: 10 });
+        variables.typesTable.draw(variables.typesData, {
+            page: 'enable',
+            pageSize: 10,
+            cssClassNames: cssNames
+        });
     },
     typesError: function (data)
     {
@@ -105,11 +133,23 @@ var dataLoadEvents = {
 
         variables.messagesChart.draw(variables.messagesData,
             {
-                'title': 'Message Density',
-                'height': 200
+                'title': 'Messages',
+                'height': 300,
+                is3D: true,
+                fontSize: "8px",
+                fontName: "Arial",
+                colors: prettyColors,
+                legend: 'left',
+                //pieSliceText: 'label',
+                backgroundColor: '#f8f6e8',
+                pieSliceBorderColor: 'white',
+                pieSliceTextStyle: {
+                    color: 'white', fontName: 'Times', fontSize: '8px'
+                }
+
             });
 
-        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 10 });
+        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 10, cssClassNames: cssNames });
     },
     messagesError: function (data)
     {
@@ -135,7 +175,7 @@ var dataLoadEvents = {
         variables.logDensityChart = new google.visualization.ChartWrapper({
             'chartType': 'ColumnChart',
             'containerId': 'divTimelineChart',
-            'options': { 'legend': 'none' }
+            'options': { 'legend': 'none', colors : prettyColors, backgroundColor : 'transparent' }
         });
 
         variables.logDensityControl = new google.visualization.ControlWrapper({
@@ -148,12 +188,13 @@ var dataLoadEvents = {
                     'labelStacking': 'horizontal',
                     'chartType': 'ScatterChart',
                     'chartView': { 'columns': [0, 1] },
+                    
                     'chartOptions': {
                         // 'chartArea': { left: 5, top: 0, width: "95%", height: "98%" },
                         // 'width': '100%',
                         'backgroundColor': 'transparent',
                         // 'height': 50,
-                        'colors': ['#DDDDDD', '#EEEEEE'],
+                        'colors': ['#cdcdcd'],
                         'hAxis': {
                             'baselineColor': 'white',
                             'format': 'dd/MM/yy',
@@ -354,15 +395,16 @@ $(document).ready(function ()
             queryFilters.queryRequested();
         }
     });
-    $('#range').change(function() {
+    $('#range').change(function ()
+    {
         var r = $('#range').val();
-        query.start = moment().subtract('days',r);
+        query.start = moment().subtract('days', r);
         ui.drawFilters();
     });
-    
+
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
-    editor.setTheme("ace/theme/solarized_light");
+    editor.setTheme("ace/theme/cobalt");
     editor.getSession().setMode("ace/mode/javascript");
     editor.setFontSize(14);
     editor.setOptions({

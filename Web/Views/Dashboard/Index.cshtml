@@ -32,7 +32,9 @@
         <td>
             <pre id="editor">
 {
+
     Type : /.*/
+
 }</pre>
         </td>
     </tr>
@@ -41,8 +43,8 @@
 <div id='hits'></div>
 <table style="width: 100%">
     <tr>
-        <td style="width: 40%; vertical-align: top"></td>
-        <td style="width: 60%; vertical-align: top"></td>
+        <td style="width: 30%; vertical-align: top"></td>
+        <td style="width: 90%; vertical-align: top"></td>
     </tr>
 
     <tr>
@@ -50,14 +52,12 @@
             <div id="divDash">
                 <div id="divTimelineChart" style="height: 100px;"></div>
                 <div id="divTimelineControl" style="height: 30px;"></div>
-                <div id="divDashTable"></div>
             </div>
             <div style="padding: 10px">
-                <div id="divTypeDensityChart"></div>
-                <div id="divTypeDensity"></div>
-            </div>
-            <div style="padding: 10px">
-                <div id="divMessageDensityChart"></div>
+                <div id="divTypeDensityChart" style="display:flexbox"></div>
+                <div id="divTypeDensity" style="display:flexbox"></div>
+
+                <div id="divMessageDensityChart" style="display:flexbox"></div>
                 <div id="divMessageDensity"></div>
             </div>
         </td>
@@ -66,6 +66,8 @@
         </td>
     </tr>
 </table>
+
+<div id="divDashTable"></div>
 
 <div id="loading" style="left: 0; right: 0; top: 0; bottom: 0; padding: 100px; position: absolute; text-align: center; vertical-align: central; alignment-baseline: central; background-color: black; color: white; z-index: 1000; opacity: 0.8; font-size: 24pt">
     <p>
