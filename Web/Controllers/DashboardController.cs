@@ -80,6 +80,12 @@ namespace Web.Controllers
             });
         }
         
+        public ActionResult TestData()
+        {
+            new LogFinder(ContextFactory.Create()).GenerateData();
+            return Index();
+        }
+
         [HttpPost]
         public ActionResult LogDensities(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {

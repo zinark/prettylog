@@ -27,7 +27,7 @@ namespace PrettyLog.Core.DataAccess
                     new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
                     new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
                 );
-
+                
             generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
 
             if (types != null)
@@ -217,6 +217,92 @@ namespace PrettyLog.Core.DataAccess
                 Host = GetStringValue(found, "Host"),
                 Url = GetStringValue(found, "Url")
             };
+        }
+
+        public void GenerateData()
+        {
+            var db = (_context as MongoDataContext).GetDb();
+            var logs = db.GetCollection("logs");
+
+            var types = new[]
+            {
+                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b", "integrations.c"
+            };
+
+            var messages = new[]
+            {
+                "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
+                "timeout", "response is not valid"
+            };
+            
+            var appNames = new[]
+            {
+                "job.exe",
+                "w3wp.exe",
+                null,
+                null,
+                "csc.exe",
+                null,
+                "host.exe"
+            };
+
+            var ips = new[]
+            {
+                "192.168.0.1",
+                "192.168.100.90",
+                "192.168.140.87",
+                "192.168.0.5",
+                "192.168.0.30"
+            };
+            
+            var urls = new[]
+            {
+                "http://www.google.com",
+                "http://www.yahoo.com",
+                "http://www.avansas.com",
+                "http://www.blessedcode.net",
+                "http://www.trash.com",
+                "http://www.go.com",
+            };
+
+            var objects = new object[]
+            {
+                new { x = 1, y = 5},
+                new { y = 5},
+                new { name = "jack", surname = "london" },
+                new { color = "black" },
+                new { size = "large", list = new [] { 1,2,3,4}},
+                new
+                    {
+                        products = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}, new {code = "5012", id = 1237}},
+                        filteredWithPrices = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}},
+                        filteredWithSite = new []{ new {code = "5001", id = 1234}},
+                        errorsCount = 1,
+                        Csv = "a;b;c;d;e\r\n1;2;3;4;5;6",
+                        activeProducts = new [] {"5001", "5002", "5003", "5006"}
+                    }
+            };
+
+            Random r = new Random(Environment.TickCount);
+            Enumerable.Range(1, 2000).ToList().ForEach(i =>
+            {
+                var type = types[r.Next(types.Length)];
+                var message = messages[r.Next(messages.Length)];
+                var obj = objects[r.Next(objects.Length)];
+
+                logs.Insert(new LogItem()
+                {
+                    Message = message,
+                    Type = type,
+                    ThreadId = r.Next(1, 1000),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
+                    Object = obj,
+                    ApplicationName = appNames[r.Next(appNames.Length)],
+                    Host = urls[r.Next(urls.Length)],
+                    Url = urls[r.Next(urls.Length)],
+                    Ip = ips[r.Next(ips.Length)]
+                });
+            });
         }
     }
 }
