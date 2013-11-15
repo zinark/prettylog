@@ -131,11 +131,14 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = TimeZoneInfo.ConvertTimeToUtc(x.TimeStamp).ToString("dd/MM/yyyy hh:mm:ss")},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
                             new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
                             new {v = x.ThreadId},
+                            new {v = x.Ip},
+                            new {v = x.Host},
+                            new {v = x.ApplicationName}
                 }
             }).ToList();
 
@@ -148,6 +151,9 @@ namespace Web.Controllers
                     new {id = "Message", label = "Message", type = "string"},
                     new {id = "Object", label = "Object", type = "string"},
                     new {id = "ThreadId", label = "ThreadId", type = "number"},
+                    new {id = "Ip", label = "Ip", type = "string"},
+                    new {id = "Host", label = "Host", type = "string"},
+                    new {id = "ApplicationName", label = "ApplicationName", type = "string"},
                 },
                 rows = rows
             });

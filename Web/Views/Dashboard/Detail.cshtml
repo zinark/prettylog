@@ -77,7 +77,8 @@
         $(document).ready(function () {
 
             var NumberLong = function (x) { return x; };
-            var CSUUID = function (x) { return x; }
+            var CSUUID = function (x) { return x; };
+            var ISODate = function(x) { return x; };
             
             var json = JSON.stringify(@Html.Raw(Model.ObjectJson));
 
@@ -99,22 +100,49 @@
     </script>
 }
 
-<div>
-    @Model.Id
-</div>
-<div>
-    @Model.Message
-</div>
+<p style="font:bold">Object</p>
 <div id="ObjectJson">
     @Model.ObjectJson
 </div>
+
+<p style="font:bold">Type</p>
+<div>
+    @Model.Type
+</div>
+<p style="font:bold">Message</p>
+<div>
+    @Model.Message
+</div>
+<p style="font:bold">Ip</p>
+<div>
+    @Model.Ip
+</div>
+<p style="font:bold">Host</p>
+<div>
+    @Model.Host
+</div>
+
+<p style="font:bold">Url</p>
+<div>
+    @Model.Url
+</div>
+
+<p style="font:bold">App.Name</p>
+<div>
+    @Model.ApplicationName
+</div>
+
+<p style="font:bold">Id</p>
+<div>
+    @Model.Id
+</div>
+
+<p style="font:bold">ThreadId</p>
 <div>
     @Model.ThreadId
 </div>
+<p style="font:bold">TimeStamp</p>
 <div>
     @Model.TimeStamp
-</div>
-<div>
-    @Model.Type
 </div>
 
