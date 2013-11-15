@@ -71,15 +71,15 @@
         }
         /* eof leaf */
     </style>
-    
+
 
     <script type="text/javascript">
         $(document).ready(function () {
 
             var NumberLong = function (x) { return x; };
             var CSUUID = function (x) { return x; };
-            var ISODate = function(x) { return x; };
-            
+            var ISODate = function (x) { return x; };
+
             var json = JSON.stringify(@Html.Raw(Model.ObjectJson));
 
             var o;
@@ -96,53 +96,45 @@
                 dateFormat: "DD/MM/YYYY - HH24:MI:SS"
             });
 
+            $("#expandAll").click(function () {
+                node.expandAll();
+            });
         });
     </script>
 }
 
-<p style="font:bold">Object</p>
+<br />
+
+<table width="100%">
+    <tr>
+        <th>Type</th>
+        <th>Message</th>
+        <th>Ip</th>
+        <th>Host</th>
+        <th>Url</th>
+        <th>ApplicationName</th>
+        <th>Id</th>
+        <th>ThreadId</th>
+        <th>TimeStamp</th>
+    </tr>
+    <tr>
+        <th>@Model.Type</th>
+        <th>@Model.Message</th>
+        <th>@Model.Ip</th>
+        <th>@Model.Host</th>
+        <th>@Model.Url</th>
+        <th>@Model.ApplicationName</th>
+        <th>@Model.Id</th>
+        <th>@Model.ThreadId</th>
+        <th>@Model.TimeStamp</th>
+    </tr>
+</table>
+
+<br />
+
+<a href="javascript:;" id="expandAll">Expand ALL</a>
+<br />
+<p style="font: bold">Object</p>
 <div id="ObjectJson">
     @Model.ObjectJson
 </div>
-
-<p style="font:bold">Type</p>
-<div>
-    @Model.Type
-</div>
-<p style="font:bold">Message</p>
-<div>
-    @Model.Message
-</div>
-<p style="font:bold">Ip</p>
-<div>
-    @Model.Ip
-</div>
-<p style="font:bold">Host</p>
-<div>
-    @Model.Host
-</div>
-
-<p style="font:bold">Url</p>
-<div>
-    @Model.Url
-</div>
-
-<p style="font:bold">App.Name</p>
-<div>
-    @Model.ApplicationName
-</div>
-
-<p style="font:bold">Id</p>
-<div>
-    @Model.Id
-</div>
-
-<p style="font:bold">ThreadId</p>
-<div>
-    @Model.ThreadId
-</div>
-<p style="font:bold">TimeStamp</p>
-<div>
-    @Model.TimeStamp
-</div>
-
