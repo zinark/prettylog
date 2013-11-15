@@ -47,7 +47,7 @@ namespace PrettyLog.Core.DataAccess
             var q = db.GetCollection("logs")
                       .Find(generatedQuery)
                       .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
-                      .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId")
+                      .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId", "ApplicationName", "Ip", "Host", "Url")
                       .SetLimit(limit);
 
 
