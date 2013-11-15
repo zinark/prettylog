@@ -5,7 +5,7 @@ function DefaultQuery()
 {
     return {
         query: '{}',
-        start: moment().subtract('days', 7),
+        start: moment().subtract('days', 1),
         end: moment(),
         limit: 1000,
         types: [],
@@ -362,6 +362,8 @@ $(document).ready(function ()
     editor.setFontSize(14);
     editor.setOptions({
         maxLines: Infinity,
+        enableBasicAutocompletion: true,
+        enableSnippets: true
     });
 
 });

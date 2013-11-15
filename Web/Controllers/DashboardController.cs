@@ -34,8 +34,8 @@ namespace Web.Controllers
                 {
                     new {v = x.Type},
                     new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy hh:mm:ss")},
-                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy hh:mm:ss")}
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
                 }
             });
             return Json(new
@@ -63,8 +63,8 @@ namespace Web.Controllers
                 {
                     new {v = x.Message},
                     new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy hh:mm:ss")},
-                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy hh:mm:ss")}
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
                 }
             });
             return Json(new
@@ -96,7 +96,7 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                    new {v = x.Day, f = x.Day.ToString("dd/MM/yyyy hh:mm:ss")},
+                    new {v = x.Day, f = x.Day.ToString("dd/MM/yyyy HH:mm:ss")},
                     new {v = x.Total},
                 }
             });
@@ -138,7 +138,7 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy HH:mm:ss ")},
                             new {v = x.Type},
                             new {v = x.Message},
                             new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
