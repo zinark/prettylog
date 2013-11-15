@@ -26,13 +26,13 @@ namespace Web.Controllers
         public JsonResult Types(string query, DateTime start, DateTime end)
         {
             var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetTypes(query, start, end);
+            var types = finder.GetFieldDensity("Type",query, start, end);
 
             var rows = types.Select(x => new
             {
                 c = new object[]
                 {
-                    new {v = x.Type},
+                    new {v = x.FieldName},
                     new {v = x.Total},
                     new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
                     new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
@@ -55,13 +55,13 @@ namespace Web.Controllers
         public JsonResult Messages(string query, DateTime start, DateTime end)
         {
             var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetMessages(query, start, end);
+            var types = finder.GetFieldDensity("Message",query, start, end);
 
             var rows = types.Select(x => new
             {
                 c = new object[]
                 {
-                    new {v = x.Message},
+                    new {v = x.FieldName},
                     new {v = x.Total},
                     new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
                     new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}

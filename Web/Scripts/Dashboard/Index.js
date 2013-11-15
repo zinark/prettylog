@@ -97,7 +97,7 @@ var dataLoadEvents = {
                 colors: prettyColors,
                 legend: 'left',
                 //pieSliceText: 'label',
-                backgroundColor: '#f8f6e8',
+                backgroundColor: '#dfdfdf',
                 pieSliceBorderColor: 'white',
                 pieSliceTextStyle: {
                     color: 'white', fontName: 'Times', fontSize: '8px'
@@ -141,7 +141,7 @@ var dataLoadEvents = {
                 colors: prettyColors,
                 legend: 'left',
                 //pieSliceText: 'label',
-                backgroundColor: '#f8f6e8',
+                backgroundColor: '#dfdfdf',
                 pieSliceBorderColor: 'white',
                 pieSliceTextStyle: {
                     color: 'white', fontName: 'Times', fontSize: '8px'

@@ -38,3 +38,14 @@
 
 .rowNumberCell {
 }
+
+.hits {
+    background-color: black;
+    color: white;
+    font-family: arial;
+    font-size: 14pt;
+    width: 200px;
+    text-align: right;
+    padding: 7px;
+    margin: 1px;
+}

@@ -100,6 +100,43 @@ namespace PrettyLog.Core.DataAccess
             return i["Object"].ToJson();
         }
 
+        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end)
+        {
+            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
+
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
+
+            BsonDocument matchDate = new BsonDocument()
+                .Add("$match",
+                     new BsonDocument().Add("TimeStamp",
+                                            new BsonDocument().Add("$gte", start)
+                                                              .Add("$lte", end)));
+
+            BsonDocument group1 = new BsonDocument()
+                .Add("$group",
+                     new BsonDocument().Add("_id", "$" + fieldName)
+                                       .Add("count", new BsonDocument().Add("$sum", 1))
+                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
+                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
+
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1);
+
+            var result = new List<FieldDensityDto>();
+            foreach (BsonDocument group in groups)
+            {
+                result.Add(new FieldDensityDto
+                {
+                    FieldName = group["_id"].AsString,
+                    Total = group["count"].AsInt32,
+                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
+                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
+                });
+            }
+
+            return result;
+
+        }
+
         public IEnumerable<TypeDensityDto> GetTypes(string query, DateTime start, DateTime end)
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
