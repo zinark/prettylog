@@ -35,7 +35,7 @@ var dataLoadEvents = {
     logsParsedSuccessfully: function (json) {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { page: 'enable', pageSize: 30, allowHtml : true });
+        logsTable.draw(logsData, { page: 'enable', pageSize: 30, allowHtml: true });
 
         google.visualization.events.addListener(logsTable, 'select', function () {
             var selectedRow = logsTable.getSelection()[0].row;
@@ -214,6 +214,8 @@ var ui = {
         $('#queryFilters').html(JSON.stringify(query));
     },
     refreshViews: function () {
+        $('#loading').show();
+        
         var typesQuery = {
             query: query.query,
             start: query.start,
@@ -233,8 +235,9 @@ var ui = {
             types: query.types,
             messages: query.messages
         };
+        
 
-        $.ajax({
+        var a1 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/Types',
@@ -245,7 +248,7 @@ var ui = {
             error: dataLoadEvents.typesError
         });
 
-        $.ajax({
+        var a2 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/Messages',
@@ -256,7 +259,7 @@ var ui = {
             error: dataLoadEvents.messagesError
         });
 
-        $.ajax({
+        var a3 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/LogDensities',
@@ -267,7 +270,7 @@ var ui = {
             error: dataLoadEvents.logDensityError
         });
 
-        $.ajax({
+        var a4 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/Logs',
@@ -277,6 +280,20 @@ var ui = {
             success: dataLoadEvents.logsParsedSuccessfully,
             error: dataLoadEvents.logsError
         });
+
+
+
+
+        $
+            .when(a1, a2, a3,a4)
+
+            .then(function () {
+                $('#loading').hide();
+            }, function () {
+                $('#loading').hide();
+            });
+
+
     }
 };
 
@@ -300,13 +317,13 @@ function convertListToDict(list) {
 $(document).ready(function () {
 
     $('#btnQuery').click(queryFilters.queryRequested);
-    
+
     $('#editor').keydown(function (e) {
         if (e.ctrlKey && e.keyCode == 13) {
             queryFilters.queryRequested();
         }
     });
-    
+
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/twilight");
@@ -315,5 +332,5 @@ $(document).ready(function () {
     editor.setOptions({
         maxLines: Infinity,
     });
-    
+
 });
