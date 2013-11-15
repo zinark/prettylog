@@ -41,7 +41,7 @@ var dataLoadEvents = {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
         logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true });
-
+        $('#hits').text('Hits : ' + json.hits);
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
             var selectedRow = logsTable.getSelection()[0].row;

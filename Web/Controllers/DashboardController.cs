@@ -132,6 +132,7 @@ namespace Web.Controllers
         {
             var finder = new LogFinder(ContextFactory.Create());
             var result = finder.Logs(query, start, end, types, messages, limit);
+            var hits = finder.LogsHit(query, start, end, types, messages, limit);
 
             var rows = result.Select(x => new
             {
@@ -161,7 +162,8 @@ namespace Web.Controllers
                     new {id = "Host", label = "Host", type = "string"},
                     new {id = "ApplicationName", label = "ApplicationName", type = "string"},
                 },
-                rows = rows
+                rows = rows,
+                hits = hits
             });
             json.MaxJsonLength = int.MaxValue;
             return json;

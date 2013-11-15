@@ -20,29 +20,7 @@ namespace PrettyLog.Core.DataAccess
         {
             var db = (_context as MongoDataContext).GetDb();
 
-            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
-            
-            var qDateRange = new QueryBuilder<BsonDocument>().And
-                (
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
-                );
-                
-            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
-
-            if (types != null)
-                if (types.Length > 0)
-                {
-                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
-                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
-                }
-            
-            if (messages != null)
-                if (messages.Length > 0)
-                {
-                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
-                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
-                }
+            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
 
             var q = db.GetCollection("logs")
                       .Find(generatedQuery)
@@ -71,6 +49,37 @@ namespace PrettyLog.Core.DataAccess
             }
 
             return result;
+        }
+
+        private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types,
+                                                     string[] messages)
+        {
+            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
+
+            var qDateRange = new QueryBuilder<BsonDocument>().And
+                (
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
+                );
+
+            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
+
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
+                }
+
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
+                }
+            return generatedQuery;
         }
 
         static string GetStringValue(BsonDocument i, string key)
@@ -163,10 +172,9 @@ namespace PrettyLog.Core.DataAccess
 
         public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
-            // BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
-
             var operators = new List<BsonDocument>();
 
+            // operators.Add(new BsonDocument().Add("$limit", 5000));
             operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
             
             if (types != null)
@@ -319,6 +327,15 @@ namespace PrettyLog.Core.DataAccess
                     Ip = ips[r.Next(ips.Length)]
                 });
             });
+        }
+
+        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        {
+             var db = (_context as MongoDataContext).GetDb();
+
+            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
+
+            return db.GetCollection("logs").Find(generatedQuery).Count();
         }
     }
 }
