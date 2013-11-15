@@ -21,7 +21,7 @@ namespace PrettyLog.Core.DataAccess
             var db = (_context as MongoDataContext).GetDb();
 
             IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
-
+            
             var qDateRange = new QueryBuilder<BsonDocument>().And
                 (
                     new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
@@ -60,13 +60,18 @@ namespace PrettyLog.Core.DataAccess
                     Id = i["_id"].AsObjectId,
                     Message = i["Message"].AsString,
                     Type = i["Type"].AsString,
-                    TimeStamp = TimeZoneInfo.ConvertTimeToUtc(i["TimeStamp"].ToUniversalTime()),
+                    TimeStamp = ToLocal(i["TimeStamp"].ToUniversalTime()),
                     ThreadId = i["ThreadId"].AsInt32,
                 };
                 result.Add(dto);
             }
 
             return result;
+        }
+
+        static DateTime ToLocal(DateTime date)
+        {
+            return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
         }
 
         private static string GetObject(BsonDocument i)
@@ -101,8 +106,8 @@ namespace PrettyLog.Core.DataAccess
                 {
                     Type = group["_id"].AsString,
                     Total = group["count"].AsInt32,
-                    FirstHit = group["firstHit"].ToUniversalTime(),
-                    LastHit = group["lastHit"].ToUniversalTime()
+                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
+                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
                 });
             }
 
@@ -135,8 +140,8 @@ namespace PrettyLog.Core.DataAccess
                 {
                     Message = group["_id"].AsString,
                     Total = group["count"].AsInt32,
-                    FirstHit = group["firstHit"].ToUniversalTime(),
-                    LastHit = group["lastHit"].ToUniversalTime()
+                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
+                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
                 });
             }
 
@@ -189,7 +194,7 @@ namespace PrettyLog.Core.DataAccess
                 Id = found["_id"].AsObjectId,
                 Message = found["Message"].AsString,
                 Type = found["Type"].AsString,
-                TimeStamp = found["TimeStamp"].ToUniversalTime(),
+                TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
                 ThreadId = found["ThreadId"].AsInt32,
                 ObjectJson = GetObject(found),
             };

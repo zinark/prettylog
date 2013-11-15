@@ -131,7 +131,7 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = TimeZoneInfo.ConvertTimeToUtc(x.TimeStamp).ToString("dd/MM/yyyy hh:mm:ss")},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy hh:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
                             new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
