@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -31,7 +32,7 @@ namespace PrettyLog.Core.DataAccess
 
 
             var result = new List<LogListItemDto>();
-            
+
             foreach (var i in q)
             {
                 var dto = new LogListItemDto
@@ -100,7 +101,7 @@ namespace PrettyLog.Core.DataAccess
             if (!i.Contains("Object")) return "null";
             return i["Object"].ToJson();
         }
-        
+
         static string TryToGetField(BsonDocument i, string field)
         {
             if (!i.Contains(field)) return field + " not exists";
@@ -112,26 +113,27 @@ namespace PrettyLog.Core.DataAccess
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
 
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", 100);
-            
-            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
-
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
                      new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start)
-                                                              .Add("$lte", end)));
+                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
+                                                              .Add("$lte", end.ToUniversalTime())));
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", 100);
+            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
-            BsonDocument group1 = new BsonDocument()
+            BsonDocument groupById = new BsonDocument()
                 .Add("$group",
                      new BsonDocument().Add("_id", "$" + fieldName)
                                        .Add("count", new BsonDocument().Add("$sum", 1))
                                        .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
                                        .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1, sortQuery);
 
+            var sw = Stopwatch.StartNew();
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, limitQuery, sortQuery);
+            Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
+            
             foreach (BsonDocument group in groups)
             {
                 if (!group.Contains("_id")) continue;
@@ -154,23 +156,6 @@ namespace PrettyLog.Core.DataAccess
         {
             var operators = new List<BsonDocument>();
 
-            operators.Add(new BsonDocument().Add("$limit", 10000));
-            operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
-            
-            if (types != null)
-                if (types.Length > 0)
-                {
-                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
-                    operators.Add(matchQueryType);
-                }
-            
-            if (messages != null)
-                if (messages.Length > 0)
-                {
-                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
-                    operators.Add(matchQueryMessage);
-                }
-
             operators.Add(
                 new BsonDocument()
                     .Add("$match",
@@ -178,6 +163,25 @@ namespace PrettyLog.Core.DataAccess
                                                 new BsonDocument().Add("$gte", start)
                                                                   .Add("$lte", end)))
                 );
+            
+            operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
+
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
+                    operators.Add(matchQueryType);
+                }
+
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
+                    operators.Add(matchQueryMessage);
+                }
+
+
+            operators.Add(new BsonDocument().Add("$limit", 5000));
 
             operators.Add(new BsonDocument()
                 .Add("$group",
@@ -196,7 +200,7 @@ namespace PrettyLog.Core.DataAccess
             {
                 result.Add(new LogDensityDto
                 {
-                    Day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,group["_id"]["day"].AsInt32),
+                    Day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32),
                     Total = group["count"].AsInt32
                 });
             }
@@ -238,7 +242,7 @@ namespace PrettyLog.Core.DataAccess
                 "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
                 "timeout", "response is not valid"
             };
-            
+
             var appNames = new[]
             {
                 "job.exe",
@@ -258,7 +262,7 @@ namespace PrettyLog.Core.DataAccess
                 "192.168.0.5",
                 "192.168.0.30"
             };
-            
+
             var urls = new[]
             {
                 "http://www.google.com",
@@ -311,7 +315,7 @@ namespace PrettyLog.Core.DataAccess
 
         public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
-             var db = (_context as MongoDataContext).GetDb();
+            var db = (_context as MongoDataContext).GetDb();
 
             var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
 

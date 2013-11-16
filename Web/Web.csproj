@@ -104,6 +104,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\loading.gif" />
     <Content Include="Content\q.png" />
     <Content Include="Content\css\prettylog.css" />
     <Content Include="Content\fancybox\blank.gif" />

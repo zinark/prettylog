@@ -17,7 +17,7 @@ function DefaultQuery()
 {
     return {
         query: '{}',
-        start: moment().subtract('days', 1),
+        start: moment().subtract('hours', 1),
         end: moment(),
         limit: 100,
         skip: 0,
@@ -201,13 +201,16 @@ var DynamicFilters =
     vars: {},
     add: function (fieldName, fieldQuery, divTableName, divChartName, onSelect)
     {
-
+        DynamicFilters.vars[fieldName + 'charthtml'] = $('#' + divChartName).html();
+        DynamicFilters.vars[fieldName + 'tablehtml'] = $('#' + divChartName).html();
+        
         var onError = function (data)
         {
             console.log('error ' + fieldName, data);
         };
-        var onSuccess = function (json)
-        {
+        var onSuccess = function (json) {
+            $('#'+divChartName).html(DynamicFilters.vars[fieldName + 'charthtml']);
+            $('#'+divTableName).html(DynamicFilters.vars[fieldName + 'tablehtml']);
             DynamicFilters.vars[fieldName + 'data'] = new google.visualization.DataTable(json);
             DynamicFilters.vars[fieldName + 'table'] = new google.visualization.Table(document.getElementById(divTableName));
             DynamicFilters.vars[fieldName + 'chart'] = new google.visualization.PieChart(document.getElementById(divChartName));
@@ -215,6 +218,15 @@ var DynamicFilters =
             google.visualization.events.addListener(DynamicFilters.vars[fieldName + 'chart'], 'select', function ()
             {
                 var selectedItem = DynamicFilters.vars[fieldName + 'chart'].getSelection()[0];
+                if (selectedItem != null)
+                {
+                    var value = DynamicFilters.vars[fieldName + 'data'].getValue(selectedItem.row, 0);
+                    onSelect(value);
+                }
+            });
+
+            google.visualization.events.addListener(DynamicFilters.vars[fieldName + 'table'], 'select', function () {
+                var selectedItem = DynamicFilters.vars[fieldName + 'table'].getSelection()[0];
                 if (selectedItem != null)
                 {
                     var value = DynamicFilters.vars[fieldName + 'data'].getValue(selectedItem.row, 0);
@@ -245,6 +257,10 @@ var DynamicFilters =
                 cssClassNames: cssNames
             });
         };
+
+        var waitHtml = "<p> <img src='/Content/loading.gif'/> Loading "+fieldName+" </p>";
+        $('#' + divChartName).html(waitHtml);
+        $('#' + divTableName).html(waitHtml);
 
         return $.ajax({
             type: 'post',
@@ -293,7 +309,7 @@ var ui = {
             messages: query.messages
         };
 
-        var a1 = $.ajax({
+        var ajxLogDensities = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/LogDensities',
@@ -304,10 +320,10 @@ var ui = {
             error: dataLoadEvents.logDensityError
         });
 
-        var a2 = ui.refreshLogs();
+        var ajxLogs = ui.refreshLogs();
 
         $
-            .when(a2, f1, f2, f3, f4, a1)
+            .when(ajxLogs)
 
             .then(function ()
             {
@@ -342,7 +358,14 @@ $(document).ready(function ()
     $('#range').change(function ()
     {
         var r = $('#range').val();
-        query.start = moment().subtract('days', r);
+        if (r == '1hour') start = moment().subtract('hours', 1);
+        if (r == '6hour') start = moment().subtract('hours', 6);
+        if (r == '12hour') start = moment().subtract('hours', 12);
+        if (r == '1day') start = moment().subtract('day', 1);
+        if (r == '7day') start = moment().subtract('day', 7);
+        if (r == '14day') start = moment().subtract('day', 14);
+        if (r == '30day') start = moment().subtract('day', 30);
+        query.start = start;
         ui.drawFilters();
     });
 
