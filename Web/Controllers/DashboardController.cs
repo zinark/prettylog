@@ -32,9 +32,9 @@ namespace Web.Controllers
                 c = new object[]
                 {
                             new {v = x.On, f = x.On.ToString("dd/MM/yyyy HH:mm:ss") },
-                            new {v = x.CPU },
-                            new {v = x.Memory},
-                            new {v = x.Network},
+                            new {v = x.CPU, f = x.CPU + "%" },
+                            new {v = x.Memory, f = x.Memory + "KB"},
+                            new {v = x.Network, f = x.Network + "%"},
                 }
             }).ToList();
 

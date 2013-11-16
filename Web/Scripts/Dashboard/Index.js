@@ -113,17 +113,62 @@ var dataLoadEvents = {
         var table = new google.visualization.Table(document.getElementById('divMachineStatus'));
         // table.draw(logsData, { allowHtml: true, cssClassNames: cssNames });
 
-        var chart = new google.visualization.ChartWrapper({
-            dataTable : data,
-            'chartType': 'LineChart',
-            'containerId': 'divMachineStatusChart',
-            'options': {
-                colors: prettyColors,
-                backgroundColor: 'transparent',
-                title : 'Machine Status - Last 6h'
+        var chart = new google.visualization.AreaChart(document.getElementById('divMachineStatusChart'));
+
+        var options = {
+            colors: prettyColors,
+            backgroundColor: 'transparent',
+            title: 'Machine Status - Last 6h'
+        };
+        chart.draw(data, options);
+
+        var columns = [];
+        var series = {};
+        for (var i = 0; i < data.getNumberOfColumns() ; i++)
+        {
+            columns.push(i);
+            if (i > 0)
+            {
+                series[i - 1] = {};
+            }
+        }
+        google.visualization.events.addListener(chart, 'select', function ()
+        {
+            var sel = chart.getSelection();
+            // if selection length is 0, we deselected an element
+            if (sel.length > 0)
+            {
+                // if row is undefined, we clicked on the legend
+                if (typeof sel[0].row === 'undefined')
+                {
+                    var col = sel[0].column;
+                    if (columns[col] == col)
+                    {
+                        // hide the data series
+                        columns[col] = {
+                            label: data.getColumnLabel(col),
+                            type: data.getColumnType(col),
+                            calc: function ()
+                            {
+                                return null;
+                            }
+                        };
+
+                        // grey out the legend entry
+                        series[col - 1].color = '#CCCCCC';
+                    }
+                    else
+                    {
+                        // show the data series
+                        columns[col] = col;
+                        series[col - 1].color = null;
+                    }
+                    var view = new google.visualization.DataView(data);
+                    view.setColumns(columns);
+                    chart.draw(view, options);
+                }
             }
         });
-        chart.draw();
     },
     machineStatusError: function (data)
     {
