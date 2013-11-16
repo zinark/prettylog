@@ -1,7 +1,43 @@
 ﻿var editor = null;
 var query = DefaultQuery();
 
-var prettyColors = ['#171717', '#242424', '#303030', '#3d3d3d', '#4a4a4a', '#575757'];
+// var prettyColors = ['#171717', '#242424', '#303030', '#3d3d3d', '#4a4a4a', '#575757'];
+
+//var prettyColors = ['#F2F2D9',
+//    '#E6F2D9',
+//    '#D9F2D9',
+//    '#D9F2E6',
+//    '#D9F2F2',
+//    '#D9E6F2',
+//    '#D9D9F2',
+//    '#E6D9F2',
+//    '#F2D9F2',
+//    '#F2D9E6',
+//    '#F2D9D9',
+//    '#F2E6D9',
+//    '#E2E2AB',
+//    '#D3D37E',
+//    '#ABABE2'];
+
+var prettyColors = [
+    '#80DFFF',
+    '#FF9F80',
+    '#BFDDA1',
+    '#A1DDA1',
+    '#A1DDBF',
+    '#A1DDDD',
+    '#A1BFDD',
+    '#A1A1DD',
+    '#BFA1DD',
+    '#DDA1DD',
+    '#DDA1BF',
+    '#DDA1A1',
+    '#DDBFA1',
+    '#CDCD74',
+    '#BDBD47',
+    '#7474CD'
+];
+
 var cssNames = {
     headerRow: 'headerRow',
     tableRow: 'tableRow',
@@ -19,7 +55,7 @@ function DefaultQuery()
         query: '{}',
         start: moment().subtract('hours', 1),
         end: moment(),
-        limit: 100,
+        limit: 45,
         skip: 0,
         types: [],
         messages: []
@@ -27,7 +63,6 @@ function DefaultQuery()
 }
 
 var variables = {
-
     logDensityData: null,
     logDensityTable: null,
     logDensityChart: null,
@@ -44,8 +79,9 @@ var dataLoadEvents = {
     {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { firstRowNumber : query.skip + 1, showRowNumber: true, allowHtml: true, cssClassNames: cssNames });
+        logsTable.draw(logsData, { firstRowNumber: query.skip + 1, showRowNumber: true, allowHtml: true, cssClassNames: cssNames });
         $('#hits').html(json.hits + ' hit(s)');
+        $('#totalHits').html(json.hits + ' hit(s)');
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
             var selectedRow = logsTable.getSelection()[0].row;
@@ -102,7 +138,7 @@ var dataLoadEvents = {
                         // 'width': '100%',
                         'backgroundColor': 'transparent',
                         // 'height': 50,
-                        'colors': ['#cdcdcd'],
+                        'colors': ['black'],
                         'hAxis': {
                             'baselineColor': 'white',
                             'format': 'dd/MM/yy',
@@ -167,9 +203,9 @@ var queryFilters = {
         ui.drawFilters();
         ui.refreshViews();
     },
-    newQueryPressed: function ()
-    {
-        query = DefaultQuery();
+    clearFiltersPressed: function () {
+        query.types = null;
+        query.messages = null;
         ui.drawFilters();
         ui.refreshViews();
     },
@@ -203,14 +239,15 @@ var DynamicFilters =
     {
         DynamicFilters.vars[fieldName + 'charthtml'] = $('#' + divChartName).html();
         DynamicFilters.vars[fieldName + 'tablehtml'] = $('#' + divChartName).html();
-        
+
         var onError = function (data)
         {
             console.log('error ' + fieldName, data);
         };
-        var onSuccess = function (json) {
-            $('#'+divChartName).html(DynamicFilters.vars[fieldName + 'charthtml']);
-            $('#'+divTableName).html(DynamicFilters.vars[fieldName + 'tablehtml']);
+        var onSuccess = function (json)
+        {
+            $('#' + divChartName).html(DynamicFilters.vars[fieldName + 'charthtml']);
+            $('#' + divTableName).html(DynamicFilters.vars[fieldName + 'tablehtml']);
             DynamicFilters.vars[fieldName + 'data'] = new google.visualization.DataTable(json);
             DynamicFilters.vars[fieldName + 'table'] = new google.visualization.Table(document.getElementById(divTableName));
             DynamicFilters.vars[fieldName + 'chart'] = new google.visualization.PieChart(document.getElementById(divChartName));
@@ -225,7 +262,8 @@ var DynamicFilters =
                 }
             });
 
-            google.visualization.events.addListener(DynamicFilters.vars[fieldName + 'table'], 'select', function () {
+            google.visualization.events.addListener(DynamicFilters.vars[fieldName + 'table'], 'select', function ()
+            {
                 var selectedItem = DynamicFilters.vars[fieldName + 'table'].getSelection()[0];
                 if (selectedItem != null)
                 {
@@ -245,9 +283,11 @@ var DynamicFilters =
                     legend: 'left',
                     //pieSliceText: 'label',
                     backgroundColor: '#dfdfdf',
-                    pieSliceBorderColor: 'white',
+                    pieSliceBorderColor: 'black',
                     pieSliceTextStyle: {
-                        color: 'white', fontName: 'Times', fontSize: '8px'
+                        color: 'black',
+                        fontName: 'Times',
+                        fontSize: '8px'
                     }
                 });
 
@@ -258,7 +298,7 @@ var DynamicFilters =
             });
         };
 
-        var waitHtml = "<p> <img src='/Content/loading.gif'/> Loading "+fieldName+" </p>";
+        var waitHtml = "<p> <img src='/Content/loading.gif'/> Loading " + fieldName + " </p>";
         $('#' + divChartName).html(waitHtml);
         $('#' + divTableName).html(waitHtml);
 
@@ -280,7 +320,8 @@ var ui = {
     {
         $('#queryFilters').html(JSON.stringify(query));
     },
-    refreshLogs : function() {
+    refreshLogs: function ()
+    {
         return $.ajax({
             type: 'post',
             dataType: 'json',
@@ -298,8 +339,12 @@ var ui = {
 
         var f1 = DynamicFilters.add('Type', { fieldName: 'Type', query: query.query, start: query.start, end: query.end }, 'divTypeDensity', 'divTypeDensityChart', function (value) { queryFilters.typeFilterSelected(value); });
         var f2 = DynamicFilters.add('Message', { fieldName: 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
-        var f3 = DynamicFilters.add('Ip', { fieldName: 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function (value) { });
-        var f4 = DynamicFilters.add('Host', { fieldName: 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function (value) { });
+        var f3 = DynamicFilters.add('Ip', { fieldName: 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function (value)
+        {
+        });
+        var f4 = DynamicFilters.add('Host', { fieldName: 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function (value)
+        {
+        });
 
         var logDensityQuery = {
             query: query.query,
@@ -312,7 +357,7 @@ var ui = {
         var ajxLogDensities = $.ajax({
             type: 'post',
             dataType: 'json',
-            url: '/Dashboard/LogDensities',
+            url: '/Dashboard/Timeline',
             data: JSON.stringify(logDensityQuery),
             contentType: 'application/json; charset=utf-8',
             async: true,
@@ -324,7 +369,6 @@ var ui = {
 
         $
             .when(ajxLogs)
-
             .then(function ()
             {
                 $('#loading').hide();
@@ -369,7 +413,7 @@ $(document).ready(function ()
         ui.drawFilters();
     });
 
-    $('#btnNewQuery').click(queryFilters.newQueryPressed);
+    $('#btnClearFilters').click(queryFilters.clearFiltersPressed);
     $('#btnNext').click(queryFilters.nextPressed);
     $('#btnPrev').click(queryFilters.prevPressed);
     editor = ace.edit("editor");

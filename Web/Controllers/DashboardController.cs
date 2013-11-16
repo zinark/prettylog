@@ -23,141 +23,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end)
-        {
-            var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetFieldDensity(fieldName, query, start, end);
-
-            var rows = types.Select(x => new
-            {
-                c = new object[]
-                {
-                    new {v = x.FieldName},
-                    new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
-                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
-                }
-            });
-            return Json(new
-            {
-                cols = new[]
-                {
-                    new {id = fieldName, label = fieldName, type = "string"},
-                    new {id = "Total", label = "Total", type = "number"},
-                    new {id = "FirstHit", label = "FirstHit", type = "date"},
-                    new {id = "LastHit", label = "LastHit", type = "date"}
-                },
-                rows = rows
-            });
-        }
-
-        [HttpPost]
-        public JsonResult Types(string query, DateTime start, DateTime end)
-        {
-            var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetFieldDensity("Type",query, start, end);
-
-            var rows = types.Select(x => new
-            {
-                c = new object[]
-                {
-                    new {v = x.FieldName},
-                    new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
-                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
-                }
-            });
-            return Json(new
-            {
-                cols = new[]
-                {
-                    new {id = "Type", label = "Type", type = "string"},
-                    new {id = "Total", label = "Total", type = "number"},
-                    new {id = "FirstHit", label = "FirstHit", type = "date"},
-                    new {id = "LastHit", label = "LastHit", type = "date"}
-                },
-                rows = rows
-            });
-        }
-        
-        [HttpPost]
-        public JsonResult Messages(string query, DateTime start, DateTime end)
-        {
-            var finder = new LogFinder(ContextFactory.Create());
-            var types = finder.GetFieldDensity("Message",query, start, end);
-
-            var rows = types.Select(x => new
-            {
-                c = new object[]
-                {
-                    new {v = x.FieldName},
-                    new {v = x.Total},
-                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
-                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
-                }
-            });
-            return Json(new
-            {
-                cols = new[]
-                {
-                    new {id = "Message", label = "Message", type = "string"},
-                    new {id = "Total", label = "Total", type = "number"},
-                    new {id = "FirstHit", label = "FirstHit", type = "date"},
-                    new {id = "LastHit", label = "LastHit", type = "date"}
-                },
-                rows = rows
-            });
-        }
-        
-        public ActionResult TestData()
-        {
-            new LogFinder(ContextFactory.Create()).GenerateData();
-            return View("Index");
-        }
-
-        [HttpPost]
-        public ActionResult LogDensities(string query, DateTime start, DateTime end, string[] types, string[] messages)
-        {
-            var finder = new LogFinder(ContextFactory.Create());
-            var densities = finder.GetLogDensity(query, start, end, types, messages);
-
-            var rows = densities.Select(x => new
-            {
-                c = new object[]
-                {
-                    new {v = x.Day, f = x.Day.ToString("dd/MM/yyyy HH:mm:ss")},
-                    new {v = x.Total},
-                }
-            });
-            var obj= new
-            {
-                cols = new[]
-                {
-                    new {id = "Day", label = "Day", type = "date"},
-                    new {id = "Total", label = "Total", type = "number"},
-                },
-                rows = rows
-            };
-
-            var json = JsonConvert.SerializeObject(obj, new IsoDateTimeConverter()); //new JavaScriptDateTimeConverter()
-            return new ContentResult()
-            {
-                Content = json,
-                ContentEncoding = Encoding.UTF8,
-                ContentType = "application/json"
-            };
-        }
-
-        public ActionResult Detail(string id)
-        {
-            var finder = new LogFinder(ContextFactory.Create());
-            LogDto dto = finder.GetLogDetail(id);
-
-            return View(dto);
-        }
-
-        [HttpPost]
-        public JsonResult Logs(string query, DateTime start, DateTime end, int limit, string[] types, string[] messages, int skip = 0)
+        public JsonResult Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip = 0)
         {
             var finder = new LogFinder(ContextFactory.Create());
             var result = finder.Logs(query, start, end, types, messages, limit, skip);
@@ -167,10 +33,10 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy HH:mm:ss ")},
+                            new {v = x.TimeStamp, f = x.TimeStamp.ToString("dd/MM/yyyy HH:mm:ss")},
                             new {v = x.Type},
                             new {v = x.Message},
-                            new {v = "<a href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
+                            new {v = "<a id='logId-"+x.Id+"' href='/Dashboard/Detail?id="+x.Id+"' target='_blank'> Open </a>"},
                             new {v = x.ThreadId},
                             new {v = x.Ip},
                             new {v = x.Host},
@@ -197,5 +63,82 @@ namespace Web.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+
+        [HttpPost]
+        public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            var types = finder.GetFieldDensity(fieldName, query, start, end, limit, skip);
+
+            var rows = types.Select(x => new
+            {
+                c = new object[]
+                {
+                    new {v = x.FieldName},
+                    new {v = x.Total},
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
+                }
+            });
+            return Json(new
+            {
+                cols = new[]
+                {
+                    new {id = fieldName, label = fieldName, type = "string"},
+                    new {id = "Total", label = "Total", type = "number"},
+                    new {id = "FirstHit", label = "FirstHit", type = "date"},
+                    new {id = "LastHit", label = "LastHit", type = "date"}
+                },
+                rows = rows
+            });
+        }
+
+        public ActionResult TestData()
+        {
+            new LogFinder(ContextFactory.Create()).GenerateData();
+            return View("Index");
+        }
+
+        [HttpPost]
+        public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            var densities = finder.GetLogDensity(query, start, end, types, messages, limit, skip);
+
+            var rows = densities.Select(x => new
+            {
+                c = new object[]
+                {
+                    new {v = x.Day, f = x.Day.ToString("dd/MM/yyyy HH:mm:ss")},
+                    new {v = x.Total},
+                }
+            });
+            var obj = new
+            {
+                cols = new[]
+                {
+                    new {id = "Day", label = "Day", type = "date"},
+                    new {id = "Total", label = "Total", type = "number"},
+                },
+                rows = rows
+            };
+
+            var json = JsonConvert.SerializeObject(obj, new IsoDateTimeConverter()); //new JavaScriptDateTimeConverter()
+            return new ContentResult()
+            {
+                Content = json,
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json"
+            };
+        }
+
+        public ActionResult Detail(string id)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            LogDto dto = finder.GetLogDetail(id);
+
+            return View(dto);
+        }
+
     }
 }

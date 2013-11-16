@@ -27,33 +27,39 @@
         {
             $(document).keydown(function (e)
             {
+                if (e.keyCode == 27)
+                {
+                    $('#header').toggle(100);
+                    editor.focus();
+                }
                 if (e.ctrlKey && e.keyCode == 222)
                 {
                     $('#header').toggle(100);
+                    editor.focus();
                 }
 
                 if (e.ctrlKey && e.keyCode == 192)
                 {
                     $('#header').toggle(100);
+                    editor.focus();
+
                 }
             });
         });
     </script>
 
 </head>
-<body style="margin: 0; padding: 0; background-color: #dfdfdf">
-
+<body style="margin: 0; padding: 0; background-color: #efefef">
 
     <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
+
         <div class="inner">
             <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
-            <p>
-                Press CTRL + ' or CTRL + " to toggle query panel. You can press CTRL + ENTER to change query after fill the text below.
+            <p style="display: inline">
+                Press ESC to toggle query panel. CTRL + ENTER to query.
             </p>
-            <div id="queryFilters"></div>
+
             <div id="queryDesc" style="width: 100%">
-                <div id='hits' class="hits"></div>
-                <a href="javascript:;" id="btnNewQuery">New Query</a>
                 <select id="range">
                     <option value="1hour">Last Hour</option>
                     <option value="6hour">Last 6 Hour</option>
@@ -67,20 +73,20 @@
                 <a href="javascript:;" id="btnQuery">Query</a>
             </div>
 
-            <div id="queryPanel">
-                <pre id="editor">
+            <pre id="editor">
 {
 
     Type : /.*/
 
 }</pre>
-            </div>
-
-
-
+        <div id='hits' class="hits"></div>
         </div>
-    <div class="shadow" style="display: block;"><span></span></div>
+        <div id="queryFilters"></div>
+        <a href="javascript:;" id="btnClearFilters">Clear Filters</a>
+
     </div>
+
+    <div class="shadow" style="display: block;"><span></span></div>
     @RenderBody()
 </body>
 </html>

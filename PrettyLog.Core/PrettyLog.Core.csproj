@@ -56,10 +56,8 @@
     <Compile Include="DataAccess\LogFinder.cs" />
     <Compile Include="DataAccess\LogItem.cs" />
     <Compile Include="DataAccess\LogListItemDto.cs" />
-    <Compile Include="DataAccess\MessageDensityDto.cs" />
     <Compile Include="DataAccess\MongoDataContext.cs" />
     <Compile Include="DataAccess\MongoDataContextFactory.cs" />
-    <Compile Include="DataAccess\TypeDensityDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

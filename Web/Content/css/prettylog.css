@@ -14,6 +14,13 @@
     color: black;
 }
 
+a {
+    font-size: 10pt;
+   font-family:monospace;
+    color: #FF9F80;
+    font-style: italic;
+}
+
 .oddTableRow {
     font-family: serif;
     font-size: 7pt;
@@ -53,10 +60,10 @@
 /*.fixed {background: url(http://static.tumblr.com/njty47g/Omoleufdi/topbar_bg.png) left top repeat-x;*/
 .fixed {background-color: white;
 position: fixed;left: 0;
--webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
--moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);}
+-webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+-moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);}
 
 .inner {width: 80%;margin: 0 auto;}
 
-.shadow{width: 100%;height: 5px;position: absolute;left: 0;bottom: -5px;z-index: 500;display: none;}
+.shadow{width: 100%;height: 5px;position: absolute;left: 0;bottom: -10px;z-index: 500;display: none;}

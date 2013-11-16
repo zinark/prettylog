@@ -109,7 +109,7 @@ namespace PrettyLog.Core.DataAccess
             return i[field].AsString;
         }
 
-        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end)
+        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
 
@@ -118,7 +118,8 @@ namespace PrettyLog.Core.DataAccess
                      new BsonDocument().Add("TimeStamp",
                                             new BsonDocument().Add("$gte", start.ToUniversalTime())
                                                               .Add("$lte", end.ToUniversalTime())));
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", 100);
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
             BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
             BsonDocument groupById = new BsonDocument()
@@ -130,7 +131,7 @@ namespace PrettyLog.Core.DataAccess
 
 
             var sw = Stopwatch.StartNew();
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, limitQuery, sortQuery);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, sortQuery, limitQuery, skipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
             
@@ -152,7 +153,7 @@ namespace PrettyLog.Core.DataAccess
 
         }
 
-        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
         {
             var operators = new List<BsonDocument>();
 
@@ -181,7 +182,8 @@ namespace PrettyLog.Core.DataAccess
                 }
 
 
-            operators.Add(new BsonDocument().Add("$limit", 5000));
+            operators.Add(new BsonDocument().Add("$limit", limit));
+            operators.Add(new BsonDocument().Add("$skip", skip));
 
             operators.Add(new BsonDocument()
                 .Add("$group",
