@@ -31,7 +31,7 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.On },
+                            new {v = x.On, f = x.On.ToString("dd/MM/yyyy HH:mm:ss") },
                             new {v = x.CPU },
                             new {v = x.Memory},
                             new {v = x.Network},
@@ -42,10 +42,10 @@ namespace Web.Controllers
             {
                 cols = new[]
                 {
-                    new {id = "On", label = "On", type = "date"},
+                    new {id = "On", label = "On", type = "datetime"},
                     new {id = "CPU", label = "CPU", type = "number"},
-                    new {id = "Network", label = "Network", type = "number"},
                     new {id = "Memory", label = "Memory", type = "number"},
+                    new {id = "Network", label = "Network", type = "number"},
                 },
                 rows = rows
             });
@@ -78,7 +78,7 @@ namespace Web.Controllers
             {
                 cols = new[]
                 {
-                    new {id = "Timestamp", label = "Timestamp", type = "date"},
+                    new {id = "Timestamp", label = "Timestamp", type = "datetime"},
                     new {id = "Type", label = "Type", type = "string"},
                     new {id = "Message", label = "Message", type = "string"},
                     new {id = "Object", label = "Object", type = "string"},
@@ -115,8 +115,8 @@ namespace Web.Controllers
                 {
                     new {id = fieldName, label = fieldName, type = "string"},
                     new {id = "Total", label = "Total", type = "number"},
-                    new {id = "FirstHit", label = "FirstHit", type = "date"},
-                    new {id = "LastHit", label = "LastHit", type = "date"}
+                    new {id = "FirstHit", label = "FirstHit", type = "datetime"},
+                    new {id = "LastHit", label = "LastHit", type = "datetime"}
                 },
                 rows = rows
             });
@@ -145,7 +145,7 @@ namespace Web.Controllers
             {
                 cols = new[]
                 {
-                    new {id = "Day", label = "Day", type = "date"},
+                    new {id = "Day", label = "Day", type = "datetime"},
                     new {id = "Total", label = "Total", type = "number"},
                 },
                 rows = rows

@@ -341,9 +341,9 @@ namespace PrettyLog.Core.DataAccess
             {
                 result.Add(new MachineStatusDto()
                 {
-                    CPU = item["Object.CpuUsage"].AsDouble,
-                    Network = item["Object.NetworkUsage"].AsDouble,
-                    Memory = item["Object.AvaliableMemory"].AsDouble,
+                    CPU = item["Object"]["CpuUsage"].AsDouble,
+                    Network = item["Object"]["NetworkUsage"].AsDouble,
+                    Memory = (item["Object"]["AvaliableMemory"].AsDouble),
                     On = ToLocal(item["TimeStamp"].ToUniversalTime()),
                 });
             }

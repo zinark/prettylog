@@ -99,6 +99,36 @@ var dataLoadEvents = {
     {
         console.log(data);
     },
+    machineStatusParsedSuccessfuly: function (json)
+    {
+        // fix dates
+        json.rows.forEach(function (row)
+        {
+            var val = row.c[0].v;
+            var d = moment(val).toDate();
+            row.c[0].v = d;
+        });
+
+        var data = new google.visualization.DataTable(json);
+        var table = new google.visualization.Table(document.getElementById('divMachineStatus'));
+        // table.draw(logsData, { allowHtml: true, cssClassNames: cssNames });
+
+        var chart = new google.visualization.ChartWrapper({
+            dataTable : data,
+            'chartType': 'LineChart',
+            'containerId': 'divMachineStatusChart',
+            'options': {
+                colors: prettyColors,
+                backgroundColor: 'transparent',
+                title : 'Machine Status - Last 6h'
+            }
+        });
+        chart.draw();
+    },
+    machineStatusError: function (data)
+    {
+        console.log(data);
+    },
     logDensityParsedSuccessfuly: function (json)
     {
         variables.logDensityData = new google.visualization.DataTable(json);
@@ -354,7 +384,7 @@ var ui = {
             messages: query.messages
         };
 
-        var ajxLogDensities = $.ajax({
+        $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/Timeline',
@@ -363,6 +393,17 @@ var ui = {
             async: true,
             success: dataLoadEvents.logDensityParsedSuccessfuly,
             error: dataLoadEvents.logDensityError
+        });
+
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/MachineStatus',
+            data: JSON.stringify(logDensityQuery),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: dataLoadEvents.machineStatusParsedSuccessfuly,
+            error: dataLoadEvents.machineStatusError
         });
 
         var ajxLogs = ui.refreshLogs();
@@ -399,6 +440,7 @@ $(document).ready(function ()
             queryFilters.queryRequested();
         }
     });
+    var start = null;
     $('#range').change(function ()
     {
         var r = $('#range').val();
