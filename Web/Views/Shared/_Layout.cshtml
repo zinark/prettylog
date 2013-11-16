@@ -22,9 +22,67 @@
     <script src="~/Scripts/prettyJson/pretty-json-min.js"></script>
 
     @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready(function ()
+        {
+            $(document).keydown(function (e)
+            {
+                if (e.ctrlKey && e.keyCode == 222)
+                {
+                    $('#header').toggle(100);
+                }
+
+                if (e.ctrlKey && e.keyCode == 192)
+                {
+                    $('#header').toggle(100);
+                }
+
+                if (e.keyCode == 192)
+                {
+                    $('#header').toggle(100);
+                }
+            });
+        });
+    </script>
+
 </head>
 <body style="margin: 0; padding: 0; background-color: #dfdfdf">
-    <div style="width: 100%; background-color:steelblue; color:white; font-family:monospace; font-size: 12pt; padding: 5px; text-align:right"> pretty.log (alpha)</div>
+
+
+    <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
+        <div class="inner">
+            <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
+            <p>
+                Press ' or CTRL + ' or CTRL + " to toggle query panel. You can press CTRL + ENTER to change query after fill the text below.
+            </p>
+
+            <div id="queryDesc" style="width: 100%">
+                <div id='hits' class="hits"></div>
+                <a href="javascript:;" id="btnNewQuery">New Query</a>
+                <select id="range">
+                    <option value="1">This Day</option>
+                    <option value="7">This Week</option>
+                    <option value="14">This 2 Week</option>
+                    <option value="30">This Month</option>
+                </select>
+
+                <a href="javascript:;" id="btnQuery">Query</a>
+            </div>
+
+            <div id="queryPanel">
+                <pre id="editor">
+{
+
+    Type : /.*/
+
+}</pre>
+            </div>
+
+
+
+        </div>
+    <div class="shadow" style="display: block;"><span></span></div>
+    </div>
     @RenderBody()
 </body>
 </html>

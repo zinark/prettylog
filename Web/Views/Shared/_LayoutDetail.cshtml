@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    <link href="~/Content/jquery.fancybox.css" rel="stylesheet" />
+    <link href="~/Content/jquery.fancybox.css" rel="stylesheet" />
+    <link href="~/Content/jquery.fancybox-buttons.css" rel="stylesheet" />
+    <link href="~/Content/css/prettylog.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="http://momentjs.com/downloads/moment.min.js"></script>
+    <script src="/Scripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="~/Scripts/jquery.fancybox.js"></script>
+
+    <script src="~/Scripts/prettyJson/underscore-min.js"></script>
+    <script src="~/Scripts/prettyJson/backbone-min.js"></script>
+    <script src="~/Scripts/prettyJson/pretty-json-min.js"></script>
+
+    @RenderSection("scripts", required: false)
+
+</head>
+<body style="margin-top: 50px; padding: 0; background-color: #dfdfdf">
+
+
+    <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
+        <div class="inner">
+            <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
+        </div>
+        <div class="shadow" style="display: block;"><span></span></div>
+    </div>
+    @RenderBody()
+</body>
+</html>

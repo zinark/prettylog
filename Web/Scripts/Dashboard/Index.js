@@ -44,7 +44,7 @@ var dataLoadEvents = {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
         logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true, cssClassNames: cssNames });
-        $('#hits').text('Hits : ' + json.hits);
+        $('#hits').html(json.hits + ' hit(s)');
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
             var selectedRow = logsTable.getSelection()[0].row;
@@ -161,6 +161,7 @@ var queryFilters = {
     queryRequested: function ()
     {
         query.query = editor.getSession().getValue();
+        query.end = moment();
         ui.drawFilters();
         ui.refreshViews();
     },
@@ -313,7 +314,7 @@ $(document).ready(function ()
 
     $('#btnQuery').click(queryFilters.queryRequested);
 
-    $('#editor').keydown(function (e)
+    $(document).keydown(function (e)
     {
         if (e.ctrlKey && e.keyCode == 13)
         {
