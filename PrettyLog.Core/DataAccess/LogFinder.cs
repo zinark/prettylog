@@ -38,14 +38,14 @@ namespace PrettyLog.Core.DataAccess
                 var dto = new LogListItemDto
                 {
                     Id = i["_id"].AsObjectId,
-                    Message = i["Message"].AsString,
-                    Type = i["Type"].AsString,
+                    Message = TryGetStringValue(i, "Message"),
+                    Type = TryGetStringValue(i, "Type"),
                     TimeStamp = ToLocal(i["TimeStamp"].ToUniversalTime()),
                     ThreadId = i["ThreadId"].AsInt32,
-                    ApplicationName = GetStringValue(i, "ApplicationName"),
-                    Ip = GetStringValue(i, "Ip"),
-                    Host = GetStringValue(i, "Host"),
-                    Url = GetStringValue(i, "Url")
+                    ApplicationName = TryGetStringValue(i, "ApplicationName"),
+                    Ip = TryGetStringValue(i, "Ip"),
+                    Host = TryGetStringValue(i, "Host"),
+                    Url = TryGetStringValue(i, "Url")
                 };
                 result.Add(dto);
             }
@@ -84,7 +84,7 @@ namespace PrettyLog.Core.DataAccess
             return generatedQuery;
         }
 
-        static string GetStringValue(BsonDocument i, string key)
+        static string TryGetStringValue(BsonDocument i, string key)
         {
             if (!i.Contains(key)) return "";
             if (i[key].IsBsonNull) return "";
@@ -100,13 +100,6 @@ namespace PrettyLog.Core.DataAccess
         {
             if (!i.Contains("Object")) return "null";
             return i["Object"].ToJson();
-        }
-
-        static string TryToGetField(BsonDocument i, string field)
-        {
-            if (!i.Contains(field)) return field + " not exists";
-            if (i[field].IsBsonNull) return field + " is null";
-            return i[field].AsString;
         }
 
         public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
@@ -142,7 +135,7 @@ namespace PrettyLog.Core.DataAccess
 
                 result.Add(new FieldDensityDto
                 {
-                    FieldName = TryToGetField(group, "_id"),
+                    FieldName = TryGetStringValue(group, "_id"),
                     Total = group["count"].AsInt32,
                     FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
                     LastHit = ToLocal(group["lastHit"].ToUniversalTime())
@@ -217,15 +210,15 @@ namespace PrettyLog.Core.DataAccess
             return new LogDto()
             {
                 Id = found["_id"].AsObjectId,
-                Message = found["Message"].AsString,
-                Type = found["Type"].AsString,
+                Message = TryGetStringValue(found,"Message"),
+                Type = TryGetStringValue(found,"Type"),
                 TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
                 ThreadId = found["ThreadId"].AsInt32,
                 ObjectJson = GetObject(found),
-                ApplicationName = GetStringValue(found, "ApplicationName"),
-                Ip = GetStringValue(found, "Ip"),
-                Host = GetStringValue(found, "Host"),
-                Url = GetStringValue(found, "Url")
+                ApplicationName = TryGetStringValue(found, "ApplicationName"),
+                Ip = TryGetStringValue(found, "Ip"),
+                Host = TryGetStringValue(found, "Host"),
+                Url = TryGetStringValue(found, "Url")
             };
         }
 
