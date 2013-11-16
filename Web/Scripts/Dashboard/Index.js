@@ -19,7 +19,7 @@ function DefaultQuery()
         query: '{}',
         start: moment().subtract('days', 1),
         end: moment(),
-        limit: 1000,
+        limit: 100,
         types: [],
         messages: []
     };
@@ -27,19 +27,10 @@ function DefaultQuery()
 
 var variables = {
 
-    typesData: null,
-    typesTable: null,
-    typesChart: null,
-
-    messagesData: null,
-    messagesTable: null,
-    messagesChart: null,
-
     logDensityData: null,
     logDensityTable: null,
     logDensityChart: null,
     logDensityControl: null,
-
     logsData: null,
     logsTable: null
 };
@@ -68,90 +59,6 @@ var dataLoadEvents = {
 
     },
     logsError: function (data)
-    {
-        console.log(data);
-    },
-    typesParsedSuccessfully: function (json)
-    {
-        variables.typesData = new google.visualization.DataTable(json);
-        variables.typesTable = new google.visualization.Table(document.getElementById('divTypeDensity'));
-        variables.typesChart = new google.visualization.PieChart(document.getElementById('divTypeDensityChart'));
-
-        google.visualization.events.addListener(variables.typesChart, 'select', function ()
-        {
-            var selectedItem = variables.typesChart.getSelection()[0];
-            if (selectedItem != null)
-            {
-                var value = variables.typesData.getValue(selectedItem.row, 0);
-                queryFilters.typeFilterSelected(value);
-            }
-        });
-
-        variables.typesChart.draw(variables.typesData,
-            {
-                'title': 'Type Density',
-                'height': 300,
-                is3D: true,
-                fontSize: "8px",
-                fontName: "Arial",
-                colors: prettyColors,
-                legend: 'left',
-                //pieSliceText: 'label',
-                backgroundColor: '#dfdfdf',
-                pieSliceBorderColor: 'white',
-                pieSliceTextStyle: {
-                    color: 'white', fontName: 'Times', fontSize: '8px'
-                }
-
-            });
-
-        variables.typesTable.draw(variables.typesData, {
-            page: 'enable',
-            pageSize: 10,
-            cssClassNames: cssNames
-        });
-    },
-    typesError: function (data)
-    {
-        console.log(data);
-    },
-    messagesParsedSuccessfully: function (json)
-    {
-        variables.messagesData = new google.visualization.DataTable(json);
-        variables.messagesTable = new google.visualization.Table(document.getElementById('divMessageDensity'));
-        variables.messagesChart = new google.visualization.PieChart(document.getElementById('divMessageDensityChart'));
-
-        google.visualization.events.addListener(variables.messagesChart, 'select', function ()
-        {
-            var selectedItem = variables.messagesChart.getSelection()[0];
-            if (selectedItem != null)
-            {
-                var value = variables.messagesData.getValue(selectedItem.row, 0);
-                queryFilters.messageFilterSelected(value);
-            }
-        });
-
-        variables.messagesChart.draw(variables.messagesData,
-            {
-                'title': 'Messages',
-                'height': 300,
-                is3D: true,
-                fontSize: "8px",
-                fontName: "Arial",
-                colors: prettyColors,
-                legend: 'left',
-                //pieSliceText: 'label',
-                backgroundColor: '#dfdfdf',
-                pieSliceBorderColor: 'white',
-                pieSliceTextStyle: {
-                    color: 'white', fontName: 'Times', fontSize: '8px'
-                }
-
-            });
-
-        variables.messagesTable.draw(variables.messagesData, { page: 'enable', pageSize: 10, cssClassNames: cssNames });
-    },
-    messagesError: function (data)
     {
         console.log(data);
     },
@@ -271,6 +178,68 @@ var queryFilters = {
     }
 };
 
+var DynamicFilters =
+{
+    vars : {},
+    add: function(fieldName, fieldQuery, divTableName, divChartName, onSelect) {
+
+        var onError = function (data)
+        {
+            console.log('error ' + fieldName, data);
+        };
+        var onSuccess = function (json)
+        {
+            DynamicFilters.vars[fieldName + 'data'] = new google.visualization.DataTable(json);
+            DynamicFilters.vars[fieldName + 'table'] = new google.visualization.Table(document.getElementById(divTableName));
+            DynamicFilters.vars[fieldName + 'chart'] = new google.visualization.PieChart(document.getElementById(divChartName));
+
+            google.visualization.events.addListener(DynamicFilters.vars[fieldName + 'chart'], 'select', function ()
+            {
+                var selectedItem = DynamicFilters.vars[fieldName + 'chart'].getSelection()[0];
+                if (selectedItem != null)
+                {
+                    var value = DynamicFilters.vars[fieldName + 'data'].getValue(selectedItem.row, 0);
+                    onSelect(value);
+                }
+            });
+
+            DynamicFilters.vars[fieldName + 'chart'].draw(DynamicFilters.vars[fieldName + 'data'],
+                {
+                    'title': fieldName + ' Density',
+                    'height': 300,
+                    is3D: true,
+                    fontSize: "8px",
+                    fontName: "Arial",
+                    colors: prettyColors,
+                    legend: 'left',
+                    //pieSliceText: 'label',
+                    backgroundColor: '#dfdfdf',
+                    pieSliceBorderColor: 'white',
+                    pieSliceTextStyle: {
+                        color: 'white', fontName: 'Times', fontSize: '8px'
+                    }
+                });
+
+            DynamicFilters.vars[fieldName + 'table'].draw(DynamicFilters.vars[fieldName + 'data'], {
+                page: 'enable',
+                pageSize: 10,
+                cssClassNames: cssNames
+            });
+        };
+        
+        return $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/FieldDensity',
+            data: JSON.stringify(fieldQuery),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: onSuccess,
+            error: onError
+        });
+    }
+};
+
 var ui = {
     drawFilters: function ()
     {
@@ -280,17 +249,10 @@ var ui = {
     {
         $('#loading').show();
 
-        var typesQuery = {
-            query: query.query,
-            start: query.start,
-            end: query.end
-        };
-
-        var messagesQuery = {
-            query: query.query,
-            start: query.start,
-            end: query.end
-        };
+        var f1 = DynamicFilters.add('Type', { fieldName: 'Type', query: query.query, start: query.start, end: query.end }, 'divTypeDensity', 'divTypeDensityChart', function (value) { queryFilters.typeFilterSelected(value); });
+        var f2 = DynamicFilters.add('Message', { fieldName : 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
+        var f3 = DynamicFilters.add('Ip', { fieldName : 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function(value) { });
+        var f4 = DynamicFilters.add('Host', { fieldName : 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function(value) { });
 
         var logDensityQuery = {
             query: query.query,
@@ -300,30 +262,7 @@ var ui = {
             messages: query.messages
         };
 
-
         var a1 = $.ajax({
-            type: 'post',
-            dataType: 'json',
-            url: '/Dashboard/Types',
-            data: JSON.stringify(typesQuery),
-            contentType: 'application/json; charset=utf-8',
-            async: true,
-            success: dataLoadEvents.typesParsedSuccessfully,
-            error: dataLoadEvents.typesError
-        });
-
-        var a2 = $.ajax({
-            type: 'post',
-            dataType: 'json',
-            url: '/Dashboard/Messages',
-            data: JSON.stringify(messagesQuery),
-            contentType: 'application/json; charset=utf-8',
-            async: true,
-            success: dataLoadEvents.messagesParsedSuccessfully,
-            error: dataLoadEvents.messagesError
-        });
-
-        var a3 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/LogDensities',
@@ -334,7 +273,7 @@ var ui = {
             error: dataLoadEvents.logDensityError
         });
 
-        var a4 = $.ajax({
+        var a2 = $.ajax({
             type: 'post',
             dataType: 'json',
             url: '/Dashboard/Logs',
@@ -349,7 +288,7 @@ var ui = {
 
 
         $
-            .when(a1, a2, a3, a4)
+            .when(a1, a2, f1, f2, f3, f4)
 
             .then(function ()
             {
@@ -367,20 +306,6 @@ function packagesLoaded()
 {
     ui.refreshViews();
     ui.drawFilters();
-}
-
-function convertListToDict(list)
-{
-
-    var dict = [];
-    var i = 0;
-    list.forEach(function (val)
-    {
-        dict[i] = val;
-        i++;
-    });
-
-    return dict;
 }
 
 $(document).ready(function ()

@@ -23,6 +23,35 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end)
+        {
+            var finder = new LogFinder(ContextFactory.Create());
+            var types = finder.GetFieldDensity(fieldName, query, start, end);
+
+            var rows = types.Select(x => new
+            {
+                c = new object[]
+                {
+                    new {v = x.FieldName},
+                    new {v = x.Total},
+                    new {v = x.FirstHit, f = x.FirstHit.ToString("dd/MM/yyyy HH:mm:ss")},
+                    new {v = x.LastHit, f = x.LastHit.ToString("dd/MM/yyyy HH:mm:ss")}
+                }
+            });
+            return Json(new
+            {
+                cols = new[]
+                {
+                    new {id = fieldName, label = fieldName, type = "string"},
+                    new {id = "Total", label = "Total", type = "number"},
+                    new {id = "FirstHit", label = "FirstHit", type = "date"},
+                    new {id = "LastHit", label = "LastHit", type = "date"}
+                },
+                rows = rows
+            });
+        }
+
+        [HttpPost]
         public JsonResult Types(string query, DateTime start, DateTime end)
         {
             var finder = new LogFinder(ContextFactory.Create());

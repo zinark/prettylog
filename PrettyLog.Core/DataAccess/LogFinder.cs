@@ -94,7 +94,7 @@ namespace PrettyLog.Core.DataAccess
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
         }
 
-        private static string GetObject(BsonDocument i)
+        static string GetObject(BsonDocument i)
         {
             if (!i.Contains("Object")) return "null";
             return i["Object"].ToJson();
@@ -137,81 +137,11 @@ namespace PrettyLog.Core.DataAccess
 
         }
 
-        public IEnumerable<TypeDensityDto> GetTypes(string query, DateTime start, DateTime end)
-        {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
-
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start)
-                                                              .Add("$lte", end)));
-
-            BsonDocument group1 = new BsonDocument()
-                .Add("$group",
-                     new BsonDocument().Add("_id", "$Type")
-                                       .Add("count", new BsonDocument().Add("$sum", 1))
-                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
-                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
-
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1);
-
-            var result = new List<TypeDensityDto>();
-            foreach (BsonDocument group in groups)
-            {
-                result.Add(new TypeDensityDto
-                {
-                    Type = group["_id"].AsString,
-                    Total = group["count"].AsInt32,
-                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
-                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
-                });
-            }
-
-            return result;
-        }
-
-        public IEnumerable<MessageDensityDto> GetMessages(string query, DateTime start, DateTime end)
-        {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start)
-                                                              .Add("$lte", end)));
-
-            BsonDocument group1 = new BsonDocument()
-                .Add("$group",
-                     new BsonDocument().Add("_id", "$Message")
-                                       .Add("count", new BsonDocument().Add("$sum", 1))
-                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
-                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
-
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1);
-
-            var result = new List<MessageDensityDto>();
-            foreach (BsonDocument group in groups)
-            {
-                result.Add(new MessageDensityDto
-                {
-                    Message = group["_id"].AsString,
-                    Total = group["count"].AsInt32,
-                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
-                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
-                });
-            }
-
-            return result;
-        }
-
         public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
             var operators = new List<BsonDocument>();
 
-            operators.Add(new BsonDocument().Add("$limit", 21000));
+            operators.Add(new BsonDocument().Add("$limit", 1000));
             operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
             
             if (types != null)
