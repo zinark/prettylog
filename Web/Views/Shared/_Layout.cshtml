@@ -37,7 +37,7 @@
                     $('#header').toggle(100);
                 }
 
-                if (e.keyCode == 192)
+                if (!e.ctrlKey && e.keyCode == 192)
                 {
                     $('#header').toggle(100);
                 }
@@ -55,7 +55,7 @@
             <p>
                 Press ' or CTRL + ' or CTRL + " to toggle query panel. You can press CTRL + ENTER to change query after fill the text below.
             </p>
-
+            <div id="queryFilters"></div>
             <div id="queryDesc" style="width: 100%">
                 <div id='hits' class="hits"></div>
                 <a href="javascript:;" id="btnNewQuery">New Query</a>

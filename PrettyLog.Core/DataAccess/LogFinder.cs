@@ -100,12 +100,21 @@ namespace PrettyLog.Core.DataAccess
             if (!i.Contains("Object")) return "null";
             return i["Object"].ToJson();
         }
+        
+        static string TryToGetField(BsonDocument i, string field)
+        {
+            if (!i.Contains(field)) return field + " not exists";
+            if (i[field].IsBsonNull) return field + " is null";
+            return i[field].AsString;
+        }
 
         public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end)
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
 
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", 1000);
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", 100);
+            
+            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
@@ -120,14 +129,17 @@ namespace PrettyLog.Core.DataAccess
                                        .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
                                        .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", limitQuery, matchQuery, matchDate, group1, sortQuery);
 
             var result = new List<FieldDensityDto>();
             foreach (BsonDocument group in groups)
             {
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
                 result.Add(new FieldDensityDto
                 {
-                    FieldName = group["_id"].AsString,
+                    FieldName = TryToGetField(group, "_id"),
                     Total = group["count"].AsInt32,
                     FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
                     LastHit = ToLocal(group["lastHit"].ToUniversalTime())
@@ -142,7 +154,7 @@ namespace PrettyLog.Core.DataAccess
         {
             var operators = new List<BsonDocument>();
 
-            operators.Add(new BsonDocument().Add("$limit", 1000));
+            operators.Add(new BsonDocument().Add("$limit", 10000));
             operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
             
             if (types != null)

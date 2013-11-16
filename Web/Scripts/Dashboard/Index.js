@@ -44,7 +44,7 @@ var dataLoadEvents = {
     {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { showRowNumber: true, allowHtml: true, cssClassNames: cssNames });
+        logsTable.draw(logsData, { firstRowNumber : query.skip + 1, showRowNumber: true, allowHtml: true, cssClassNames: cssNames });
         $('#hits').html(json.hits + ' hit(s)');
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
@@ -163,6 +163,7 @@ var queryFilters = {
     {
         query.query = editor.getSession().getValue();
         query.end = moment();
+        query.skip = 0;
         ui.drawFilters();
         ui.refreshViews();
     },
@@ -177,16 +178,15 @@ var queryFilters = {
         if (query.skip > 0)
         {
             query.skip -= query.limit;
-            ui.drawFilters();
-            ui.refreshViews();
         }
         if (query.skip < 0) query.skip = 0;
+
+        ui.refreshLogs();
     },
     nextPressed: function ()
     {
         query.skip += query.limit;
-        ui.drawFilters();
-        ui.refreshViews();
+        ui.refreshLogs();
     },
     logSelected: function (log)
     {
@@ -264,6 +264,18 @@ var ui = {
     {
         $('#queryFilters').html(JSON.stringify(query));
     },
+    refreshLogs : function() {
+        return $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Dashboard/Logs',
+            data: JSON.stringify(query),
+            contentType: 'application/json; charset=utf-8',
+            async: true,
+            success: dataLoadEvents.logsParsedSuccessfully,
+            error: dataLoadEvents.logsError
+        });
+    },
     refreshViews: function ()
     {
         $('#loading').show();
@@ -292,22 +304,10 @@ var ui = {
             error: dataLoadEvents.logDensityError
         });
 
-        var a2 = $.ajax({
-            type: 'post',
-            dataType: 'json',
-            url: '/Dashboard/Logs',
-            data: JSON.stringify(query),
-            contentType: 'application/json; charset=utf-8',
-            async: true,
-            success: dataLoadEvents.logsParsedSuccessfully,
-            error: dataLoadEvents.logsError
-        });
-
-
-
+        var a2 = ui.refreshLogs();
 
         $
-            .when(a1, a2, f1, f2, f3, f4)
+            .when(a2, f1, f2, f3, f4, a1)
 
             .then(function ()
             {
