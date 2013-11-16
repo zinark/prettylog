@@ -20,6 +20,7 @@ function DefaultQuery()
         start: moment().subtract('days', 1),
         end: moment(),
         limit: 100,
+        skip: 0,
         types: [],
         messages: []
     };
@@ -43,7 +44,7 @@ var dataLoadEvents = {
     {
         logsData = new google.visualization.DataTable(json);
         logsTable = new google.visualization.Table(document.getElementById('divLogs'));
-        logsTable.draw(logsData, { page: 'enable', pageSize: 50, allowHtml: true, cssClassNames: cssNames });
+        logsTable.draw(logsData, { showRowNumber: true, allowHtml: true, cssClassNames: cssNames });
         $('#hits').html(json.hits + ' hit(s)');
         google.visualization.events.addListener(logsTable, 'select', function ()
         {
@@ -82,7 +83,7 @@ var dataLoadEvents = {
         variables.logDensityChart = new google.visualization.ChartWrapper({
             'chartType': 'ColumnChart',
             'containerId': 'divTimelineChart',
-            'options': { 'legend': 'none', colors : prettyColors, backgroundColor : 'transparent' }
+            'options': { 'legend': 'none', colors: prettyColors, backgroundColor: 'transparent' }
         });
 
         variables.logDensityControl = new google.visualization.ControlWrapper({
@@ -95,7 +96,7 @@ var dataLoadEvents = {
                     'labelStacking': 'horizontal',
                     'chartType': 'ScatterChart',
                     'chartView': { 'columns': [0, 1] },
-                    
+
                     'chartOptions': {
                         // 'chartArea': { left: 5, top: 0, width: "95%", height: "98%" },
                         // 'width': '100%',
@@ -171,6 +172,22 @@ var queryFilters = {
         ui.drawFilters();
         ui.refreshViews();
     },
+    prevPressed: function ()
+    {
+        if (query.skip > 0)
+        {
+            query.skip -= query.limit;
+            ui.drawFilters();
+            ui.refreshViews();
+        }
+        if (query.skip < 0) query.skip = 0;
+    },
+    nextPressed: function ()
+    {
+        query.skip += query.limit;
+        ui.drawFilters();
+        ui.refreshViews();
+    },
     logSelected: function (log)
     {
         $('#txtTimeStamp').text(moment(log.TimeStamp).utc().format('DD/MM/YYYY hh:mm:ss'));
@@ -181,8 +198,9 @@ var queryFilters = {
 
 var DynamicFilters =
 {
-    vars : {},
-    add: function(fieldName, fieldQuery, divTableName, divChartName, onSelect) {
+    vars: {},
+    add: function (fieldName, fieldQuery, divTableName, divChartName, onSelect)
+    {
 
         var onError = function (data)
         {
@@ -227,7 +245,7 @@ var DynamicFilters =
                 cssClassNames: cssNames
             });
         };
-        
+
         return $.ajax({
             type: 'post',
             dataType: 'json',
@@ -251,9 +269,9 @@ var ui = {
         $('#loading').show();
 
         var f1 = DynamicFilters.add('Type', { fieldName: 'Type', query: query.query, start: query.start, end: query.end }, 'divTypeDensity', 'divTypeDensityChart', function (value) { queryFilters.typeFilterSelected(value); });
-        var f2 = DynamicFilters.add('Message', { fieldName : 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
-        var f3 = DynamicFilters.add('Ip', { fieldName : 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function(value) { });
-        var f4 = DynamicFilters.add('Host', { fieldName : 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function(value) { });
+        var f2 = DynamicFilters.add('Message', { fieldName: 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
+        var f3 = DynamicFilters.add('Ip', { fieldName: 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function (value) { });
+        var f4 = DynamicFilters.add('Host', { fieldName: 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function (value) { });
 
         var logDensityQuery = {
             query: query.query,
@@ -329,6 +347,8 @@ $(document).ready(function ()
     });
 
     $('#btnNewQuery').click(queryFilters.newQueryPressed);
+    $('#btnNext').click(queryFilters.nextPressed);
+    $('#btnPrev').click(queryFilters.prevPressed);
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/cobalt");
     editor.getSession().setMode("ace/mode/javascript");

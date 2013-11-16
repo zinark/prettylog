@@ -16,7 +16,7 @@ namespace PrettyLog.Core.DataAccess
             _context = context;
         }
 
-        public IEnumerable<LogListItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        public IEnumerable<LogListItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip)
         {
             var db = (_context as MongoDataContext).GetDb();
 
@@ -26,7 +26,8 @@ namespace PrettyLog.Core.DataAccess
                       .Find(generatedQuery)
                       .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
                       .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId", "ApplicationName", "Ip", "Host", "Url")
-                      .SetLimit(limit);
+                      .SetLimit(limit)
+                      .SetSkip(skip);
 
 
             var result = new List<LogListItemDto>();
@@ -296,7 +297,7 @@ namespace PrettyLog.Core.DataAccess
             });
         }
 
-        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
              var db = (_context as MongoDataContext).GetDb();
 
