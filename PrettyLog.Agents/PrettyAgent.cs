@@ -20,7 +20,7 @@ namespace PrettyLog.Agents
         public void Start()
         {
             var context = _contextFactory.Create();
-            new Task (() =>
+            new Task(() =>
             {
                 while (true)
                 {
@@ -36,9 +36,13 @@ namespace PrettyLog.Agents
                 var logItem = new LogItem()
                 {
                     TimeStamp = DateTime.UtcNow,
-                    Type = "pretty.agent", Object = new
+                    Message = "machine status",
+                    Type = "pretty.agent",
+                    Object = new
                     {
-                        CpuUsage = GetCpuUsage(), AvaliableMemory = GetMemory(), NetworkUsage = GetNetwork()
+                        CpuUsage = GetCpuUsage(),
+                        AvaliableMemory = GetMemory(),
+                        NetworkUsage = GetNetwork()
                     }
                 };
                 Console.WriteLine(logItem.ToJson());
@@ -53,7 +57,7 @@ namespace PrettyLog.Agents
             float total = 0;
             foreach (var c in cards)
             {
-                total = (float) getNetworkUtilization(c);
+                total = (float)getNetworkUtilization(c);
             }
 
             return total;
@@ -100,7 +104,7 @@ namespace PrettyLog.Agents
 
         float GetCpuUsage()
         {
-            var c=
+            var c =
              new PerformanceCounter()
             {
                 CategoryName = "Processor",

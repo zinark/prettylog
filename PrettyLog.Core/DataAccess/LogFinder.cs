@@ -53,53 +53,32 @@ namespace PrettyLog.Core.DataAccess
             return result;
         }
 
-        private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types,
-                                                     string[] messages)
+        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
-            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
+            var db = (_context as MongoDataContext).GetDb();
 
-            var qDateRange = new QueryBuilder<BsonDocument>().And
-                (
-                    new QueryDocument(new BsonDocument().Add("TimeStamp",
-                                                             new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
-                    new QueryDocument(new BsonDocument().Add("TimeStamp",
-                                                             new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
-                );
+            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
 
-            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
-
-            if (types != null)
-                if (types.Length > 0)
-                {
-                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
-                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
-                }
-
-            if (messages != null)
-                if (messages.Length > 0)
-                {
-                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
-                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
-                }
-            return generatedQuery;
+            return db.GetCollection("logs").Find(generatedQuery).Count();
         }
 
-        static string TryGetStringValue(BsonDocument i, string key)
+        public LogDto GetLogDetail(string id)
         {
-            if (!i.Contains(key)) return "";
-            if (i[key].IsBsonNull) return "";
-            return i[key].AsString;
-        }
-
-        static DateTime ToLocal(DateTime date)
-        {
-            return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
-        }
-
-        static string GetObject(BsonDocument i)
-        {
-            if (!i.Contains("Object")) return "null";
-            return i["Object"].ToJson();
+            var db = (_context as MongoDataContext).GetDb();
+            var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
+            return new LogDto()
+            {
+                Id = found["_id"].AsObjectId,
+                Message = TryGetStringValue(found, "Message"),
+                Type = TryGetStringValue(found, "Type"),
+                TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
+                ThreadId = found["ThreadId"].AsInt32,
+                ObjectJson = GetObject(found),
+                ApplicationName = TryGetStringValue(found, "ApplicationName"),
+                Ip = TryGetStringValue(found, "Ip"),
+                Host = TryGetStringValue(found, "Host"),
+                Url = TryGetStringValue(found, "Url")
+            };
         }
 
         public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
@@ -127,7 +106,7 @@ namespace PrettyLog.Core.DataAccess
             IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, sortQuery, limitQuery, skipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
-            
+
             foreach (BsonDocument group in groups)
             {
                 if (!group.Contains("_id")) continue;
@@ -157,7 +136,7 @@ namespace PrettyLog.Core.DataAccess
                                                 new BsonDocument().Add("$gte", start)
                                                                   .Add("$lte", end)))
                 );
-            
+
             operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
 
             if (types != null)
@@ -201,25 +180,6 @@ namespace PrettyLog.Core.DataAccess
             }
 
             return result;
-        }
-
-        public LogDto GetLogDetail(string id)
-        {
-            var db = (_context as MongoDataContext).GetDb();
-            var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
-            return new LogDto()
-            {
-                Id = found["_id"].AsObjectId,
-                Message = TryGetStringValue(found,"Message"),
-                Type = TryGetStringValue(found,"Type"),
-                TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
-                ThreadId = found["ThreadId"].AsInt32,
-                ObjectJson = GetObject(found),
-                ApplicationName = TryGetStringValue(found, "ApplicationName"),
-                Ip = TryGetStringValue(found, "Ip"),
-                Host = TryGetStringValue(found, "Host"),
-                Url = TryGetStringValue(found, "Url")
-            };
         }
 
         public void GenerateData()
@@ -308,13 +268,94 @@ namespace PrettyLog.Core.DataAccess
             });
         }
 
-        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages)
+        private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
+            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
+
+            var qDateRange = new QueryBuilder<BsonDocument>().And
+                (
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
+                );
+
+            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
+
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
+                }
+
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
+                }
+            return generatedQuery;
+        }
+
+        static string TryGetStringValue(BsonDocument i, string key)
+        {
+            if (!i.Contains(key)) return "";
+            if (i[key].IsBsonNull) return "";
+            return i[key].AsString;
+        }
+
+        static string GetObject(BsonDocument i)
+        {
+            if (!i.Contains("Object")) return "null";
+            return i["Object"].ToJson();
+        }
+
+        static DateTime ToLocal(DateTime date)
+        {
+            return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
+        }
+
+        public IEnumerable<MachineStatusDto> MachineStatus(DateTime start, DateTime end, int limit, int skip)
+        {
+            start = end.Subtract(TimeSpan.FromHours(6));
+
+            var q = new QueryBuilder<BsonDocument>().And
+                (
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$gte",
+                                                                                    TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$lte",
+                                                                                    TimeZoneInfo.ConvertTimeToUtc(end)))),
+                    new QueryDocument(new BsonDocument().Add("Type", "pretty.agent")),
+                    new QueryDocument(new BsonDocument().Add("Message", "machine status"))
+                );
+
             var db = (_context as MongoDataContext).GetDb();
 
-            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
+            var list = db.GetCollection("logs").Find(q);
 
-            return db.GetCollection("logs").Find(generatedQuery).Count();
+            var result = new List<MachineStatusDto>();
+            foreach (var item in list)
+            {
+                result.Add(new MachineStatusDto()
+                {
+                    CPU = item["Object.CpuUsage"].AsDouble,
+                    Network = item["Object.NetworkUsage"].AsDouble,
+                    Memory = item["Object.AvaliableMemory"].AsDouble,
+                    On = ToLocal(item["TimeStamp"].ToUniversalTime()),
+                });
+            }
+            return result;
         }
+    }
+
+    public class MachineStatusDto
+    {
+        public DateTime On { get; set; }
+        public double CPU { get; set; }
+        public double Network { get; set; }
+        public double Memory { get; set; }
     }
 }

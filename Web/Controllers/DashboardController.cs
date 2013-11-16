@@ -16,16 +16,46 @@ namespace Web.Controllers
         static readonly string Mongodatabase = ConfigurationManager.AppSettings.Get("mongodatabase");
 
         static readonly IDataContextFactory ContextFactory = new MongoDataContextFactory(new MongoClient(Mongoconnection), Mongodatabase);
-
+        LogFinder finder = new LogFinder(ContextFactory.Create());
         public ActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
+        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 1000, int skip = 0)
+        {
+            var result = finder.MachineStatus(start, end, limit, skip);
+
+            var rows = result.Select(x => new
+            {
+                c = new object[]
+                {
+                            new {v = x.On },
+                            new {v = x.CPU },
+                            new {v = x.Memory},
+                            new {v = x.Network},
+                }
+            }).ToList();
+
+            var json = Json(new
+            {
+                cols = new[]
+                {
+                    new {id = "On", label = "On", type = "date"},
+                    new {id = "CPU", label = "CPU", type = "number"},
+                    new {id = "Network", label = "Network", type = "number"},
+                    new {id = "Memory", label = "Memory", type = "number"},
+                },
+                rows = rows
+            });
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost]
         public JsonResult Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip = 0)
         {
-            var finder = new LogFinder(ContextFactory.Create());
             var result = finder.Logs(query, start, end, types, messages, limit, skip);
             var hits = finder.LogsHit(query, start, end, types, messages);
 
@@ -67,7 +97,6 @@ namespace Web.Controllers
         [HttpPost]
         public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
         {
-            var finder = new LogFinder(ContextFactory.Create());
             var types = finder.GetFieldDensity(fieldName, query, start, end, limit, skip);
 
             var rows = types.Select(x => new
@@ -95,14 +124,13 @@ namespace Web.Controllers
 
         public ActionResult TestData()
         {
-            new LogFinder(ContextFactory.Create()).GenerateData();
+            finder.GenerateData();
             return View("Index");
         }
 
         [HttpPost]
         public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
         {
-            var finder = new LogFinder(ContextFactory.Create());
             var densities = finder.GetLogDensity(query, start, end, types, messages, limit, skip);
 
             var rows = densities.Select(x => new
@@ -134,9 +162,7 @@ namespace Web.Controllers
 
         public ActionResult Detail(string id)
         {
-            var finder = new LogFinder(ContextFactory.Create());
             LogDto dto = finder.GetLogDetail(id);
-
             return View(dto);
         }
 
