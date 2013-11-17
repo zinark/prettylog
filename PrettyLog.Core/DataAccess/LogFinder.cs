@@ -157,24 +157,56 @@ namespace PrettyLog.Core.DataAccess
             operators.Add(new BsonDocument().Add("$limit", limit));
             operators.Add(new BsonDocument().Add("$skip", skip));
 
-            operators.Add(new BsonDocument()
-                .Add("$group",
-                     new BsonDocument().Add("_id", new BsonDocument()
-                                                       .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
-                                                       .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
-                                                       .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
-                         )
-                .Add("count", new BsonDocument().Add("$sum", 1)))
-                );
+            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks;
+            
+            if (!hourly)
+            {
+                operators.Add(new BsonDocument()
+                                  .Add("$group",
+                                       new BsonDocument().Add("_id", new BsonDocument()
+                                                                         .Add("year",
+                                                                              new BsonDocument().Add("$year",
+                                                                                                     "$TimeStamp"))
+                                                                         .Add("month",
+                                                                              new BsonDocument().Add("$month",
+                                                                                                     "$TimeStamp"))
+                                                                         .Add("day",
+                                                                              new BsonDocument().Add("$dayOfMonth",
+                                                                                                     "$TimeStamp"))
+                                           )
+                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+            }
+            else
+            {
+                operators.Add(new BsonDocument()
+                                  .Add("$group",
+                                       new BsonDocument().Add("_id", new BsonDocument()
+                                                                         .Add("year",new BsonDocument().Add("$year","$TimeStamp"))
+                                                                         .Add("month",new BsonDocument().Add("$month","$TimeStamp"))
+                                                                         .Add("day",new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                                         .Add("hour",new BsonDocument().Add("$hour","$TimeStamp"))
+                                           )
+                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+            }
+
 
             IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
 
             var result = new List<LogDensityDto>();
             foreach (BsonDocument group in groups)
             {
+                var day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32);
+                if (hourly)
+                {
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
+                }
                 result.Add(new LogDensityDto
                 {
-                    Day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32),
+                    Day = day,
                     Total = group["count"].AsInt32
                 });
             }

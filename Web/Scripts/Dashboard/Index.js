@@ -187,7 +187,7 @@ var dataLoadEvents = {
         });
 
         variables.logDensityTable = new google.visualization.Table(document.getElementById('divDashTable'));
-        // logDensityTable.draw(logDensityData, { page: 'enable', pageSize: 5 });
+        variables.logDensityTable.draw(variables.logDensityData, { page: 'enable', pageSize: 10 });
 
         var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
@@ -204,7 +204,7 @@ var dataLoadEvents = {
                 'filterColumnIndex': 0,
                 'state': { 'range': { 'start': moment().subtract('days', 3).toDate(), 'end': moment().toDate() } },
                 ui: {
-                    'labelStacking': 'horizontal',
+                    //'labelStacking': 'horizontal',
                     'chartType': 'ScatterChart',
                     'chartView': { 'columns': [0, 1] },
 
@@ -216,7 +216,7 @@ var dataLoadEvents = {
                         'colors': ['black'],
                         'hAxis': {
                             'baselineColor': 'white',
-                            'format': 'dd/MM/yy',
+                            'format': 'HH:mm dd/MM',
                         }
                     },
                     'minRangeSize': 86400000
