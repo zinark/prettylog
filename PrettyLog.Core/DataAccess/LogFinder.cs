@@ -247,7 +247,7 @@ namespace PrettyLog.Core.DataAccess
             };
 
             Random r = new Random(Environment.TickCount);
-            Enumerable.Range(1, 100000).ToList().ForEach(i =>
+            Enumerable.Range(1, 10000).ToList().ForEach(i =>
             {
                 var type = types[r.Next(types.Length)];
                 var message = messages[r.Next(messages.Length)];
