@@ -195,8 +195,7 @@ namespace PrettyLog.Core.DataAccess
                                        group["_id"]["day"].AsInt32);
                 if (hourly)
                 {
-                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
-                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
                 }
                 result.Add(new LogDensityDto
                 {
@@ -344,44 +343,59 @@ namespace PrettyLog.Core.DataAccess
 
         public IEnumerable<MachineStatusDto> MachineStatus(DateTime start, DateTime end, int limit, int skip)
         {
-            start = end.Subtract(TimeSpan.FromHours(6));
+            
+            var match1 = new BsonDocument().Add("$match", new BsonDocument().Add("Type","pretty.agent"));
+            var match2 = new BsonDocument().Add("$match", new BsonDocument().Add("Message","machine status"));
 
-            var q = new QueryBuilder<BsonDocument>().And
-                (
-                    new QueryDocument(new BsonDocument().Add("TimeStamp",
-                                                             new BsonDocument().Add("$gte",
-                                                                                    TimeZoneInfo.ConvertTimeToUtc(start)))),
-                    new QueryDocument(new BsonDocument().Add("TimeStamp",
-                                                             new BsonDocument().Add("$lte",
-                                                                                    TimeZoneInfo.ConvertTimeToUtc(end)))),
-                    new QueryDocument(new BsonDocument().Add("Type", "pretty.agent")),
-                    new QueryDocument(new BsonDocument().Add("Message", "machine status"))
-                );
+            var matchDate = new BsonDocument()
+                .Add("$match", new BsonDocument().Add("TimeStamp",
+                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
+                                                              .Add("$lte", end.ToUniversalTime())));
 
-            var db = (_context as MongoDataContext).GetDb();
+            
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
+            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
-            var list = db.GetCollection("logs").Find(q);
+
+            BsonDocument groupById = new BsonDocument()
+                .Add("$group",
+
+                     new BsonDocument().Add("_id", new BsonDocument()
+                                                       .Add("ip", "$Ip")
+                                                       .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                       .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                       .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                       .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                                                       )
+                                       .Add("avgcpu", new BsonDocument().Add("$avg", "$Object.CpuUsage"))
+                                       .Add("avgmem", new BsonDocument().Add("$min", "$Object.AvaliableMemory"))
+                                       .Add("avgnet", new BsonDocument().Add("$max", "$Object.NetworkUsage")));
+
+
+            var sw = Stopwatch.StartNew();
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, match1, match2, groupById, sortQuery, limitQuery, skipQuery);
 
             var result = new List<MachineStatusDto>();
-            foreach (var item in list)
+
+            foreach (BsonDocument group in groups)
             {
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
                 result.Add(new MachineStatusDto()
                 {
-                    CPU = item["Object"]["CpuUsage"].AsDouble,
-                    Network = item["Object"]["NetworkUsage"].AsDouble,
-                    Memory = (item["Object"]["AvaliableMemory"].AsDouble),
-                    On = ToLocal(item["TimeStamp"].ToUniversalTime()),
+                    On = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                     group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0),
+                                     
+                    Ip = group["_id"]["ip"].AsString,
+                    CPU = Math.Round(group["avgcpu"].AsDouble,2),
+                    Memory = Math.Round(group["avgmem"].AsDouble / 1024.0d, 3),
+                    Network = Math.Round(group["avgnet"].AsDouble,2)
                 });
             }
+
             return result;
         }
-    }
-
-    public class MachineStatusDto
-    {
-        public DateTime On { get; set; }
-        public double CPU { get; set; }
-        public double Network { get; set; }
-        public double Memory { get; set; }
     }
 }

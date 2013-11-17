@@ -111,14 +111,15 @@ var dataLoadEvents = {
 
         var data = new google.visualization.DataTable(json);
         var table = new google.visualization.Table(document.getElementById('divMachineStatus'));
-        // table.draw(logsData, { allowHtml: true, cssClassNames: cssNames });
+        table.draw(data, { allowHtml: true, cssClassNames: cssNames });
 
-        var chart = new google.visualization.AreaChart(document.getElementById('divMachineStatusChart'));
+        var chart = new google.visualization.ScatterChart(document.getElementById('divMachineStatusChart'));
 
         var options = {
             colors: prettyColors,
+            colorAxis: { colors: ['#80DFFF', '#FF9F80'] },
             backgroundColor: 'transparent',
-            title: 'Machine Status - Last 6h'
+            title: 'Machine Status'
         };
         chart.draw(data, options);
 

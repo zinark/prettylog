@@ -23,7 +23,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 1000, int skip = 0)
+        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 200, int skip = 0)
         {
             var result = finder.MachineStatus(start, end, limit, skip);
 
@@ -31,10 +31,11 @@ namespace Web.Controllers
             {
                 c = new object[]
                 {
-                            new {v = x.On, f = x.On.ToString("dd/MM/yyyy HH:mm:ss") },
-                            new {v = x.CPU, f = x.CPU + "%" },
-                            new {v = x.Memory, f = x.Memory + "KB"},
+                            //new {v = x.Ip, f = x.Ip },
+                            new {v = x.On, f = x.On.ToString("dd/MM/yyyy HH:mm:ss " + x.Ip)},
                             new {v = x.Network, f = x.Network + "%"},
+                            new {v = x.CPU, f = x.CPU + "%" },
+                            new {v = x.Memory, f = x.Memory + "GB"},
                 }
             }).ToList();
 
@@ -42,10 +43,11 @@ namespace Web.Controllers
             {
                 cols = new[]
                 {
+                    //new {id = "Ip", label = "Ip", type = "string"},
                     new {id = "On", label = "On", type = "datetime"},
-                    new {id = "CPU", label = "CPU", type = "number"},
-                    new {id = "Memory", label = "Memory", type = "number"},
-                    new {id = "Network", label = "Network", type = "number"},
+                    new {id = "Network", label = "Network%", type = "number"},
+                    new {id = "CPU", label = "CPU%", type = "number"},
+                    new {id = "Memory", label = "Memory(GB)", type = "number"},
                 },
                 rows = rows
             });

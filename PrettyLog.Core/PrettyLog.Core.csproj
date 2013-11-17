@@ -57,6 +57,7 @@
     <Compile Include="DataAccess\LogInserter.cs" />
     <Compile Include="DataAccess\LogItem.cs" />
     <Compile Include="DataAccess\LogListItemDto.cs" />
+    <Compile Include="DataAccess\MachineStatusDto.cs" />
     <Compile Include="DataAccess\MongoDataContext.cs" />
     <Compile Include="DataAccess\MongoDataContextFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
