@@ -360,12 +360,18 @@ namespace PrettyLog.Core.DataAccess
                 .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
                 .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"));
 
-            if (end.Subtract(start).Ticks <= TimeSpan.FromHours(6).Ticks)
-                groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
-                       .Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"));
+            if (end.Subtract(start).Ticks <= TimeSpan.FromHours(12).Ticks)
+            {
+                groupId
+                    .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                    .Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"));
+            }
+            else
+            {
+                if (end.Subtract(start).Ticks <= TimeSpan.FromDays(7).Ticks)
+                groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
 
-            if (end.Subtract(start).Ticks <= TimeSpan.FromDays(7).Ticks)
-                groupId.Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"));
+            }
 
             BsonDocument groupById = new BsonDocument()
                 .Add("$group",
