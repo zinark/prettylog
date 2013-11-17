@@ -46,7 +46,7 @@ namespace PrettyLog.Tests
                 string[] messages = null;
                 const int limit = 250;
 
-                var result = logFinder.Logs(query, start, end, types, messages, limit);
+                var result = logFinder.Logs(query, start, end, types, messages, limit, 0);
                 result.Count().ShouldBeGreaterThan(0);
             }
         }

@@ -105,6 +105,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\css\table.css" />
+    <Content Include="Content\loading.gif" />
+    <Content Include="Content\q.png" />
+    <Content Include="Content\css\prettylog.css" />
     <Content Include="Content\fancybox\blank.gif" />
     <Content Include="Content\fancybox\fancybox_buttons.png" />
     <Content Include="Content\fancybox\fancybox_loading%402x.gif" />
@@ -484,6 +487,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Dashboard\Detail.cshtml" />
+    <Content Include="Views\Shared\_LayoutDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

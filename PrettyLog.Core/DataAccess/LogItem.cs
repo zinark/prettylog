@@ -11,6 +11,10 @@ namespace PrettyLog.Core.DataAccess
         public string Message { get; set; }
         public int ThreadId { get; set; }
         public object Object { get; set; }
-        public string Source { get; set; }
+        public string Host { get; set; }
+        public string Ip { get; set; }
+        public string Url { get; set; }
+        public string ApplicationName { get; set; }
+        
     }
 }

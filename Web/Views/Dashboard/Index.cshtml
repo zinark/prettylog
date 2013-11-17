@@ -12,56 +12,54 @@
 
 <table style="width: 100%">
     <tr>
-        <td style="width: 100%"></td>
-    </tr>
-    <tr>
-        <td>
-            <select id="range">
-                <option>This Week</option>
-                <option>This Month</option>
-                <option>This Year</option>
-            </select>
-            <a href="javascript:;" id="btnNewQuery">New Query</a>
-            <a href="javascript:;" id="btnQuery">Query</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <div id="queryFilters"></div>
-            <pre id="editor">
-{}</pre>
-        </td>
-    </tr>
-</table>
-
-<table style="width: 100%">
-    <tr>
-        <td style="width: 40%; vertical-align: top"></td>
-        <td style="width: 60%; vertical-align: top"></td>
+        <td style="width: 30%; vertical-align: top"></td>
+        <td style="width: 90%; vertical-align: top"></td>
     </tr>
 
+    <tr>
+        <td>
+            <div id="divDashTable"></div>
+        </td>
+        <td>
+            <div id="divDash">
+                <div id="divTimelineChart" style="height: 120px;"></div>
+                <div id="divTimelineControl" style="height: 60px;"></div>
+            </div>
+            
+        </td>
+    </tr>
     <tr>
         <td valign="top">
-            <div id="divDash">
-                <div id="divTimelineChart" style="height: 100px;"></div>
-                <div id="divTimelineControl" style="height: 30px;"></div>
-                <div id="divDashTable"></div>
-            </div>
             <div style="padding: 10px">
-                <div id="divTypeDensityChart"></div>
-                <div id="divTypeDensity"></div>
-            </div>
-            <div style="padding: 10px">
-                <div id="divMessageDensityChart"></div>
+                <div id="divTypeDensityChart" style="display: flexbox"></div>
+                <div id="divTypeDensity" style="display: flexbox"></div>
+
+                <div id="divMessageDensityChart" style="display: flexbox"></div>
                 <div id="divMessageDensity"></div>
+
+                <div id="divIpsDensityChart" style="display: flexbox"></div>
+                <div id="divIpsDensity"></div>
+
+                <div id="divHostsDensityChart" style="display: flexbox"></div>
+                <div id="divHostsDensity"></div>
             </div>
         </td>
         <td valign="top">
             <div id="divLogs"></div>
+            <a href="javascript:;" id="btnPrev"><< Prev</a> | <a href="javascript:;" id="btnNext">Next >></a> |
+            <p id="totalHits"></p>
+
+            <div id="agent">
+                <div id="divMachineStatusChart" style="height: 500px;"></div>
+                <div id="divMachineStatus"></div>
+            </div>
         </td>
     </tr>
 </table>
 
-<div id="loading" style="left:0; right:0; top:0; bottom:0; position:absolute; text-align:center; vertical-align:central; horiz-align:center; background-color: black; color: white; z-index: 1000; opacity:0.5; font-size: 24pt">
-    Querying...
+<div id="loading" style="left: 0; right: 0; top: 0; bottom: -6000px; padding: 100px; position: absolute; text-align: center; background-color: black; color: white; z-index: 1000; opacity: 0.8; font-size: 24pt">
+    <p>
+        Querying...    
+    </p>
+    <img src="~/Content/q.png" />
 </div>

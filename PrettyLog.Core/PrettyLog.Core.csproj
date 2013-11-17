@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccess\FieldDensityDto.cs" />
     <Compile Include="DataAccess\IDataContext.cs" />
     <Compile Include="DataAccess\IDataContextFactory.cs" />
     <Compile Include="DataAccess\ILogDao.cs" />
@@ -53,12 +54,12 @@
     <Compile Include="DataAccess\LogDensityDto.cs" />
     <Compile Include="DataAccess\LogDto.cs" />
     <Compile Include="DataAccess\LogFinder.cs" />
+    <Compile Include="DataAccess\LogInserter.cs" />
     <Compile Include="DataAccess\LogItem.cs" />
     <Compile Include="DataAccess\LogListItemDto.cs" />
-    <Compile Include="DataAccess\MessageDensityDto.cs" />
+    <Compile Include="DataAccess\MachineStatusDto.cs" />
     <Compile Include="DataAccess\MongoDataContext.cs" />
     <Compile Include="DataAccess\MongoDataContextFactory.cs" />
-    <Compile Include="DataAccess\TypeDensityDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

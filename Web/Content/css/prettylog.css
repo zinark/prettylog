@@ -1,0 +1,69 @@
+.headerRow {
+    background-color:steelblue;
+    color: white;
+    padding: 5px;
+    margin: 5px;
+    font-family:serif;
+    font-size: 10pt;
+}
+
+.tableRow {
+    font-family: serif;
+    font-size: 7pt;
+    background-color: white;
+    color: black;
+}
+
+a {
+    font-size: 10pt;
+   font-family:monospace;
+    color: #FF9F80;
+    font-style: italic;
+}
+
+.oddTableRow {
+    font-family: serif;
+    font-size: 7pt;
+    background-color: #efefef;
+    color: black;
+}
+
+.selectedTableRow {
+    background-color:wheat;
+    color: black;
+}
+
+.hoverTableRow {
+    
+}
+
+.headerCell {
+}
+
+.tableCell {
+}
+
+.rowNumberCell {
+}
+
+.hits {
+    color: black;
+    font-family: arial;
+    font-size: 24pt;
+    text-align: center;
+    padding: 7px;
+    margin: 1px;
+}
+
+#header{width: 100%;z-index: 1000;}
+
+/*.fixed {background: url(http://static.tumblr.com/njty47g/Omoleufdi/topbar_bg.png) left top repeat-x;*/
+.fixed {background-color: white;
+position: fixed;left: 0;
+-webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+-moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);}
+
+.inner {width: 80%;margin: 0 auto;}
+
+.shadow{width: 100%;height: 5px;position: absolute;left: 0;bottom: -10px;z-index: 500;display: none;}

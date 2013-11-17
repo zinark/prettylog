@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,16 +17,292 @@ namespace PrettyLog.Core.DataAccess
             _context = context;
         }
 
-        public IEnumerable<LogListItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit)
+        public IEnumerable<LogListItemDto> Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip)
         {
             var db = (_context as MongoDataContext).GetDb();
 
+            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
+
+            var q = db.GetCollection("logs")
+                      .Find(generatedQuery)
+                      .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
+                      .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId", "ApplicationName", "Ip", "Host", "Url")
+                      .SetLimit(limit)
+                      .SetSkip(skip);
+
+
+            var result = new List<LogListItemDto>();
+
+            foreach (var i in q)
+            {
+                var dto = new LogListItemDto
+                {
+                    Id = i["_id"].AsObjectId,
+                    Message = TryGetValue(i, "Message").AsString,
+                    Type = TryGetValue(i, "Type").AsString,
+                    TimeStamp = ToLocal(i["TimeStamp"].ToUniversalTime()),
+                    ThreadId = i["ThreadId"].AsInt32,
+                    ApplicationName = TryGetValue(i, "ApplicationName").AsString,
+                    Ip = TryGetValue(i, "Ip").AsString,
+                    Host = TryGetValue(i, "Host").AsString,
+                    Url = TryGetValue(i, "Url").AsString
+                };
+                result.Add(dto);
+            }
+
+            return result;
+        }
+
+        public long LogsHit(string query, DateTime start, DateTime end, string[] types, string[] messages)
+        {
+            var db = (_context as MongoDataContext).GetDb();
+
+            var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
+
+            return db.GetCollection("logs").Find(generatedQuery).Count();
+        }
+
+        public LogDto GetLogDetail(string id)
+        {
+            var db = (_context as MongoDataContext).GetDb();
+            var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
+            return new LogDto()
+            {
+                Id = found["_id"].AsObjectId,
+                Message = TryGetValue(found, "Message").AsString,
+                Type = TryGetValue(found, "Type").AsString,
+                TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
+                ThreadId = found["ThreadId"].AsInt32,
+                ObjectJson = GetObject(found),
+                ApplicationName = TryGetValue(found, "ApplicationName").AsString,
+                Ip = TryGetValue(found, "Ip").AsString,
+                Host = TryGetValue(found, "Host").AsString,
+                Url = TryGetValue(found, "Url").AsString
+            };
+        }
+
+        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
+        {
+            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
+
+            BsonDocument matchDate = new BsonDocument()
+                .Add("$match",
+                     new BsonDocument().Add("TimeStamp",
+                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
+                                                              .Add("$lte", end.ToUniversalTime())));
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
+            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
+
+            BsonDocument groupById = new BsonDocument()
+                .Add("$group",
+                     new BsonDocument().Add("_id", "$" + fieldName)
+                                       .Add("count", new BsonDocument().Add("$sum", 1))
+                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
+                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
+
+
+            var sw = Stopwatch.StartNew();
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, sortQuery, limitQuery, skipQuery);
+            Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
+            var result = new List<FieldDensityDto>();
+
+            foreach (BsonDocument group in groups)
+            {
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
+                result.Add(new FieldDensityDto
+                {
+                    FieldName = TryGetValue(group, "_id").AsString,
+                    Total = group["count"].AsInt32,
+                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
+                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
+                });
+            }
+
+            return result;
+
+        }
+
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
+        {
+            var operators = new List<BsonDocument>();
+
+            operators.Add(
+                new BsonDocument()
+                    .Add("$match",
+                         new BsonDocument().Add("TimeStamp",
+                                                new BsonDocument().Add("$gte", start)
+                                                                  .Add("$lte", end)))
+                );
+
+            operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
+
+            if (types != null)
+                if (types.Length > 0)
+                {
+                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
+                    operators.Add(matchQueryType);
+                }
+
+            if (messages != null)
+                if (messages.Length > 0)
+                {
+                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
+                    operators.Add(matchQueryMessage);
+                }
+
+
+            operators.Add(new BsonDocument().Add("$limit", limit));
+            operators.Add(new BsonDocument().Add("$skip", skip));
+
+            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks;
+
+            if (!hourly)
+            {
+                operators.Add(new BsonDocument()
+                                  .Add("$group",
+                                       new BsonDocument().Add("_id", new BsonDocument()
+                                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                           )
+                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+            }
+            else
+            {
+                operators.Add(new BsonDocument()
+                                  .Add("$group",
+                                       new BsonDocument().Add("_id", new BsonDocument()
+                                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                                         .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                                           )
+                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+            }
+
+
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
+
+            var result = new List<LogDensityDto>();
+            foreach (BsonDocument group in groups)
+            {
+                var day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32);
+                if (hourly)
+                {
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
+                }
+                result.Add(new LogDensityDto
+                {
+                    Day = ToLocal(day),
+                    Total = group["count"].AsInt32
+                });
+            }
+
+            return result;
+        }
+
+        public void GenerateData()
+        {
+            var db = (_context as MongoDataContext).GetDb();
+            var logs = db.GetCollection("logs");
+
+            var types = new[]
+            {
+                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b", "integrations.c"
+            };
+
+            var messages = new[]
+            {
+                "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
+                "timeout", "response is not valid"
+            };
+
+            var appNames = new[]
+            {
+                "job.exe",
+                "w3wp.exe",
+                null,
+                null,
+                "csc.exe",
+                null,
+                "host.exe"
+            };
+
+            var ips = new[]
+            {
+                "192.168.0.1",
+                "192.168.100.90",
+                "192.168.140.87",
+                "192.168.0.5",
+                "192.168.0.30"
+            };
+
+            var urls = new[]
+            {
+                "http://www.google.com",
+                "http://www.yahoo.com",
+                "http://www.avansas.com",
+                "http://www.blessedcode.net",
+                "http://www.trash.com",
+                "http://www.go.com",
+            };
+
+            var objects = new object[]
+            {
+                new { x = 1, y = 5},
+                new { y = 5},
+                new { name = "jack", surname = "london" },
+                new { color = "black" },
+                new { size = "large", list = new [] { 1,2,3,4}},
+                new
+                    {
+                        products = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}, new {code = "5012", id = 1237}},
+                        filteredWithPrices = new []{ new {code = "5001", id = 1234}, new {code = "5002", id = 1235}},
+                        filteredWithSite = new []{ new {code = "5001", id = 1234}},
+                        errorsCount = 1,
+                        Csv = "a;b;c;d;e\r\n1;2;3;4;5;6",
+                        activeProducts = new [] {"5001", "5002", "5003", "5006"}
+                    }
+            };
+
+            Random r = new Random(Environment.TickCount);
+            Enumerable.Range(1, 10000).ToList().ForEach(i =>
+            {
+                var type = types[r.Next(types.Length)];
+                var message = messages[r.Next(messages.Length)];
+                var obj = objects[r.Next(objects.Length)];
+
+                logs.Insert(new LogItem()
+                {
+                    Message = message,
+                    Type = type,
+                    ThreadId = r.Next(1, 1000),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
+                    Object = obj,
+                    ApplicationName = appNames[r.Next(appNames.Length)],
+                    Host = urls[r.Next(urls.Length)],
+                    Url = urls[r.Next(urls.Length)],
+                    Ip = ips[r.Next(ips.Length)]
+                });
+            });
+        }
+
+        private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types, string[] messages)
+        {
             IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
-            
+
             var qDateRange = new QueryBuilder<BsonDocument>().And
                 (
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
-                    new QueryDocument(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
                 );
 
             generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
@@ -36,48 +313,28 @@ namespace PrettyLog.Core.DataAccess
                     var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
                     generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
                 }
-            
+
             if (messages != null)
                 if (messages.Length > 0)
                 {
                     var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
                     generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
                 }
-
-            var q = db.GetCollection("logs")
-                      .Find(generatedQuery)
-                      .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
-                      .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId", "ApplicationName", "Ip", "Host", "Url")
-                      .SetLimit(limit);
-
-
-            var result = new List<LogListItemDto>();
-            
-            foreach (var i in q)
-            {
-                var dto = new LogListItemDto
-                {
-                    Id = i["_id"].AsObjectId,
-                    Message = i["Message"].AsString,
-                    Type = i["Type"].AsString,
-                    TimeStamp = ToLocal(i["TimeStamp"].ToUniversalTime()),
-                    ThreadId = i["ThreadId"].AsInt32,
-                    ApplicationName = GetStringValue(i, "ApplicationName"),
-                    Ip = GetStringValue(i, "Ip"),
-                    Host = GetStringValue(i, "Host"),
-                    Url = GetStringValue(i, "Url")
-                };
-                result.Add(dto);
-            }
-
-            return result;
+            return generatedQuery;
         }
 
-        static string GetStringValue(BsonDocument i, string key)
+        static BsonValue TryGetValue(BsonDocument i, string key)
         {
             if (!i.Contains(key)) return "";
-            if (i[key].IsBsonNull) return "";
-            return i[key].AsString;
+            BsonValue value = i[key];
+            if (value.IsBsonNull) return "";
+            return value;
+        }
+
+        static string GetObject(BsonDocument i)
+        {
+            if (!i.Contains("Object")) return "null";
+            return i["Object"].ToJson();
         }
 
         static DateTime ToLocal(DateTime date)
@@ -85,134 +342,92 @@ namespace PrettyLog.Core.DataAccess
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
         }
 
-        private static string GetObject(BsonDocument i)
+        public IEnumerable<MachineStatusDto> MachineStatus(DateTime start, DateTime end, int limit, int skip)
         {
-            if (!i.Contains("Object")) return "null";
-            return i["Object"].ToJson();
-        }
+            var match1 = new BsonDocument().Add("$match", new BsonDocument().Add("Type", "pretty.agent"));
+            var match2 = new BsonDocument().Add("$match", new BsonDocument().Add("Message", "machine status"));
 
-        public IEnumerable<TypeDensityDto> GetTypes(string query, DateTime start, DateTime end)
-        {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
+            var matchDate = new BsonDocument().Add("$match", new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime())));
 
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
+            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
+            BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
-            BsonDocument group1 = new BsonDocument()
+
+            BsonDocument groupId = new BsonDocument()
+                .Add("ip", "$Ip")
+                .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"));
+
+            if (end.Subtract(start).Ticks <= TimeSpan.FromHours(12).Ticks)
+            {
+                groupId
+                    .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                    .Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"));
+            }
+            else
+            {
+                if (end.Subtract(start).Ticks <= TimeSpan.FromDays(7).Ticks)
+                groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
+
+            }
+
+            BsonDocument groupById = new BsonDocument()
                 .Add("$group",
-                     new BsonDocument().Add("_id", "$Type")
-                                       .Add("count", new BsonDocument().Add("$sum", 1))
-                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
-                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
+                     new BsonDocument().Add("_id", groupId)
+                                       .Add("avgcpu", new BsonDocument().Add("$avg", "$Object.CpuUsage"))
+                                       .Add("avgmem", new BsonDocument().Add("$min", "$Object.AvaliableMemory"))
+                                       .Add("avgnet", new BsonDocument().Add("$max", "$Object.NetworkUsage")));
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchQuery, matchDate, group1);
+            var groups = _context.Aggregate("logs", matchDate, match1, match2, groupById, sortQuery, limitQuery, skipQuery);
 
-            var result = new List<TypeDensityDto>();
+            var result = new List<MachineStatusDto>();
+
             foreach (BsonDocument group in groups)
             {
-                result.Add(new TypeDensityDto
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
+                result.Add(new MachineStatusDto()
                 {
-                    Type = group["_id"].AsString,
-                    Total = group["count"].AsInt32,
-                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
-                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
+                    On = CreateDateByFields(@group),
+
+                    Ip = group["_id"]["ip"].AsString,
+                    CPU = Math.Round(group["avgcpu"].AsDouble, 2),
+                    Memory = Math.Round(group["avgmem"].AsDouble / 1024.0d, 3),
+                    Network = Math.Round(group["avgnet"].AsDouble, 2)
                 });
             }
 
             return result;
         }
 
-        public IEnumerable<MessageDensityDto> GetMessages(string query, DateTime start, DateTime end)
+        private static DateTime CreateDateByFields(BsonDocument item)
         {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
-
-            BsonDocument group1 = new BsonDocument()
-                .Add("$group",
-                     new BsonDocument().Add("_id", "$Message")
-                                       .Add("count", new BsonDocument().Add("$sum", 1))
-                                       .Add("firstHit", new BsonDocument().Add("$min", "$TimeStamp"))
-                                       .Add("lastHit", new BsonDocument().Add("$max", "$TimeStamp")));
-
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchQuery, matchDate, group1);
-
-            var result = new List<MessageDensityDto>();
-            foreach (BsonDocument group in groups)
+            var year = TryGetValue(item["_id"].AsBsonDocument, "year").AsInt32;
+            var month = TryGetValue(item["_id"].AsBsonDocument, "month").AsInt32;
+            var day = TryGetValue(item["_id"].AsBsonDocument, "day").AsInt32;
+            var hour = 0;
             {
-                result.Add(new MessageDensityDto
-                {
-                    Message = group["_id"].AsString,
-                    Total = group["count"].AsInt32,
-                    FirstHit = ToLocal(group["firstHit"].ToUniversalTime()),
-                    LastHit = ToLocal(group["lastHit"].ToUniversalTime())
-                });
+                var value = TryGetValue(item["_id"].AsBsonDocument, "hour");
+                if (value is BsonInt32) hour = value.AsInt32;
             }
 
-            return result;
-        }
-
-        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages)
-        {
-            // {$group : { _id : { year : { $year : '$TimeStamp' }, month : { $month : '$TimeStamp' }, day : {$dayOfMonth : '$TimeStamp'} }, count : { $sum : 1 }       }},
-
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
-
-            BsonDocument group1 = new BsonDocument()
-                .Add("$group",
-                     new BsonDocument().Add("_id", new BsonDocument()
-                                                       .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
-                                                       .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
-                                                       .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
-                         )
-                .Add("count", new BsonDocument().Add("$sum", 1)));
-
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchQuery, matchDate, group1);
-
-            var result = new List<LogDensityDto>();
-            foreach (BsonDocument group in groups)
+            var minute = 0;
             {
-                result.Add(new LogDensityDto
-                {
-                    Day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,group["_id"]["day"].AsInt32),
-                    Total = group["count"].AsInt32
-                });
+                var value = TryGetValue(item["_id"].AsBsonDocument, "minute");
+                if (value is BsonInt32) minute = value.AsInt32;
             }
 
-            return result;
-        }
-
-        public LogDto GetLogDetail(string id)
-        {
-            var db = (_context as MongoDataContext).GetDb();
-            var found = db.GetCollection("logs").FindOne(new QueryDocument(new BsonElement("_id", new BsonObjectId(id))));
-            // var found = _context.Query<BsonDocument>("logs").FirstOrDefault(x => x["_id"] == new ObjectId(id));
-            return new LogDto()
+            var second = 0;
             {
-                Id = found["_id"].AsObjectId,
-                Message = found["Message"].AsString,
-                Type = found["Type"].AsString,
-                TimeStamp = ToLocal(found["TimeStamp"].ToUniversalTime()),
-                ThreadId = found["ThreadId"].AsInt32,
-                ObjectJson = GetObject(found),
-                ApplicationName = GetStringValue(found, "ApplicationName"),
-                Ip = GetStringValue(found, "Ip"),
-                Host = GetStringValue(found, "Host"),
-                Url = GetStringValue(found, "Url")
-            };
+                var value = TryGetValue(item["_id"].AsBsonDocument, "second");
+                if (value is BsonInt32) second = value.AsInt32;
+            }
+
+
+            return new DateTime(year, month, day, hour, minute, second);
         }
     }
 }

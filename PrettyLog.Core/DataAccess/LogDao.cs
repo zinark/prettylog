@@ -46,7 +46,7 @@ namespace PrettyLog.Core.DataAccess
                     Type = i["Type"].AsString,
                     TimeStamp = i["TimeStamp"].AsDateTime,
                     //Object = GetObject(i),
-                    ThreadId = int.Parse(i["ThreadId"].AsString)
+                    ThreadId = i["ThreadId"].AsInt32
                 });
             }
 
