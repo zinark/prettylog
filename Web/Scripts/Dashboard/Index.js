@@ -187,7 +187,7 @@ var dataLoadEvents = {
         });
 
         variables.logDensityTable = new google.visualization.Table(document.getElementById('divDashTable'));
-        variables.logDensityTable.draw(variables.logDensityData, { page: 'enable', pageSize: 10 });
+        variables.logDensityTable.draw(variables.logDensityData, { page: 'enable', pageSize: 10, cssClassNames: cssNames });
 
         var dashboard = new google.visualization.Dashboard(document.getElementById('divDash'));
 
@@ -216,7 +216,7 @@ var dataLoadEvents = {
                         'colors': ['black'],
                         'hAxis': {
                             'baselineColor': 'white',
-                            'format': 'HH:mm dd/MM',
+                            'format': 'dd / MM / yy',
                         }
                     },
                     'minRangeSize': 86400000

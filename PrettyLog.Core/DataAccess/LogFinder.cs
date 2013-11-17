@@ -164,15 +164,9 @@ namespace PrettyLog.Core.DataAccess
                 operators.Add(new BsonDocument()
                                   .Add("$group",
                                        new BsonDocument().Add("_id", new BsonDocument()
-                                                                         .Add("year",
-                                                                              new BsonDocument().Add("$year",
-                                                                                                     "$TimeStamp"))
-                                                                         .Add("month",
-                                                                              new BsonDocument().Add("$month",
-                                                                                                     "$TimeStamp"))
-                                                                         .Add("day",
-                                                                              new BsonDocument().Add("$dayOfMonth",
-                                                                                                     "$TimeStamp"))
+                                                                         .Add("year",new BsonDocument().Add("$year","$TimeStamp"))
+                                                                         .Add("month",new BsonDocument().Add("$month","$TimeStamp"))
+                                                                         .Add("day",new BsonDocument().Add("$dayOfMonth","$TimeStamp"))
                                            )
                                                          .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
@@ -206,7 +200,7 @@ namespace PrettyLog.Core.DataAccess
                 }
                 result.Add(new LogDensityDto
                 {
-                    Day = day,
+                    Day = ToLocal(day),
                     Total = group["count"].AsInt32
                 });
             }
