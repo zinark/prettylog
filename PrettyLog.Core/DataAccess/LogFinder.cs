@@ -125,7 +125,7 @@ namespace PrettyLog.Core.DataAccess
 
         }
 
-        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip)
         {
             var operators = new List<BsonDocument>();
 

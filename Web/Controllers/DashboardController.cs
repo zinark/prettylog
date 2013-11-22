@@ -131,7 +131,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10, int skip = 0)
+        public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 5000, int skip = 0)
         {
             var densities = finder.GetLogDensity(query, start, end, types, messages, limit, skip);
 

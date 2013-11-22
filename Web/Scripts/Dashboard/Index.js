@@ -279,7 +279,8 @@ var queryFilters = {
         ui.drawFilters();
         ui.refreshViews();
     },
-    clearFiltersPressed: function () {
+    clearFiltersPressed: function ()
+    {
         query.types = null;
         query.messages = null;
         ui.drawFilters();
@@ -351,15 +352,16 @@ var DynamicFilters =
             DynamicFilters.vars[fieldName + 'chart'].draw(DynamicFilters.vars[fieldName + 'data'],
                 {
                     'title': fieldName + ' Density',
-                    'height': 300,
+                    height: 400,
+                    width: 720,
                     is3D: true,
                     fontSize: "8px",
                     fontName: "Arial",
                     colors: prettyColors,
                     legend: 'left',
                     //pieSliceText: 'label',
-                    backgroundColor: '#dfdfdf',
-                    pieSliceBorderColor: 'black',
+                    // backgroundColor: '#dfdfdf',
+                    pieSliceBorderColor: '#dfdfdf',
                     pieSliceTextStyle: {
                         color: 'black',
                         fontName: 'Times',
@@ -412,15 +414,6 @@ var ui = {
     refreshViews: function ()
     {
         $('#loading').show();
-
-        var f1 = DynamicFilters.add('Type', { fieldName: 'Type', query: query.query, start: query.start, end: query.end }, 'divTypeDensity', 'divTypeDensityChart', function (value) { queryFilters.typeFilterSelected(value); });
-        var f2 = DynamicFilters.add('Message', { fieldName: 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
-        var f3 = DynamicFilters.add('Ip', { fieldName: 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function (value)
-        {
-        });
-        var f4 = DynamicFilters.add('Host', { fieldName: 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function (value)
-        {
-        });
 
         var logDensityQuery = {
             query: query.query,
@@ -478,6 +471,30 @@ $(document).ready(function ()
 {
 
     $('#btnQuery').click(queryFilters.queryRequested);
+
+
+
+
+    $('#typeTrigger').click(function ()
+    {
+        DynamicFilters.add('Type', { fieldName: 'Type', query: query.query, start: query.start, end: query.end }, 'divTypeDensity', 'divTypeDensityChart', function (value) { queryFilters.typeFilterSelected(value); });
+    });
+
+    $('#messageTrigger').click(function ()
+    {
+        DynamicFilters.add('Message', { fieldName: 'Message', query: query.query, start: query.start, end: query.end }, 'divMessageDensity', 'divMessageDensityChart', function (value) { queryFilters.messageFilterSelected(value); });
+    });
+
+    $('#ipTrigger').click(function ()
+    {
+        DynamicFilters.add('Ip', { fieldName: 'Ip', query: query.query, start: query.start, end: query.end }, 'divIpsDensity', 'divIpsDensityChart', function (value) { });
+    });
+
+    $('#hostTrigger').click(function ()
+    {
+        DynamicFilters.add('Host', { fieldName: 'Host', query: query.query, start: query.start, end: query.end }, 'divHostsDensity', 'divHostsDensityChart', function (value) { });
+    });
+
 
     $(document).keydown(function (e)
     {
