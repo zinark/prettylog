@@ -110,11 +110,11 @@
 
 
             editor = ace.edit("editor");
-            editor.setTheme("ace/theme/cobalt");
+            editor.setTheme("ace/theme/ambiance");
             editor.getSession().setMode("ace/mode/javascript");
             editor.setFontSize(14);
             editor.setOptions({
-                maxLines: Infinity,
+                maxLines: 40,
             });
             val = JSON.stringify(parsedData, null, 4);
             editor.session.setValue(val);
@@ -179,12 +179,12 @@
             <td>Object
             </td>
         </tr>
-        <tr>
+@*        <tr>
             <td>
                 <a href="javascript:;" id="expandAll">Expand</a> - <a href="javascript:;" id="collepseAll">Collapse</a>
             </td>
         </tr>
-@*        <tr>
+        <tr>
             <td>
                 <div id="ObjectJson">
                     @Model.ObjectJson
