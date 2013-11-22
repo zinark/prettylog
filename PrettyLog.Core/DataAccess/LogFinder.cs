@@ -81,7 +81,7 @@ namespace PrettyLog.Core.DataAccess
             };
         }
 
-        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
+        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit, int skip)
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
 
@@ -212,16 +212,17 @@ namespace PrettyLog.Core.DataAccess
             var db = (_context as MongoDataContext).GetDb();
             var logs = db.GetCollection("logs");
 
-            var types = new[]
+            var types = GenerateArray(new[]
             {
-                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b", "integrations.c"
-            };
+                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b",
+                "integrations.c"
+            }, 100);
 
-            var messages = new[]
+            var messages = GenerateArray(new[]
             {
                 "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
                 "timeout", "response is not valid"
-            };
+            }, 100);
 
             var appNames = new[]
             {
@@ -272,7 +273,7 @@ namespace PrettyLog.Core.DataAccess
             };
 
             Random r = new Random(Environment.TickCount);
-            Enumerable.Range(1, 10000).ToList().ForEach(i =>
+            Enumerable.Range(1, 5000).ToList().ForEach(i =>
             {
                 var type = types[r.Next(types.Length)];
                 var message = messages[r.Next(messages.Length)];
@@ -283,7 +284,7 @@ namespace PrettyLog.Core.DataAccess
                     Message = message,
                     Type = type,
                     ThreadId = r.Next(1, 1000),
-                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))).ToUniversalTime(),
                     Object = obj,
                     ApplicationName = appNames[r.Next(appNames.Length)],
                     Host = urls[r.Next(urls.Length)],
@@ -291,6 +292,21 @@ namespace PrettyLog.Core.DataAccess
                     Ip = ips[r.Next(ips.Length)]
                 });
             });
+        }
+
+        string[] GenerateArray(IEnumerable<string> prefixes, int i)
+        {
+            var result = new List<string>();
+
+            Enumerable.Range(1, i).ToList().ForEach(x =>
+            {
+                foreach (var p in prefixes)
+                {
+                    result.Add(p + "." + x);
+                }
+            });
+
+            return result.ToArray();
         }
 
         private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types, string[] messages)
@@ -369,7 +385,7 @@ namespace PrettyLog.Core.DataAccess
             else
             {
                 if (end.Subtract(start).Ticks <= TimeSpan.FromDays(7).Ticks)
-                groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
+                    groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
 
             }
 
