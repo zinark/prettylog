@@ -92,21 +92,33 @@
                 return;
             }
 
-            node = new PrettyJSON.view.Node({
-                el: $('#ObjectJson'),
-                data: parsedData,
-                dateFormat: "DD/MM/YYYY - HH24:MI:SS"
+            editor = ace.edit("editor");
+            editor.setTheme("ace/theme/cobalt");
+            editor.getSession().setMode("ace/mode/javascript");
+            editor.setFontSize(14);
+            editor.setOptions({
+                maxLines: Infinity,
             });
+            var val = editor.session.getValue();
+            var o = JSON.parse(val);
+            val = JSON.stringify(o, null, 4);
+            editor.session.setValue(val);
 
-            $("#expandAll").click(function ()
-            {
-                node.expandAll();
-            });
+            //node = new PrettyJSON.view.Node({
+            //    el: $('#ObjectJson'),
+            //    data: parsedData,
+            //    dateFormat: "DD/MM/YYYY - HH24:MI:SS"
+            //});
 
-            $("#collepseAll").click(function ()
-            {
-                node.collapseAll();
-            });
+            //$("#expandAll").click(function ()
+            //{
+            //    node.expandAll();
+            //});
+
+            //$("#collepseAll").click(function ()
+            //{
+            //    node.collapseAll();
+            //});
 
         });
     </script>
@@ -171,12 +183,20 @@
         </tr>
         <tr>
             <td>
-                <a href="javascript:;" id="expandAll">Expand</a> - <a href="javascript:;" id="collepseAll">Collapse</a>
+                @*<a href="javascript:;" id="expandAll">Expand</a> - <a href="javascript:;" id="collepseAll">Collapse</a>*@
             </td>
         </tr>
         <tr>
             <td>
                 <div id="ObjectJson">
+                    @*@Model.ObjectJson*@
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="editor">
                     @Model.ObjectJson
                 </div>
 
