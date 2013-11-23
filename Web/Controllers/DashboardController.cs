@@ -17,7 +17,13 @@ namespace Web.Controllers
 
         static readonly IDataContextFactory ContextFactory = new MongoDataContextFactory(new MongoClient(Mongoconnection), Mongodatabase);
         readonly LogFinder _finder = new LogFinder(ContextFactory.Create());
+        
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult Agents()
         {
             return View();
         }

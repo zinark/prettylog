@@ -81,82 +81,6 @@ var dataLoadEvents = {
     {
         console.log(data);
     },
-    machineStatusParsedSuccessfuly: function (json)
-    {
-        // fix dates
-        json.rows.forEach(function (row)
-        {
-            var val = row.c[0].v;
-            var d = moment(val).toDate();
-            row.c[0].v = d;
-        });
-
-        var data = new google.visualization.DataTable(json);
-        var table = new google.visualization.Table(document.getElementById('divMachineStatus'));
-        table.draw(data, { allowHtml: true, cssClassNames: cssNames });
-
-        var chart = new google.visualization.ScatterChart(document.getElementById('divMachineStatusChart'));
-
-        var options = {
-            colors: prettyColors,
-            colorAxis: { colors: ['#80DFFF', '#FF9F80'] },
-            backgroundColor: 'transparent',
-            title: 'Machine Status'
-        };
-        chart.draw(data, options);
-
-        var columns = [];
-        var series = {};
-        for (var i = 0; i < data.getNumberOfColumns() ; i++)
-        {
-            columns.push(i);
-            if (i > 0)
-            {
-                series[i - 1] = {};
-            }
-        }
-        google.visualization.events.addListener(chart, 'select', function ()
-        {
-            var sel = chart.getSelection();
-            // if selection length is 0, we deselected an element
-            if (sel.length > 0)
-            {
-                // if row is undefined, we clicked on the legend
-                if (typeof sel[0].row === 'undefined')
-                {
-                    var col = sel[0].column;
-                    if (columns[col] == col)
-                    {
-                        // hide the data series
-                        columns[col] = {
-                            label: data.getColumnLabel(col),
-                            type: data.getColumnType(col),
-                            calc: function ()
-                            {
-                                return null;
-                            }
-                        };
-
-                        // grey out the legend entry
-                        series[col - 1].color = '#CCCCCC';
-                    }
-                    else
-                    {
-                        // show the data series
-                        columns[col] = col;
-                        series[col - 1].color = null;
-                    }
-                    var view = new google.visualization.DataView(data);
-                    view.setColumns(columns);
-                    chart.draw(view, options);
-                }
-            }
-        });
-    },
-    machineStatusError: function (data)
-    {
-        console.log(data);
-    },
     logDensityParsedSuccessfuly: function (json)
     {
         variables.logDensityData = new google.visualization.DataTable(json);
@@ -388,7 +312,7 @@ var ui = {
             url: '/Dashboard/Logs',
             data: JSON.stringify(query),
             contentType: 'application/json; charset=utf-8',
-            async: true,
+            async: false,
             success: dataLoadEvents.logsParsedSuccessfully,
             error: dataLoadEvents.logsError
         });
@@ -411,20 +335,9 @@ var ui = {
             url: '/Dashboard/Timeline',
             data: JSON.stringify(logDensityQuery),
             contentType: 'application/json; charset=utf-8',
-            async: true,
+            async: false,
             success: dataLoadEvents.logDensityParsedSuccessfuly,
             error: dataLoadEvents.logDensityError
-        });
-
-        $.ajax({
-            type: 'post',
-            dataType: 'json',
-            url: '/Dashboard/MachineStatus',
-            data: JSON.stringify(logDensityQuery),
-            contentType: 'application/json; charset=utf-8',
-            async: true,
-            success: dataLoadEvents.machineStatusParsedSuccessfuly,
-            error: dataLoadEvents.machineStatusError
         });
 
         var ajxLogs = ui.refreshLogs();

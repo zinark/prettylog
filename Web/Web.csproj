@@ -96,7 +96,6 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -443,6 +442,7 @@
     <Content Include="Scripts\ace\worker-lua.js" />
     <Content Include="Scripts\ace\worker-php.js" />
     <Content Include="Scripts\ace\worker-xquery.js" />
+    <Content Include="Scripts\Dashboard\Agents.js" />
     <Content Include="Scripts\Dashboard\Index.js" />
     <Content Include="Content\images\minus.png" />
     <Content Include="Content\images\plus.png" />
@@ -488,6 +488,7 @@
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Dashboard\Detail.cshtml" />
     <Content Include="Views\Shared\_LayoutDetail.cshtml" />
+    <Content Include="Views\Dashboard\Agents.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
