@@ -85,13 +85,17 @@ namespace PrettyLog.Core.DataAccess
         {
             BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
 
+            BsonDocument loglimitQuery = new BsonDocument().Add("$limit", 10000);
+            BsonDocument logskipQuery = new BsonDocument().Add("$skip", 0);
+
             BsonDocument matchDate = new BsonDocument()
                 .Add("$match",
                      new BsonDocument().Add("TimeStamp",
                                             new BsonDocument().Add("$gte", start.ToUniversalTime())
                                                               .Add("$lte", end.ToUniversalTime())));
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
-            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
+            BsonDocument resultlimitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument resultskipQuery = new BsonDocument().Add("$skip", skip);
+            
             BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
             BsonDocument groupById = new BsonDocument()
@@ -103,7 +107,7 @@ namespace PrettyLog.Core.DataAccess
 
 
             var sw = Stopwatch.StartNew();
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, sortQuery, limitQuery, skipQuery);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, loglimitQuery, logskipQuery, groupById, sortQuery, resultlimitQuery, resultskipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
 
