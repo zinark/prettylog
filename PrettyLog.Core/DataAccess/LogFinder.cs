@@ -22,9 +22,8 @@ namespace PrettyLog.Core.DataAccess
             var db = (_context as MongoDataContext).GetDb();
 
             var generatedQuery = GenerateLogsQuery(query, start, end, types, messages);
-            Stopwatch sw = Stopwatch.StartNew();
 
-            MongoCursor<BsonDocument> q = db.GetCollection("logs")
+            var q = db.GetCollection("logs")
                       .Find(generatedQuery)
                       .SetSortOrder(new SortByBuilder().Descending("TimeStamp"))
                       .SetFields("_id", "TimeStamp", "Type", "Message", "ThreadId", "ApplicationName", "Ip", "Host", "Url")
@@ -32,15 +31,9 @@ namespace PrettyLog.Core.DataAccess
                       .SetSkip(skip);
 
 
-            Debug.WriteLine(q.Query.ToJson());
-
-            var l = q.ToList();
-
-            Debug.WriteLine(generatedQuery.ToString());
-
             var result = new List<LogListItemDto>();
-            Debug.WriteLine(sw.ElapsedMilliseconds + "ms.");
-            foreach (var i in l)
+
+            foreach (var i in q)
             {
                 var dto = new LogListItemDto
                 {
@@ -56,7 +49,6 @@ namespace PrettyLog.Core.DataAccess
                 };
                 result.Add(dto);
             }
-            Debug.WriteLine(sw.ElapsedMilliseconds + "ms.");
 
             return result;
         }
@@ -104,7 +96,7 @@ namespace PrettyLog.Core.DataAccess
 
             BsonDocument resultlimitQuery = new BsonDocument().Add("$limit", limit);
             BsonDocument resultskipQuery = new BsonDocument().Add("$skip", skip);
-
+            
             BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
             BsonDocument groupById = new BsonDocument()
@@ -126,7 +118,7 @@ namespace PrettyLog.Core.DataAccess
             Debug.WriteLine(resultlimitQuery.ToString());
             Debug.WriteLine(resultskipQuery.ToString());
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", match, groupById, sortQuery, resultlimitQuery, resultskipQuery);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", match, loglimitQuery, logskipQuery, groupById, sortQuery, resultlimitQuery, resultskipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
 
@@ -144,7 +136,7 @@ namespace PrettyLog.Core.DataAccess
                 });
             }
 
-
+            
             return result;
 
         }
@@ -152,7 +144,7 @@ namespace PrettyLog.Core.DataAccess
         public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip)
         {
             var operators = new List<BsonDocument>();
-
+            
             var matches = new List<BsonDocument>();
 
             BsonDocument matchDates = new BsonDocument().Add("$match", new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start).Add("$lte", end)));
@@ -173,7 +165,7 @@ namespace PrettyLog.Core.DataAccess
                     BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
                     matches.Add(matchQueryMessage);
                 }
-
+            
             BsonDocument match = new BsonDocument();
             foreach (var m in matches)
             {
@@ -211,7 +203,7 @@ namespace PrettyLog.Core.DataAccess
                                                          .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
             }
-            operators.Add(new BsonDocument().Add("$sort", new BsonDocument().Add("TimeStamp", -1)));
+
 
             IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
 
@@ -338,28 +330,32 @@ namespace PrettyLog.Core.DataAccess
 
         private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types, string[] messages)
         {
-            var queries = new List<BsonDocument>();
+            IMongoQuery generatedQuery = new QueryDocument(BsonDocument.Parse(query));
 
+            var qDateRange = new QueryBuilder<BsonDocument>().And
+                (
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start)))),
+                    new QueryDocument(new BsonDocument().Add("TimeStamp",
+                                                             new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))))
+                );
 
-            queries.Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", TimeZoneInfo.ConvertTimeToUtc(start))));
-            queries.Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$lte", TimeZoneInfo.ConvertTimeToUtc(end))));
-            queries.Add(BsonDocument.Parse(query));
+            generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qDateRange);
 
             if (types != null)
                 if (types.Length > 0)
                 {
-                    var qTypes = new BsonDocument().Add("Type", types[0]);
-                    queries.Add(qTypes);
+                    var qTypes = new QueryDocument(new BsonDocument().Add("Type", types[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qTypes);
                 }
 
             if (messages != null)
                 if (messages.Length > 0)
                 {
-                    var qMessages = new BsonDocument().Add("Message", messages[0]);
-                    queries.Add(qMessages);
+                    var qMessages = new QueryDocument(new BsonDocument().Add("Message", messages[0]));
+                    generatedQuery = new QueryBuilder<BsonDocument>().And(generatedQuery, qMessages);
                 }
-            
-            return new QueryBuilder<BsonDocument>().And(queries.Select(x => new QueryDocument(x)));
+            return generatedQuery;
         }
 
         static BsonValue TryGetValue(BsonDocument i, string key)
