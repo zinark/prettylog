@@ -312,7 +312,7 @@ var ui = {
             url: '/Dashboard/Logs',
             data: JSON.stringify(query),
             contentType: 'application/json; charset=utf-8',
-            async: false,
+            async: true,
             success: dataLoadEvents.logsParsedSuccessfully,
             error: dataLoadEvents.logsError
         });
@@ -335,7 +335,7 @@ var ui = {
             url: '/Dashboard/Timeline',
             data: JSON.stringify(logDensityQuery),
             contentType: 'application/json; charset=utf-8',
-            async: false,
+            async: true,
             success: dataLoadEvents.logDensityParsedSuccessfuly,
             error: dataLoadEvents.logDensityError
         });
