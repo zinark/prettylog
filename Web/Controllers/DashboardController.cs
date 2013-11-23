@@ -29,7 +29,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 200, int skip = 0)
+        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 10000, int skip = 0)
         {
             var result = _finder.MachineStatus(start, end, limit, skip);
 
@@ -103,7 +103,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 10, int skip = 0)
+        public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 500, int skip = 0)
         {
             var types = _finder.GetFieldDensity(fieldName, query, start, end, limit, skip);
 
@@ -137,7 +137,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
+        public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 1000000, int skip = 0)
         {
             var densities = _finder.GetLogDensity(query, start, end, types, messages, limit, skip);
 
