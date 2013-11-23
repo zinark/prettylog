@@ -118,7 +118,7 @@ namespace PrettyLog.Core.DataAccess
             Debug.WriteLine(resultlimitQuery.ToString());
             Debug.WriteLine(resultskipQuery.ToString());
 
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", match, loglimitQuery, logskipQuery, groupById, sortQuery, resultlimitQuery, resultskipQuery);
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", match, groupById, sortQuery, resultlimitQuery, resultskipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
 
