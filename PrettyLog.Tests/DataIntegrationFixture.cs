@@ -122,5 +122,26 @@ namespace PrettyLog.Tests
             var b = BsonDocument.Parse(q);
             b.ShouldNotBe(null);
         }
+
+        [Test]
+        public void merging_bson()
+        {
+            var a = new BsonDocument().Add("a", 1);
+            var b = new BsonDocument().Add("b", 2);
+
+            a.Merge(b).ToString().ShouldBe(@"{ ""a"" : 1, ""b"" : 2 }");
+            b.Merge(a).ToString().ShouldBe(@"{ ""b"" : 2, ""a"" : 1 }");
+        }
+
+        [Test]
+        public void merging_bson_complex()
+        {
+            BsonDocument m1 = new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", DateTime.Now).Add("$lte", DateTime.Now));
+            BsonDocument m2 = new BsonDocument().Add(BsonDocument.Parse("{ a : 1}"));
+            Console.WriteLine(m1.Merge(m2));
+
+            m1.Merge(m2).ToString().ShouldContain("TimeStamp");
+            m1.Merge(m2).ToString().ShouldContain("a");
+        }
     }
 }

@@ -83,14 +83,10 @@ namespace PrettyLog.Core.DataAccess
 
         public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit, int skip)
         {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
-
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
-            var match = matchDate.Merge(matchQuery);
+            BsonDocument matchQuery = BsonDocument.Parse(query);
+            BsonDocument matchDate = new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()));
+            BsonDocument match = new BsonDocument("$match", matchDate.Merge(matchQuery));
+            
             BsonDocument loglimitQuery = new BsonDocument().Add("$limit", 10000);
             BsonDocument logskipQuery = new BsonDocument().Add("$skip", 0);
 
@@ -109,7 +105,7 @@ namespace PrettyLog.Core.DataAccess
 
             var sw = Stopwatch.StartNew();
 
-            Debug.WriteLine(matchDate.ToString());
+            Debug.WriteLine("match : " + match.ToString ());
             Debug.WriteLine(matchQuery.ToString());
             Debug.WriteLine(loglimitQuery.ToString());
             Debug.WriteLine(logskipQuery.ToString());
@@ -147,32 +143,35 @@ namespace PrettyLog.Core.DataAccess
             
             var matches = new List<BsonDocument>();
 
-            BsonDocument matchDates = new BsonDocument().Add("$match", new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start).Add("$lte", end)));
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
+            BsonDocument matchDates = new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start).Add("$lte", end));
+            BsonDocument matchQuery = BsonDocument.Parse(query);
             matches.Add(matchDates);
             matches.Add(matchQuery);
 
             if (types != null)
                 if (types.Length > 0)
                 {
-                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
+                    BsonDocument matchQueryType = BsonDocument.Parse("{Type : '" + types[0] + "'}");
                     matches.Add(matchQueryType);
                 }
 
             if (messages != null)
                 if (messages.Length > 0)
                 {
-                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
+                    BsonDocument matchQueryMessage = BsonDocument.Parse("{Message : '" + messages[0] + "'}");
                     matches.Add(matchQueryMessage);
                 }
             
             BsonDocument match = new BsonDocument();
+
             foreach (var m in matches)
             {
-                match.Merge(m);
+                match = m.Merge(match);
             }
 
-            operators.Add(match);
+            Debug.WriteLine(match.ToString());
+            
+            operators.Add(new BsonDocument("$match", match));
             operators.Add(new BsonDocument().Add("$limit", limit));
             operators.Add(new BsonDocument().Add("$skip", skip));
 
