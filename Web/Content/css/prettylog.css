@@ -96,15 +96,18 @@ a:focus {
 
 a.trigger {
     position: absolute;
-    background: black;
+    background: white;
     text-decoration: none;
     font-size: 16px;
     letter-spacing: -1px;
     font-family: verdana, helvetica, arial, sans-serif;
-    color: #fff;
+    color: black;
     padding: 4px 12px 6px 24px;
     font-weight: bold;
     z-index: 1;
+    -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
 }
 
     a.trigger.left {
@@ -132,7 +135,8 @@ a.trigger {
     }
 
 a.active.trigger {
-    background: #666;
+    background: black;
+    color: white;
 }
 
 .panel {
@@ -154,6 +158,20 @@ a.active.trigger {
         -moz-border-radius-bottomright: 20px;
         -webkit-border-bottom-right-radius: 20px;
         border-bottom-right-radius: 20px;
+        -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .panel.right {
+        right: 0;
+        padding: 20px;
+        border-top-left-radius: 20px;
+        -moz-border-radius-topright: 20px;
+        -webkit-border-top-left-radius: 20px;
+        -moz-border-radius-bottomright: 20px;
+        -webkit-border-bottom-left-radius: 20px;
+        border-bottom-left-radius: 20px;
         -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
         -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
         box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);

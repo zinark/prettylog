@@ -41,6 +41,16 @@
             clickOutsideToClose: false,
             ajax: false
         });
+
+        $('#filter').slidePanel({
+            triggerName: '#filterTrigger',
+            position: 'fixed',
+            triggerTopPos: '250px',
+            panelTopPos: '275px',
+            panelOpacity: 1,
+            clickOutsideToClose: false,
+            ajax: false
+        });
     });
 </script>
 <div id="waitHtml" style="display: none">
@@ -80,6 +90,17 @@
         <div id="divHostsDensity"></div>
     </div>
 </div>
+
+<div>
+    <a href="javascript:;" id="filterTrigger" class="trigger right">Filters</a>
+    <div id="filter" class="panel right">
+        
+        <div id="queryFilters"></div>
+        
+        <a href="javascript:;" id="btnClearFilters">Clear Filters</a>
+    </div>
+</div>
+
 
 <style type="text/css" media="screen">
     #editor {
