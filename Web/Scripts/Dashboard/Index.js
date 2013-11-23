@@ -1,24 +1,6 @@
 ﻿var editor = null;
 var query = DefaultQuery();
 
-// var prettyColors = ['#171717', '#242424', '#303030', '#3d3d3d', '#4a4a4a', '#575757'];
-
-//var prettyColors = ['#F2F2D9',
-//    '#E6F2D9',
-//    '#D9F2D9',
-//    '#D9F2E6',
-//    '#D9F2F2',
-//    '#D9E6F2',
-//    '#D9D9F2',
-//    '#E6D9F2',
-//    '#F2D9F2',
-//    '#F2D9E6',
-//    '#F2D9D9',
-//    '#F2E6D9',
-//    '#E2E2AB',
-//    '#D3D37E',
-//    '#ABABE2'];
-
 var prettyColors = [
     '#80DFFF',
     '#FF9F80',
@@ -376,9 +358,9 @@ var DynamicFilters =
             });
         };
 
-        var waitHtml = "<p> <img src='/Content/loading.gif'/> Loading " + fieldName + " </p>";
+        var waitHtml = $('#waitHtml').html();
         $('#' + divChartName).html(waitHtml);
-        $('#' + divTableName).html(waitHtml);
+        $('#' + divTableName).html('');
 
         return $.ajax({
             type: 'post',
@@ -503,6 +485,7 @@ $(document).ready(function ()
             queryFilters.queryRequested();
         }
     });
+    
     var start = null;
     $('#range').change(function ()
     {

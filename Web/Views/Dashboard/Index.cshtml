@@ -11,6 +11,7 @@
             panelOpacity: 1,
             triggerTopPos: '50px',
             panelTopPos: '75px',
+            clickOutsideToClose: false,
             ajax: false
         });
         $('#filterMessages').slidePanel({
@@ -19,6 +20,7 @@
             triggerTopPos: '90px',
             panelTopPos: '115px',
             panelOpacity: 1,
+            clickOutsideToClose: false,
             ajax: false
         });
         $('#filterIps').slidePanel({
@@ -27,6 +29,7 @@
             triggerTopPos: '130px',
             panelTopPos: '155px',
             panelOpacity: 1,
+            clickOutsideToClose: false,
             ajax: false
         });
         $('#filterHosts').slidePanel({
@@ -35,13 +38,19 @@
             triggerTopPos: '170px',
             panelTopPos: '195px',
             panelOpacity: 1,
+            clickOutsideToClose: false,
             ajax: false
         });
     });
 </script>
-
+<div id="waitHtml" style="display: none">
+    <div style="width: 720px">
+        <img src='/Content/loading.gif' />
+    </div>
+    Processing...
+</div>
 <div>
-    <a href="javascript:;" id="typeTrigger" class="trigger left">::Types::</a>
+    <a href="javascript:;" id="typeTrigger" class="trigger left">Types</a>
     <div id="filterTypes" class="panel left">
         <div id="divTypeDensityChart" style="display: flexbox"></div>
         <div id="divTypeDensity" style="display: flexbox"></div>
@@ -49,7 +58,7 @@
 </div>
 
 <div>
-    <a href="javascript:;" id="messageTrigger" class="trigger left">::Messages::</a>
+    <a href="javascript:;" id="messageTrigger" class="trigger left">Messages</a>
     <div id="filterMessages" class="panel left">
         <div id="divMessageDensityChart" style="display: flexbox"></div>
         <div id="divMessageDensity"></div>
@@ -57,7 +66,7 @@
 </div>
 
 <div>
-    <a href="javascript:;" id="ipTrigger" class="trigger left">::IP::</a>
+    <a href="javascript:;" id="ipTrigger" class="trigger left">IP</a>
     <div id="filterIps" class="panel left">
         <div id="divIpsDensityChart" style="display: flexbox"></div>
         <div id="divIpsDensity"></div>
@@ -65,7 +74,7 @@
 </div>
 
 <div>
-    <a href="javascript:;" id="hostTrigger" class="trigger left">::Hosts::</a>
+    <a href="javascript:;" id="hostTrigger" class="trigger left">Hosts</a>
     <div id="filterHosts" class="panel left">
         <div id="divHostsDensityChart" style="display: flexbox"></div>
         <div id="divHostsDensity"></div>
