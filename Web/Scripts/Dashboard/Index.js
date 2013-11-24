@@ -101,7 +101,18 @@ var dataLoadEvents = {
         variables.logDensityChart = new google.visualization.ChartWrapper({
             'chartType': 'ColumnChart',
             'containerId': 'divTimelineChart',
-            'options': { 'legend': 'none', colors: prettyColors, backgroundColor: 'transparent' }
+            'options': {
+                'legend': 'none',
+                colors: prettyColors,
+                backgroundColor: 'transparent',
+                'hAxis': {
+                    'baselineColor': 'white',
+                    'format': 'dd-MM-yy HH:mm',
+                },
+                fontSize: 7,
+                fontName: 'Arial'
+
+            }
         });
 
         variables.logDensityControl = new google.visualization.ControlWrapper({
@@ -123,7 +134,7 @@ var dataLoadEvents = {
                         'colors': prettyColors,
                         'hAxis': {
                             'baselineColor': 'white',
-                            'format': 'dd / MM / yy',
+                            'format': 'dd-MM-yy HH:mm',
                         }
                     },
                     'minRangeSize': 86400000

@@ -24,26 +24,27 @@
 
     @RenderSection("scripts", required: false)
     <script>
+        function toggleQueryPanel()
+        {
+            $('#header').toggle(100);
+            editor.focus();
+        }
         $(document).ready(function ()
         {
             $(document).keydown(function (e)
             {
                 if (e.keyCode == 27)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
+                    toggleQueryPanel();
                 }
                 if (e.ctrlKey && e.keyCode == 222)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
+                    toggleQueryPanel();
                 }
 
                 if (e.ctrlKey && e.keyCode == 192)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
-
+                    toggleQueryPanel();
                 }
             });
         });
@@ -52,7 +53,7 @@
 </head>
 <body style="margin-top: 50px; background-color: #efefef">
 
-    <div id="header" class="fixed" style="display: block; padding: 10px; bottom:0px">
+    <div id="header" class="fixed" style="display: block; padding: 10px; bottom: 0px">
 
         <div class="inner">
             <p style="display: inline">
@@ -83,10 +84,10 @@
 }
 
             </pre>
-        <div id='hits' class="hits"></div>
+            <div id='hits' class="hits"></div>
         </div>
     </div>
-    
+
     @{
         Html.RenderPartial("PrettyHeader");
     }
