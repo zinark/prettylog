@@ -112,7 +112,7 @@ var dataLoadEvents = {
                 'state': { 'range': { 'start': moment().subtract('days', 3).toDate(), 'end': moment().toDate() } },
                 ui: {
                     //'labelStacking': 'horizontal',
-                    'chartType': 'ScatterChart',
+                    'chartType': 'LineChart',
                     'chartView': { 'columns': [0, 1] },
 
                     'chartOptions': {
@@ -120,7 +120,7 @@ var dataLoadEvents = {
                         // 'width': '100%',
                         'backgroundColor': 'transparent',
                         // 'height': 50,
-                        'colors': ['black'],
+                        'colors': prettyColors,
                         'hAxis': {
                             'baselineColor': 'white',
                             'format': 'dd / MM / yy',

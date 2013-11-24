@@ -203,7 +203,7 @@ namespace PrettyLog.Core.DataAccess
                     );
             }
 
-
+            //operators.Add(new BsonDocument().Add("$sort", new BsonDocument().Add("TimeStamp", -1)));
             IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
 
             var result = new List<LogDensityDto>();
@@ -222,7 +222,7 @@ namespace PrettyLog.Core.DataAccess
                 });
             }
 
-            return result;
+            return result.OrderByDescending(x => x.Day);
         }
 
         public void GenerateData()
