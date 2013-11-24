@@ -176,20 +176,23 @@ namespace PrettyLog.Core.DataAccess
             operators.Add(new BsonDocument().Add("$skip", skip));
 
             bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks;
+            bool minutely = end.Subtract(start).Ticks <= TimeSpan.FromHours(1).Ticks;
 
-            if (!hourly)
+            if (minutely)
             {
                 operators.Add(new BsonDocument()
-                                  .Add("$group",
-                                       new BsonDocument().Add("_id", new BsonDocument()
-                                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
-                                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
-                                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
-                                           )
-                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                  .Add("$group",
+                       new BsonDocument().Add("_id", new BsonDocument()
+                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                         .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                                                         .Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"))
+                           )
+                                         .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
-            }
-            else
+
+            } else if (hourly)
             {
                 operators.Add(new BsonDocument()
                                   .Add("$group",
@@ -202,8 +205,20 @@ namespace PrettyLog.Core.DataAccess
                                                          .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
             }
+            else
+            {
+                operators.Add(new BsonDocument()
+                                  .Add("$group",
+                                       new BsonDocument().Add("_id", new BsonDocument()
+                                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                           )
+                                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+            }
 
-            //operators.Add(new BsonDocument().Add("$sort", new BsonDocument().Add("TimeStamp", -1)));
+
             IEnumerable<BsonDocument> groups = _context.Aggregate("logs", operators.ToArray());
 
             var result = new List<LogDensityDto>();
@@ -213,11 +228,18 @@ namespace PrettyLog.Core.DataAccess
                                        group["_id"]["day"].AsInt32);
                 if (hourly)
                 {
-                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
                 }
+                if (minutely)
+                {
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, group["_id"]["minute"].AsInt32, 0);
+                }
+                
                 result.Add(new LogDensityDto
                 {
-                    Day = ToLocal(day),
+                    Day = day.Add(DateTime.Now.Subtract(DateTime.UtcNow)),
                     Total = group["count"].AsInt32
                 });
             }
