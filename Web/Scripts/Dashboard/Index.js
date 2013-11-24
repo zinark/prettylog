@@ -135,7 +135,8 @@ var dataLoadEvents = {
                         'hAxis': {
                             'baselineColor': 'white',
                             'format': 'dd-MM-yy HH:mm',
-                        }
+                        },
+                        curveType: 'function'
                     },
                     'minRangeSize': 86400000
                 }
