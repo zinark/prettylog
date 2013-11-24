@@ -50,12 +50,11 @@
     </script>
 
 </head>
-<body style="margin: 0; padding: 0; background-color: #efefef">
+<body style="margin-top: 50px; background-color: #efefef">
 
-    <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
+    <div id="header" class="fixed" style="display: block; padding: 10px; bottom:0px">
 
         <div class="inner">
-            <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
             <p style="display: inline">
                 Press ESC to toggle query panel. CTRL + ENTER to query.
             </p>
@@ -78,13 +77,19 @@
 {
 
     Type : {$not : /pretty.agent/}
+                
 
-}</pre>
+
+}
+
+            </pre>
         <div id='hits' class="hits"></div>
         </div>
     </div>
-
-    <div class="shadow" style="display: block;"><span></span></div>
+    
+    @{
+        Html.RenderPartial("PrettyHeader");
+    }
     @RenderBody()
 </body>
 </html>

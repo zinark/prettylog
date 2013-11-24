@@ -489,6 +489,7 @@
     <Content Include="Views\Dashboard\Detail.cshtml" />
     <Content Include="Views\Shared\_LayoutDetail.cshtml" />
     <Content Include="Views\Dashboard\Agents.cshtml" />
+    <Content Include="Views\Shared\PrettyHeader.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

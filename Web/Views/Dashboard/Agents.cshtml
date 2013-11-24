@@ -1,9 +1,18 @@
-﻿@{ Layout = "~/Views/Shared/_Layout.cshtml"; }
+﻿@{ Layout = "~/Views/Shared/_LayoutDetail.cshtml"; }
 
 <script src="~/Scripts/Dashboard/Agents.js"></script>
 
 <h2>Agents
 </h2>
+<select id="range">
+    <option value="1hour">Last Hour</option>
+    <option value="6hour">Last 6 Hour</option>
+    <option value="12hour">Last 12 Hour</option>
+    <option value="1day">This Day</option>
+    <option value="7day">This Week</option>
+    <option value="14day">This 2 Week</option>
+    <option value="30day">This Month</option>
+</select>
 
 <div id="divLogs"></div>
 <div id="agent">

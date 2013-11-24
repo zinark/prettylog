@@ -28,10 +28,17 @@ namespace Web.Controllers
             return View();
         }
 
-        [HttpPost]
-        public JsonResult MachineStatus(DateTime start, DateTime end, int limit = 200, int skip = 0)
+        [HttpGet]
+        public JsonResult Ips(DateTime start, DateTime end)
         {
-            var result = _finder.MachineStatus(start, end, limit, skip);
+            var result = _finder.MachineStatusIps(start, end);
+            return Json(result);
+        }
+
+        [HttpPost]
+        public JsonResult MachineStatus(string ip, DateTime start, DateTime end, int limit = 10000, int skip = 0)
+        {
+            var result = _finder.MachineStatus(ip, start, end, limit, skip);
 
             var rows = result.Select(x => new
             {

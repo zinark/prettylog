@@ -35,7 +35,7 @@ function DefaultQuery()
 {
     return {
         query: '{}',
-        start: moment().subtract('hours', 1),
+        start: moment().subtract('days', 7),
         end: moment(),
         limit: 45,
         skip: 0,
@@ -149,6 +149,7 @@ var ui = {
     refreshViews: function ()
     {
         var logDensityQuery = {
+            ip : "",
             query: query.query,
             start: query.start,
             end: query.end,

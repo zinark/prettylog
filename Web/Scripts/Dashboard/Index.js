@@ -418,13 +418,12 @@ $(document).ready(function ()
     $('#btnNext').click(queryFilters.nextPressed);
     $('#btnPrev').click(queryFilters.prevPressed);
     editor = ace.edit("editor");
-    editor.setTheme("ace/theme/cobalt");
+    editor.setTheme("ace/theme/ambiance");
     editor.getSession().setMode("ace/mode/javascript");
     editor.setFontSize(14);
+    editor.session.setUseWorker(false);
     editor.setOptions({
-        maxLines: Infinity,
-        enableBasicAutocompletion: true,
-        enableSnippets: true
+        maxLines: Infinity
     });
 
 });

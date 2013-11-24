@@ -376,12 +376,13 @@ namespace PrettyLog.Core.DataAccess
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
         }
 
-        public IEnumerable<MachineStatusDto> MachineStatus(DateTime start, DateTime end, int limit, int skip)
+        public IEnumerable<MachineStatusDto> MachineStatus(string ip, DateTime start, DateTime end, int limit, int skip)
         {
-            var match1 = new BsonDocument().Add("$match", new BsonDocument().Add("Type", "pretty.agent"));
-            var match2 = new BsonDocument().Add("$match", new BsonDocument().Add("Message", "machine status"));
-
-            var matchDate = new BsonDocument().Add("$match", new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime())));
+            var match = new BsonDocument().Add("$match", new BsonDocument()
+                .Add("Ip", ip)
+                .Add("Type", "pretty.agent")
+                .Add("Message", "machine status")
+                .Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()))));
 
             BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
             BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
@@ -414,7 +415,7 @@ namespace PrettyLog.Core.DataAccess
                                        .Add("avgmem", new BsonDocument().Add("$min", "$Object.AvaliableMemory"))
                                        .Add("avgnet", new BsonDocument().Add("$max", "$Object.NetworkUsage")));
 
-            var groups = _context.Aggregate("logs", matchDate, match1, match2, groupById, sortQuery, limitQuery, skipQuery);
+            var groups = _context.Aggregate("logs", match, groupById, sortQuery, limitQuery, skipQuery);
 
             var result = new List<MachineStatusDto>();
 
@@ -462,6 +463,32 @@ namespace PrettyLog.Core.DataAccess
 
 
             return new DateTime(year, month, day, hour, minute, second);
+        }
+
+        public IEnumerable<string> MachineStatusIps(DateTime start, DateTime end)
+        {
+            var match = new BsonDocument().Add("$match", new BsonDocument()
+                .Add("Type", "pretty.agent")
+                .Add("Message", "machine status")
+                .Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()))));
+
+            BsonDocument gr = new BsonDocument()
+                .Add("$group",
+                     new BsonDocument().Add("_id", "$Ip")
+                                       .Add("q", new BsonDocument().Add("$sum", "1")));
+
+            var groups = _context.Aggregate("logs", match, gr);
+
+            var r = new List<string>();
+            foreach (BsonDocument group in groups)
+            {
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
+                r.Add(group["_id"].AsString);
+            }
+
+            return r;
         }
     }
 }
