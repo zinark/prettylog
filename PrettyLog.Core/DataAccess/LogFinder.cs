@@ -175,8 +175,9 @@ namespace PrettyLog.Core.DataAccess
             operators.Add(new BsonDocument().Add("$limit", limit));
             operators.Add(new BsonDocument().Add("$skip", skip));
 
-            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks;
-            bool minutely = end.Subtract(start).Ticks <= TimeSpan.FromHours(1).Ticks;
+            bool minutely = end.Subtract(start).Ticks <= TimeSpan.FromHours(2).Ticks;
+            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks && !minutely;
+            
 
             if (minutely)
             {
