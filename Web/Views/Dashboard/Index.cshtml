@@ -2,6 +2,105 @@
 
 <script type="text/javascript" src="~/Scripts/json-to-table.js"></script>
 <script src="~/Scripts/Dashboard/Index.js"></script>
+<script>
+    $(document).ready(function ()
+    {
+        $('#filterTypes').slidePanel({
+            triggerName: '#typeTrigger',
+            position: 'fixed',
+            panelOpacity: 1,
+            triggerTopPos: '50px',
+            panelTopPos: '75px',
+            clickOutsideToClose: false,
+            ajax: false
+        });
+        $('#filterMessages').slidePanel({
+            triggerName: '#messageTrigger',
+            position: 'fixed',
+            triggerTopPos: '90px',
+            panelTopPos: '115px',
+            panelOpacity: 1,
+            clickOutsideToClose: false,
+            ajax: false
+        });
+        $('#filterIps').slidePanel({
+            triggerName: '#ipTrigger',
+            position: 'fixed',
+            triggerTopPos: '130px',
+            panelTopPos: '155px',
+            panelOpacity: 1,
+            clickOutsideToClose: false,
+            ajax: false
+        });
+        $('#filterHosts').slidePanel({
+            triggerName: '#hostTrigger',
+            position: 'fixed',
+            triggerTopPos: '170px',
+            panelTopPos: '195px',
+            panelOpacity: 1,
+            clickOutsideToClose: false,
+            ajax: false
+        });
+
+        $('#filter').slidePanel({
+            triggerName: '#filterTrigger',
+            position: 'fixed',
+            triggerTopPos: '250px',
+            panelTopPos: '275px',
+            panelOpacity: 1,
+            clickOutsideToClose: false,
+            ajax: false
+        });
+    });
+</script>
+<div id="waitHtml" style="display: none">
+    <div style="width: 720px">
+        <img src='/Content/loading.gif' />
+    </div>
+    Processing...
+</div>
+<div>
+    <a href="javascript:;" id="typeTrigger" class="trigger left">Types</a>
+    <div id="filterTypes" class="panel left">
+        <div id="divTypeDensityChart" style="display: flexbox"></div>
+        <div id="divTypeDensity" style="display: flexbox"></div>
+    </div>
+</div>
+
+<div>
+    <a href="javascript:;" id="messageTrigger" class="trigger left">Messages</a>
+    <div id="filterMessages" class="panel left">
+        <div id="divMessageDensityChart" style="display: flexbox"></div>
+        <div id="divMessageDensity"></div>
+    </div>
+</div>
+
+<div>
+    <a href="javascript:;" id="ipTrigger" class="trigger left">IP</a>
+    <div id="filterIps" class="panel left">
+        <div id="divIpsDensityChart" style="display: flexbox"></div>
+        <div id="divIpsDensity"></div>
+    </div>
+</div>
+
+<div>
+    <a href="javascript:;" id="hostTrigger" class="trigger left">Hosts</a>
+    <div id="filterHosts" class="panel left">
+        <div id="divHostsDensityChart" style="display: flexbox"></div>
+        <div id="divHostsDensity"></div>
+    </div>
+</div>
+
+<div>
+    <a href="javascript:;" id="filterTrigger" class="trigger right">Filters</a>
+    <div id="filter" class="panel right">
+        
+        <div id="queryFilters"></div>
+        
+        <a href="javascript:;" id="btnClearFilters">Clear Filters</a>
+    </div>
+</div>
+
 
 <style type="text/css" media="screen">
     #editor {
@@ -10,49 +109,28 @@
     }
 </style>
 
-<table style="width: 100%">
+<table style="width: 75%;" align="center">
     <tr>
         <td style="width: 30%; vertical-align: top"></td>
         <td style="width: 90%; vertical-align: top"></td>
     </tr>
 
-    <tr>
+    <tr valign="top">
         <td>
             <div id="divDashTable"></div>
         </td>
         <td>
             <div id="divDash">
-                <div id="divTimelineChart" style="height: 120px;"></div>
+                <div id="divTimelineChart" style="height: 220px;"></div>
                 <div id="divTimelineControl" style="height: 60px;"></div>
             </div>
-            
         </td>
     </tr>
     <tr>
-        <td valign="top">
-            <div style="padding: 10px">
-                <div id="divTypeDensityChart" style="display: flexbox"></div>
-                <div id="divTypeDensity" style="display: flexbox"></div>
-
-                <div id="divMessageDensityChart" style="display: flexbox"></div>
-                <div id="divMessageDensity"></div>
-
-                <div id="divIpsDensityChart" style="display: flexbox"></div>
-                <div id="divIpsDensity"></div>
-
-                <div id="divHostsDensityChart" style="display: flexbox"></div>
-                <div id="divHostsDensity"></div>
-            </div>
-        </td>
-        <td valign="top">
+        <td valign="top" colspan="2">
             <div id="divLogs"></div>
             <a href="javascript:;" id="btnPrev"><< Prev</a> | <a href="javascript:;" id="btnNext">Next >></a> |
             <p id="totalHits"></p>
-
-            <div id="agent">
-                <div id="divMachineStatusChart" style="height: 500px;"></div>
-                <div id="divMachineStatus"></div>
-            </div>
         </td>
     </tr>
 </table>

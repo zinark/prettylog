@@ -81,17 +81,18 @@ namespace PrettyLog.Core.DataAccess
             };
         }
 
-        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 200, int skip = 0)
+        public IEnumerable<FieldDensityDto> GetFieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit, int skip)
         {
-            BsonDocument matchQuery = new BsonDocument().Add("$match", BsonDocument.Parse(query));
+            BsonDocument matchQuery = BsonDocument.Parse(query);
+            BsonDocument matchDate = new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()));
+            BsonDocument match = new BsonDocument("$match", matchDate.Merge(matchQuery));
+            
+            BsonDocument loglimitQuery = new BsonDocument().Add("$limit", 10000);
+            BsonDocument logskipQuery = new BsonDocument().Add("$skip", 0);
 
-            BsonDocument matchDate = new BsonDocument()
-                .Add("$match",
-                     new BsonDocument().Add("TimeStamp",
-                                            new BsonDocument().Add("$gte", start.ToUniversalTime())
-                                                              .Add("$lte", end.ToUniversalTime())));
-            BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
-            BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
+            BsonDocument resultlimitQuery = new BsonDocument().Add("$limit", limit);
+            BsonDocument resultskipQuery = new BsonDocument().Add("$skip", skip);
+            
             BsonDocument sortQuery = new BsonDocument().Add("$sort", new BsonDocument().Add("count", -1));
 
             BsonDocument groupById = new BsonDocument()
@@ -103,7 +104,17 @@ namespace PrettyLog.Core.DataAccess
 
 
             var sw = Stopwatch.StartNew();
-            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", matchDate, matchQuery, groupById, sortQuery, limitQuery, skipQuery);
+
+            Debug.WriteLine("match : " + match.ToString ());
+            Debug.WriteLine(matchQuery.ToString());
+            Debug.WriteLine(loglimitQuery.ToString());
+            Debug.WriteLine(logskipQuery.ToString());
+            Debug.WriteLine(groupById.ToString());
+            Debug.WriteLine(sortQuery.ToString());
+            Debug.WriteLine(resultlimitQuery.ToString());
+            Debug.WriteLine(resultskipQuery.ToString());
+
+            IEnumerable<BsonDocument> groups = _context.Aggregate("logs", match, groupById, sortQuery, resultlimitQuery, resultskipQuery);
             Debug.WriteLine(fieldName + " : " + sw.ElapsedMilliseconds + "ms");
             var result = new List<FieldDensityDto>();
 
@@ -121,45 +132,68 @@ namespace PrettyLog.Core.DataAccess
                 });
             }
 
+            
             return result;
 
         }
 
-        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 10000, int skip = 0)
+        public IEnumerable<LogDensityDto> GetLogDensity(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip)
         {
             var operators = new List<BsonDocument>();
+            
+            var matches = new List<BsonDocument>();
 
-            operators.Add(
-                new BsonDocument()
-                    .Add("$match",
-                         new BsonDocument().Add("TimeStamp",
-                                                new BsonDocument().Add("$gte", start)
-                                                                  .Add("$lte", end)))
-                );
-
-            operators.Add(new BsonDocument().Add("$match", BsonDocument.Parse(query)));
+            BsonDocument matchDates = new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start).Add("$lte", end));
+            BsonDocument matchQuery = BsonDocument.Parse(query);
+            matches.Add(matchDates);
+            matches.Add(matchQuery);
 
             if (types != null)
                 if (types.Length > 0)
                 {
-                    BsonDocument matchQueryType = new BsonDocument().Add("$match", BsonDocument.Parse("{Type : '" + types[0] + "'}"));
-                    operators.Add(matchQueryType);
+                    BsonDocument matchQueryType = BsonDocument.Parse("{Type : '" + types[0] + "'}");
+                    matches.Add(matchQueryType);
                 }
 
             if (messages != null)
                 if (messages.Length > 0)
                 {
-                    BsonDocument matchQueryMessage = new BsonDocument().Add("$match", BsonDocument.Parse("{Message : '" + messages[0] + "'}"));
-                    operators.Add(matchQueryMessage);
+                    BsonDocument matchQueryMessage = BsonDocument.Parse("{Message : '" + messages[0] + "'}");
+                    matches.Add(matchQueryMessage);
                 }
+            
+            BsonDocument match = new BsonDocument();
 
+            foreach (var m in matches)
+            {
+                match = m.Merge(match);
+            }
 
+            Debug.WriteLine(match.ToString());
+            
+            operators.Add(new BsonDocument("$match", match));
             operators.Add(new BsonDocument().Add("$limit", limit));
             operators.Add(new BsonDocument().Add("$skip", skip));
 
-            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks;
+            bool minutely = end.Subtract(start).Ticks <= TimeSpan.FromHours(2).Ticks;
+            bool hourly = end.Subtract(start).Ticks <= TimeSpan.FromDays(2).Ticks && !minutely;
+            
 
-            if (!hourly)
+            if (minutely)
+            {
+                operators.Add(new BsonDocument()
+                  .Add("$group",
+                       new BsonDocument().Add("_id", new BsonDocument()
+                                                         .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
+                                                         .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
+                                                         .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                         .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
+                                                         .Add("minute", new BsonDocument().Add("$minute", "$TimeStamp"))
+                           )
+                                         .Add("count", new BsonDocument().Add("$sum", 1)))
+                    );
+
+            } else if (hourly)
             {
                 operators.Add(new BsonDocument()
                                   .Add("$group",
@@ -167,6 +201,7 @@ namespace PrettyLog.Core.DataAccess
                                                                          .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
                                                                          .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
                                                                          .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
+                                                                         .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
                                            )
                                                          .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
@@ -179,7 +214,6 @@ namespace PrettyLog.Core.DataAccess
                                                                          .Add("year", new BsonDocument().Add("$year", "$TimeStamp"))
                                                                          .Add("month", new BsonDocument().Add("$month", "$TimeStamp"))
                                                                          .Add("day", new BsonDocument().Add("$dayOfMonth", "$TimeStamp"))
-                                                                         .Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"))
                                            )
                                                          .Add("count", new BsonDocument().Add("$sum", 1)))
                     );
@@ -195,16 +229,23 @@ namespace PrettyLog.Core.DataAccess
                                        group["_id"]["day"].AsInt32);
                 if (hourly)
                 {
-                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32, group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, 0, 0);
                 }
+                if (minutely)
+                {
+                    day = new DateTime(group["_id"]["year"].AsInt32, group["_id"]["month"].AsInt32,
+                                       group["_id"]["day"].AsInt32, group["_id"]["hour"].AsInt32, group["_id"]["minute"].AsInt32, 0);
+                }
+                
                 result.Add(new LogDensityDto
                 {
-                    Day = ToLocal(day),
+                    Day = day.Add(DateTime.Now.Subtract(DateTime.UtcNow)),
                     Total = group["count"].AsInt32
                 });
             }
 
-            return result;
+            return result.OrderByDescending(x => x.Day);
         }
 
         public void GenerateData()
@@ -212,16 +253,17 @@ namespace PrettyLog.Core.DataAccess
             var db = (_context as MongoDataContext).GetDb();
             var logs = db.GetCollection("logs");
 
-            var types = new[]
+            var types = GenerateArray(new[]
             {
-                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b", "integrations.c"
-            };
+                "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b",
+                "integrations.c"
+            }, 1000);
 
-            var messages = new[]
+            var messages = GenerateArray(new[]
             {
                 "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
                 "timeout", "response is not valid"
-            };
+            }, 1000);
 
             var appNames = new[]
             {
@@ -283,7 +325,7 @@ namespace PrettyLog.Core.DataAccess
                     Message = message,
                     Type = type,
                     ThreadId = r.Next(1, 1000),
-                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(1, 3600))),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(0, 24 * 30))).ToUniversalTime(),
                     Object = obj,
                     ApplicationName = appNames[r.Next(appNames.Length)],
                     Host = urls[r.Next(urls.Length)],
@@ -291,6 +333,21 @@ namespace PrettyLog.Core.DataAccess
                     Ip = ips[r.Next(ips.Length)]
                 });
             });
+        }
+
+        string[] GenerateArray(IEnumerable<string> prefixes, int i)
+        {
+            var result = new List<string>();
+
+            Enumerable.Range(1, i).ToList().ForEach(x =>
+            {
+                foreach (var p in prefixes)
+                {
+                    result.Add(p + "." + x);
+                }
+            });
+
+            return result.ToArray();
         }
 
         private static IMongoQuery GenerateLogsQuery(string query, DateTime start, DateTime end, string[] types, string[] messages)
@@ -342,12 +399,13 @@ namespace PrettyLog.Core.DataAccess
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
         }
 
-        public IEnumerable<MachineStatusDto> MachineStatus(DateTime start, DateTime end, int limit, int skip)
+        public IEnumerable<MachineStatusDto> MachineStatus(string ip, DateTime start, DateTime end, int limit, int skip)
         {
-            var match1 = new BsonDocument().Add("$match", new BsonDocument().Add("Type", "pretty.agent"));
-            var match2 = new BsonDocument().Add("$match", new BsonDocument().Add("Message", "machine status"));
-
-            var matchDate = new BsonDocument().Add("$match", new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime())));
+            var match = new BsonDocument().Add("$match", new BsonDocument()
+                .Add("Ip", ip)
+                .Add("Type", "pretty.agent")
+                .Add("Message", "machine status")
+                .Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()))));
 
             BsonDocument limitQuery = new BsonDocument().Add("$limit", limit);
             BsonDocument skipQuery = new BsonDocument().Add("$skip", skip);
@@ -369,7 +427,7 @@ namespace PrettyLog.Core.DataAccess
             else
             {
                 if (end.Subtract(start).Ticks <= TimeSpan.FromDays(7).Ticks)
-                groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
+                    groupId.Add("hour", new BsonDocument().Add("$hour", "$TimeStamp"));
 
             }
 
@@ -380,7 +438,7 @@ namespace PrettyLog.Core.DataAccess
                                        .Add("avgmem", new BsonDocument().Add("$min", "$Object.AvaliableMemory"))
                                        .Add("avgnet", new BsonDocument().Add("$max", "$Object.NetworkUsage")));
 
-            var groups = _context.Aggregate("logs", matchDate, match1, match2, groupById, sortQuery, limitQuery, skipQuery);
+            var groups = _context.Aggregate("logs", match, groupById, sortQuery, limitQuery, skipQuery);
 
             var result = new List<MachineStatusDto>();
 
@@ -428,6 +486,32 @@ namespace PrettyLog.Core.DataAccess
 
 
             return new DateTime(year, month, day, hour, minute, second);
+        }
+
+        public IEnumerable<string> MachineStatusIps(DateTime start, DateTime end)
+        {
+            var match = new BsonDocument().Add("$match", new BsonDocument()
+                .Add("Type", "pretty.agent")
+                .Add("Message", "machine status")
+                .Add(new BsonDocument().Add("TimeStamp", new BsonDocument().Add("$gte", start.ToUniversalTime()).Add("$lte", end.ToUniversalTime()))));
+
+            BsonDocument gr = new BsonDocument()
+                .Add("$group",
+                     new BsonDocument().Add("_id", "$Ip")
+                                       .Add("q", new BsonDocument().Add("$sum", "1")));
+
+            var groups = _context.Aggregate("logs", match, gr);
+
+            var r = new List<string>();
+            foreach (BsonDocument group in groups)
+            {
+                if (!group.Contains("_id")) continue;
+                if (group["_id"].IsBsonNull) continue;
+
+                r.Add(group["_id"].AsString);
+            }
+
+            return r;
         }
     }
 }

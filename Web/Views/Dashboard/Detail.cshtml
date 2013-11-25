@@ -75,7 +75,8 @@
 
 
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(document).ready(function ()
+        {
 
             var NumberLong = function (x) { return x; };
             var CSUUID = function (x) { return x; };
@@ -83,28 +84,40 @@
 
             var json = JSON.stringify(@Html.Raw(Model.ObjectJson));
 
-            var o;
-            try { o = JSON.parse(json); }
-            catch (e) {
+            try { parsedData = JSON.parse(json); }
+            catch (e)
+            {
                 alert('not valid JSON');
                 console.log(e);
                 return;
             }
 
-            var node = new PrettyJSON.view.Node({
-                el: $('#ObjectJson'),
-                data: o,
-                dateFormat: "DD/MM/YYYY - HH24:MI:SS"
-            });
+            //node = new PrettyJSON.view.Node({
+            //    el: $('#ObjectJson'),
+            //    data: parsedData,
+            //    dateFormat: "DD/MM/YYYY - HH24:MI:SS"
+            //});
 
-            $("#expandAll").click(function () {
-                node.expandAll();
-            });
+            //$("#expandAll").click(function ()
+            //{
+            //    node.expandAll();
+            //});
 
-            $("#collepseAll").click(function () {
-                node.collapseAll();
-            });
+            //$("#collepseAll").click(function ()
+            //{
+            //    node.collapseAll();
+            //});
 
+
+            editor = ace.edit("editor");
+            editor.setTheme("ace/theme/ambiance");
+            editor.getSession().setMode("ace/mode/javascript");
+            editor.setFontSize(14);
+            editor.setOptions({
+                maxLines: 40,
+            });
+            val = JSON.stringify(parsedData, null, 4);
+            editor.session.setValue(val);
         });
     </script>
 }
@@ -115,6 +128,15 @@
         <tr>
             <td>Type</td>
             <td>Message</td>
+        </tr>
+
+        <tr>
+            <td>@Model.Type</td>
+            <td>@Model.Message</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
             <td>Ip</td>
             <td>Host</td>
             <td>Url</td>
@@ -125,8 +147,6 @@
         </tr>
 
         <tr>
-            <td>@Model.Type</td>
-            <td>@Model.Message</td>
             <td>@Model.Ip</td>
             <td>@Model.Host</td>
             <td>@Model.Url</td>
@@ -136,17 +156,51 @@
             <td>@Model.TimeStamp</td>
         </tr>
     </table>
+    <table>
+        <tr>
+            <td>Id</td>
+            <td>ThreadId</td>
+            <td>TimeStamp</td>
+        </tr>
+
+        <tr>
+            <td>@Model.Id</td>
+            <td>@Model.ThreadId</td>
+            <td>@Model.TimeStamp</td>
+        </tr>
+    </table>
 </div>
 
-
 <br />
 
+<div class="CSSTableGenerator">
+    <table>
+        <tr>
+            <td>Object
+            </td>
+        </tr>
+@*        <tr>
+            <td>
+                <a href="javascript:;" id="expandAll">Expand</a> - <a href="javascript:;" id="collepseAll">Collapse</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="ObjectJson">
+                    @Model.ObjectJson
+                </div>
 
-<br />
+            </td>
+        </tr>*@
+        <tr>
+            <td>
+                <div id="editor">
+                    @Model.ObjectJson
+                </div>
 
-<a href="javascript:;" id="expandAll">Expand ALL</a> - <a href="javascript:;" id="collepseAll">Collepse ALL</a>
-<br />
-<p style="font: bold">Object</p>
-<div id="ObjectJson">
-    @Model.ObjectJson
+            </td>
+        </tr>
+    </table>
+
 </div>
+

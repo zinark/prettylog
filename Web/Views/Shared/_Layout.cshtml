@@ -14,6 +14,7 @@
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script src="http://momentjs.com/downloads/moment.min.js"></script>
+    <script src="~/Scripts/jquery.slidePanel.min.js"></script>
     <script src="/Scripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="~/Scripts/jquery.fancybox.js"></script>
 
@@ -23,38 +24,38 @@
 
     @RenderSection("scripts", required: false)
     <script>
+        function toggleQueryPanel()
+        {
+            $('#header').toggle(100);
+            editor.focus();
+        }
         $(document).ready(function ()
         {
             $(document).keydown(function (e)
             {
                 if (e.keyCode == 27)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
+                    toggleQueryPanel();
                 }
                 if (e.ctrlKey && e.keyCode == 222)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
+                    toggleQueryPanel();
                 }
 
                 if (e.ctrlKey && e.keyCode == 192)
                 {
-                    $('#header').toggle(100);
-                    editor.focus();
-
+                    toggleQueryPanel();
                 }
             });
         });
     </script>
 
 </head>
-<body style="margin: 0; padding: 0; background-color: #efefef">
+<body style="margin-top: 50px; margin-bottom: 300px; background-color: #efefef">
 
-    <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
+    <div id="header" class="fixed" style="display: block; padding: 10px; bottom: 0px">
 
         <div class="inner">
-            <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
             <p style="display: inline">
                 Press ESC to toggle query panel. CTRL + ENTER to query.
             </p>
@@ -77,16 +78,19 @@
 {
 
     Type : {$not : /pretty.agent/}
+                
 
-}</pre>
-        <div id='hits' class="hits"></div>
+
+}
+
+            </pre>
+            <div id='hits' class="hits"></div>
         </div>
-        <div id="queryFilters"></div>
-        <a href="javascript:;" id="btnClearFilters">Clear Filters</a>
-
     </div>
 
-    <div class="shadow" style="display: block;"><span></span></div>
+    @{
+        Html.RenderPartial("PrettyHeader");
+    }
     @RenderBody()
 </body>
 </html>

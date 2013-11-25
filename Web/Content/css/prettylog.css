@@ -1,14 +1,14 @@
 .headerRow {
-    background-color:steelblue;
+    background-color: steelblue;
     color: white;
     padding: 5px;
     margin: 5px;
-    font-family:serif;
+    font-family: monospace;
     font-size: 10pt;
 }
 
 .tableRow {
-    font-family: serif;
+    font-family: monospace;
     font-size: 7pt;
     background-color: white;
     color: black;
@@ -16,25 +16,24 @@
 
 a {
     font-size: 10pt;
-   font-family:monospace;
-    color: #FF9F80;
+    font-family: monospace;
+    color: #4169e1;
     font-style: italic;
 }
 
 .oddTableRow {
-    font-family: serif;
+    font-family: monospace;
     font-size: 7pt;
     background-color: #efefef;
     color: black;
 }
 
 .selectedTableRow {
-    background-color:wheat;
+    background-color: wheat;
     color: black;
 }
 
 .hoverTableRow {
-    
 }
 
 .headerCell {
@@ -55,15 +54,130 @@ a {
     margin: 1px;
 }
 
-#header{width: 100%;z-index: 1000;}
+#header {
+    width: 100%;
+    z-index: 1000;
+}
 
 /*.fixed {background: url(http://static.tumblr.com/njty47g/Omoleufdi/topbar_bg.png) left top repeat-x;*/
-.fixed {background-color: white;
-position: fixed;left: 0;
--webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
--moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);}
+.fixed {
+    background-color: white;
+    color: #333333;
+    position: fixed;
+    left: 0;
+    -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+}
 
-.inner {width: 80%;margin: 0 auto;}
+.inner {
+    width: 80%;
+    margin: 0 auto;
+}
 
-.shadow{width: 100%;height: 5px;position: absolute;left: 0;bottom: -10px;z-index: 500;display: none;}
+.shadow {
+    width: 100%;
+    height: 5px;
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    z-index: 500;
+    display: none;
+}
+
+
+
+
+
+
+
+a:focus {
+    outline: none;
+}
+
+a.trigger {
+    position: absolute;
+    background: white;
+    text-decoration: none;
+    font-size: 16px;
+    letter-spacing: -1px;
+    font-family: verdana, helvetica, arial, sans-serif;
+    color: black;
+    padding: 4px 12px 6px 24px;
+    font-weight: bold;
+    z-index: 1;
+    -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+}
+
+    a.trigger.left {
+        left: 0;
+        border-top-right-radius: 5px;
+        -moz-border-radius-topright: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-bottomright: 5px;
+        -webkit-border-bottom-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+
+    a.trigger.right {
+        right: 0;
+        border-bottom-left-radius: 5px;
+        border-top-left-radius: 5px;
+        -moz-border-radius-bottomleft: 5px;
+        -moz-border-radius-topleft: 5px;
+        -webkit-border-bottom-left-radius: 5px;
+        -webkit-border-top-left-radius: 5px;
+    }
+
+    a.trigger:hover {
+        background-color: #59B;
+    }
+
+a.active.trigger {
+    background: black;
+    color: white;
+}
+
+.panel {
+    color: black;
+    position: absolute;
+    display: none;
+    background: white;
+    width: auto;
+    height: auto;
+    z-index: 2;
+}
+
+    .panel.left {
+        left: 0;
+        padding: 20px;
+        border-top-right-radius: 20px;
+        -moz-border-radius-topright: 20px;
+        -webkit-border-top-right-radius: 20px;
+        -moz-border-radius-bottomright: 20px;
+        -webkit-border-bottom-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .panel.right {
+        right: 0;
+        padding: 20px;
+        border-top-left-radius: 20px;
+        -moz-border-radius-topright: 20px;
+        -webkit-border-top-left-radius: 20px;
+        -moz-border-radius-bottomright: 20px;
+        -webkit-border-bottom-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 7px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .panel p {
+        /*font-size:11px;*/
+    }

@@ -27,12 +27,9 @@
 <body style="margin-top: 50px; padding: 0; background-color: #dfdfdf">
 
 
-    <div id="header" class="fixed" style="display: block; top: 0; padding: 10px">
-        <div class="inner">
-            <div style="width: 100%; color: steelblue; font-family: monospace; font-size: 12pt; text-align: center">pretty.log (alpha)</div>
-        </div>
-        <div class="shadow" style="display: block;"><span></span></div>
-    </div>
+    @{
+        Html.RenderPartial("PrettyHeader");
+    }
     @RenderBody()
 </body>
 </html>

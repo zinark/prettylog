@@ -96,7 +96,6 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -443,7 +442,10 @@
     <Content Include="Scripts\ace\worker-lua.js" />
     <Content Include="Scripts\ace\worker-php.js" />
     <Content Include="Scripts\ace\worker-xquery.js" />
+    <Content Include="Scripts\Dashboard\Agents.js" />
     <Content Include="Scripts\Dashboard\Index.js" />
+    <Content Include="Content\images\minus.png" />
+    <Content Include="Content\images\plus.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />
     <Content Include="Scripts\jquery-1.8.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -455,6 +457,7 @@
     <Content Include="Scripts\jquery.fancybox.js" />
     <Content Include="Scripts\jquery.fancybox.pack.js" />
     <Content Include="Scripts\jquery.mousewheel-3.0.6.pack.js" />
+    <Content Include="Scripts\jquery.slidePanel.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
@@ -469,8 +472,6 @@
     <Content Include="Scripts\prettyJson\pretty-json-min.js" />
     <Content Include="Scripts\prettyJson\underscore-min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Views\Home\chart_api_test.html" />
-    <Content Include="Views\Home\main.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -484,10 +485,11 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Dashboard\Detail.cshtml" />
     <Content Include="Views\Shared\_LayoutDetail.cshtml" />
+    <Content Include="Views\Dashboard\Agents.cshtml" />
+    <Content Include="Views\Shared\PrettyHeader.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
