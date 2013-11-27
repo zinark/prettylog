@@ -136,7 +136,9 @@ var dataLoadEvents = {
                             'baselineColor': 'white',
                             'format': 'dd-MM-yy HH:mm',
                         },
-                        curveType: 'function'
+                        curveType: 'function',
+                        fontSize: 7,
+                        fontName: 'Arial',
                     },
                     'minRangeSize': 86400000
                 }
