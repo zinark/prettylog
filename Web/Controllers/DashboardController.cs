@@ -141,7 +141,7 @@ namespace Web.Controllers
 
         string CleanUp(string query)
         {
-            var lines = query.Split(new[] {Environment.NewLine, "\n\n"}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = query.Split(new[] {Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries);
             string result = "";
             foreach (var line in lines)
             {
