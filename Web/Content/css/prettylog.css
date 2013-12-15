@@ -3,34 +3,37 @@
     color: white;
     padding: 5px;
     margin: 5px;
-    font-family: monospace;
+    font-family: cursive;
     font-size: 10pt;
 }
 
 .tableRow {
-    font-family: monospace;
-    font-size: 7pt;
+    font-family:cursive;
+    font-size: 8pt;
     background-color: white;
     color: black;
-}
-
-a {
-    font-size: 10pt;
-    font-family: monospace;
-    color: #4169e1;
     font-style: italic;
 }
 
 .oddTableRow {
-    font-family: monospace;
-    font-size: 7pt;
+    font-family: cursive;
+    font-size: 8pt;
     background-color: #efefef;
     color: black;
+    font-style: italic;
 }
 
+a {
+    font-size: 10pt;
+    font-family: cursive;
+    color: #4169e1;
+    font-style: italic;
+}
+
+
 .selectedTableRow {
-    background-color: wheat;
-    color: black;
+    background-color: #b22222;
+    color: white;
 }
 
 .hoverTableRow {
@@ -59,8 +62,8 @@ a {
     z-index: 1000;
 }
 
-/*.fixed {background: url(http://static.tumblr.com/njty47g/Omoleufdi/topbar_bg.png) left top repeat-x;*/
 .fixed {
+    /*background: url(http://static.tumblr.com/njty47g/Omoleufdi/topbar_bg.png) repeat-x;*/
     background-color: white;
     color: #333333;
     position: fixed;

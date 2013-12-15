@@ -88,6 +88,7 @@ namespace Web.Controllers
         [HttpPost]
         public JsonResult Logs(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit, int skip = 0)
         {
+            query = CleanUp(query);
             var result = _finder.Logs(query, start, end, types, messages, limit, skip);
             var hits = _finder.LogsHit(query, start, end, types, messages);
 
@@ -129,6 +130,7 @@ namespace Web.Controllers
         [HttpPost]
         public JsonResult FieldDensity(string fieldName, string query, DateTime start, DateTime end, int limit = 500, int skip = 0)
         {
+            query = CleanUp(query);
             var types = _finder.GetFieldDensity(fieldName, query, start, end, limit, skip);
 
             var rows = types.Select(x => new
@@ -154,10 +156,24 @@ namespace Web.Controllers
             });
         }
 
+        string CleanUp(string query)
+        {
+            var lines = query.Split(new[] {Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries);
+            string result = "";
+            foreach (var line in lines)
+            {
+                if (line.TrimStart().StartsWith("//")) continue;
+                result += line;
+            }
+
+            return result;
+        }
+
 
         [HttpPost]
         public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 1000000, int skip = 0)
         {
+            query = CleanUp(query);
             var densities = _finder.GetLogDensity(query, start, end, types, messages, limit, skip);
 
             var rows = densities.Select(x => new
