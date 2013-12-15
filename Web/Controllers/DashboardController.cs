@@ -23,9 +23,26 @@ namespace Web.Controllers
             return View();
         }
 
+        public ActionResult Detail(string id)
+        {
+            LogDto dto = _finder.GetLogDetail(id);
+            return View(dto);
+        }
+
+        public ActionResult Settings()
+        {
+            return View();
+        }
+
         public ActionResult Agents()
         {
             return View();
+        }
+
+        public ActionResult TestData()
+        {
+            _finder.GenerateData();
+            return View("Index");
         }
 
         [HttpGet]
@@ -137,11 +154,6 @@ namespace Web.Controllers
             });
         }
 
-        public ActionResult TestData()
-        {
-            _finder.GenerateData();
-            return View("Index");
-        }
 
         [HttpPost]
         public ActionResult Timeline(string query, DateTime start, DateTime end, string[] types, string[] messages, int limit = 1000000, int skip = 0)
@@ -174,12 +186,5 @@ namespace Web.Controllers
                 ContentType = "application/json"
             };
         }
-
-        public ActionResult Detail(string id)
-        {
-            LogDto dto = _finder.GetLogDetail(id);
-            return View(dto);
-        }
-
     }
 }

@@ -257,13 +257,13 @@ namespace PrettyLog.Core.DataAccess
             {
                 "job.a", "job.b", "job.c", "web.exceptions", "web.ui", "integrations.a", "integrations.b",
                 "integrations.c"
-            }, 1000);
+            }, 100);
 
             var messages = GenerateArray(new[]
             {
                 "null exception", "not found", "id is duplicated", "range is not supported", "network exception",
                 "timeout", "response is not valid"
-            }, 1000);
+            }, 100);
 
             var appNames = new[]
             {
@@ -325,7 +325,7 @@ namespace PrettyLog.Core.DataAccess
                     Message = message,
                     Type = type,
                     ThreadId = r.Next(1, 1000),
-                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromHours(r.Next(0, 24 * 30))).ToUniversalTime(),
+                    TimeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(r.Next(0, 60 * 24 * 30))).ToUniversalTime(),
                     Object = obj,
                     ApplicationName = appNames[r.Next(appNames.Length)],
                     Host = urls[r.Next(urls.Length)],
